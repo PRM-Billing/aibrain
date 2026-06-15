@@ -1,0 +1,2276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Operating Platform — Interactive Deck</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #070d18; --surface: #0f172a; --s2: #1e293b; --s3: #334155;
+      --text: #f8fafc; --muted: #94a3b8; --line: rgba(148,163,184,.12);
+      --accent: #6366f1; --accent2: #a5b4fc;
+      --glass: rgba(15,23,42,.72);
+      --c-ceo:#a78bfa; --c-finance:#34d399; --c-ops:#fb923c; --c-hr:#fb7185;
+      --c-pipeline:#60a5fa; --c-kb:#2dd4bf; --c-repo:#38bdf8;
+      --c-chat:#c084fc; --c-backlog:#94a3b8;
+    }
+    html, body { height: 100%; font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); overflow: hidden; }
+    body::before {
+      content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 15% -10%, rgba(99,102,241,.18), transparent 55%),
+        radial-gradient(ellipse 60% 40% at 90% 100%, rgba(56,189,248,.1), transparent 50%),
+        linear-gradient(rgba(148,163,184,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148,163,184,.03) 1px, transparent 1px);
+      background-size: auto, auto, 48px 48px, 48px 48px;
+    }
+    .deck { display: flex; flex-direction: column; height: 100dvh; position: relative; z-index: 1; }
+    .icon { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .icon svg { width: 100%; height: 100%; stroke-width: 2; }
+
+    /* Progress rail */
+    .progress-rail { display: flex; align-items: center; gap: 6px; padding: 10px 28px; background: var(--glass); backdrop-filter: blur(16px); border-bottom: 1px solid var(--line); overflow-x: auto; flex-shrink: 0; }
+    .progress-rail::-webkit-scrollbar { display: none; }
+    .p-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--s3); cursor: pointer; flex-shrink: 0; transition: all .3s cubic-bezier(.4,0,.2,1); }
+    .p-dot.active { background: linear-gradient(135deg,var(--accent),#818cf8); width: 32px; border-radius: 6px; box-shadow: 0 0 12px rgba(99,102,241,.45); }
+    .p-sep { width: 8px; height: 1px; background: var(--s3); flex-shrink: 0; opacity: .5; }
+
+    /* Stage */
+    .stage { flex: 1; position: relative; overflow: hidden; min-height: 0; }
+    .slide { position: absolute; inset: 0; padding: 10px 24px 8px; opacity: 0; transform: translateX(36px); pointer-events: none; transition: opacity .35s ease, transform .35s ease; overflow: hidden; display: flex; flex-direction: column; gap: 0; }
+    .slide::-webkit-scrollbar { width: 4px; }
+    .slide::-webkit-scrollbar-thumb { background: var(--s3); border-radius: 2px; }
+    .slide.active { opacity: 1; transform: translateX(0); pointer-events: auto; }
+
+    /* Controls */
+    .controls { display: flex; align-items: center; gap: 8px; padding: 10px 28px; background: var(--glass); backdrop-filter: blur(16px); border-top: 1px solid var(--line); flex-shrink: 0; }
+    .counter { font-size: 13px; color: var(--muted); flex: 1; text-align: center; font-variant-numeric: tabular-nums; }
+    .btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 16px; border-radius: 12px; border: 1px solid var(--s3); background: var(--s2); color: var(--text); font-size: 13px; font-weight: 600; cursor: pointer; transition: all .2s; white-space: nowrap; }
+    .btn:hover { background: var(--s3); border-color: #475569; transform: translateY(-1px); }
+    .btn.primary { background: linear-gradient(135deg,#6366f1,#4f46e5); border-color: transparent; color: white; box-shadow: 0 4px 14px rgba(99,102,241,.35); }
+    .btn.primary:hover { background: linear-gradient(135deg,#4f46e5,#4338ca); }
+    .btn.playing { background: #065f46; border-color: #059669; color: #d1fae5; }
+
+    /* Typography */
+    .slide-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; flex-shrink: 0; }
+    .slide-header-left { flex: 1; min-width: 0; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--accent2); margin-bottom: 2px; padding: 3px 8px; border-radius: 999px; background: rgba(99,102,241,.12); border: 1px solid rgba(99,102,241,.2); }
+    .slide-h1 { font-size: clamp(18px, 2.4vw, 28px); font-weight: 800; line-height: 1.15; margin-bottom: 0; letter-spacing: -.025em; }
+    .slide-sub { font-size: 12px; color: var(--muted); margin-bottom: 8px; line-height: 1.45; max-width: 900px; flex-shrink: 0; }
+    .slide-body { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+    .narrative-card {
+      display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: start;
+      padding: 10px 12px; margin-bottom: 8px; border-radius: 14px;
+      background: linear-gradient(135deg, rgba(99,102,241,.12), rgba(15,23,42,.62));
+      border: 1px solid rgba(129,140,248,.24); flex-shrink: 0;
+    }
+    .narrative-ico {
+      width: 30px; height: 30px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+      background: rgba(129,140,248,.16); color: var(--accent2);
+    }
+    .narrative-ico .icon { width: 15px; height: 15px; }
+    .narrative-title { font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--accent2); margin-bottom: 5px; }
+    .narrative-points { display: flex; flex-wrap: wrap; gap: 6px; }
+    .narrative-point {
+      display: inline-flex; align-items: center; gap: 5px; padding: 5px 8px; border-radius: 999px;
+      background: rgba(30,41,59,.68); border: 1px solid var(--line); color: var(--text);
+      font-size: 10px; line-height: 1.25; font-weight: 600;
+    }
+    .narrative-point .icon { width: 11px; height: 11px; color: #34d399; flex-shrink: 0; }
+
+    /* Grid */
+    .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .g3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .fill { flex: 1; min-height: 0; }
+
+    /* Cards */
+    .card { background: var(--glass); backdrop-filter: blur(12px); border: 1px solid var(--line); border-radius: 16px; padding: 16px; transition: border-color .2s, transform .2s; }
+    .card:hover { border-color: rgba(148,163,184,.22); }
+    .card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .card-icon { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .card-icon .icon { width: 18px; height: 18px; }
+    .card h3 { font-size: 14px; font-weight: 700; margin-bottom: 0; }
+    .card p { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+    /* Stats */
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; width: 100%; max-width: 720px; }
+    .stat-chip { background: var(--glass); backdrop-filter: blur(12px); border: 1px solid var(--line); border-radius: 16px; padding: 16px 14px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .stat-chip .stat-ico { width: 36px; height: 36px; border-radius: 10px; background: rgba(99,102,241,.15); display: flex; align-items: center; justify-content: center; color: var(--accent2); }
+    .stat-chip .stat-ico .icon { width: 18px; height: 18px; }
+    .stat-chip .n { font-size: 32px; font-weight: 800; background: linear-gradient(135deg,var(--accent),#c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: block; line-height: 1; }
+    .stat-chip .l { font-size: 11px; color: var(--muted); font-weight: 500; }
+
+    /* Brain chips */
+    .brain-chips-row { display: flex; gap: 4px; margin-bottom: 8px; flex-shrink: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+    .brain-chips-row::-webkit-scrollbar { display: none; }
+    .brain-chip { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 5px 3px; border-radius: 10px; border: 1px solid var(--line); font-size: 8px; font-weight: 600; cursor: pointer; transition: all .2s; background: var(--s2); color: var(--muted); text-align: center; line-height: 1.15; min-height: 46px; }
+    .brain-chip:hover { border-color: rgba(148,163,184,.3); color: var(--text); transform: translateY(-1px); }
+    .brain-chip .chip-ico { width: 26px; height: 26px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: rgba(255,255,255,.06); }
+    .brain-chip .chip-ico .icon { width: 13px; height: 13px; }
+    .brain-chip .chip-label { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 2px; }
+    .brain-chip.active { color: #0f172a; box-shadow: 0 4px 14px rgba(0,0,0,.28); }
+    .brain-chip.active .chip-ico { background: rgba(0,0,0,.14); }
+
+    /* Tool chips */
+    .tool-chips-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 6px; }
+    .t-chip { display: inline-flex; align-items: center; gap: 5px; background: var(--s2); color: var(--muted); border: 1px solid var(--line); border-radius: 10px; padding: 6px 10px; font-size: 10px; font-weight: 600; }
+    .t-chip .icon { width: 12px; height: 12px; opacity: .7; }
+
+    /* Diagrams */
+    .diagram { background: var(--glass); backdrop-filter: blur(8px); border: 1px solid var(--line); border-radius: 16px; padding: 12px; overflow: hidden; height: 100%; display: flex; flex-direction: column; min-height: 0; }
+    .diagram .mermaid-host,
+    .diagram .mermaid-wrap { display: flex; justify-content: center; align-items: center; width: 100%; flex: 1; min-height: 60px; overflow: hidden; }
+    .diagram .mermaid-host .mermaid,
+    .diagram .mermaid-wrap .mermaid { display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; flex: 1; min-height: 60px; }
+    .diagram .mermaid-host svg,
+    .diagram .mermaid-wrap svg { max-width: 100%; width: 100%; height: 100%; display: block; margin: 0 auto; }
+    .diagram-head { display: flex; align-items: center; gap: 8px; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; flex-shrink: 0; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+    .diagram-head .icon { width: 13px; height: 13px; }
+    .diagram.spotlight-diagram { padding: 12px 14px; min-height: 0; }
+
+    /* Spotlight layout */
+    .spotlight-shell { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+    .spotlight-top { margin-bottom: 6px; flex-shrink: 0; }
+    .spotlight-top .slide-h1 { font-size: clamp(17px, 2vw, 24px); }
+    .spotlight-body { display: grid; grid-template-columns: 184px minmax(280px, 32%) 1fr; gap: 10px; flex: 1; min-height: 0; align-items: stretch; }
+    .spotlight-brain-tabs .v-tab-sub { max-width: 120px; }
+    .spotlight-aside { display: flex; flex-direction: column; gap: 6px; min-height: 0; height: 100%; }
+    .spotlight-aside .example-hero { flex-shrink: 0; }
+    .spotlight-aside .outcome-card { flex-shrink: 0; }
+    .spotlight-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; flex-shrink: 0; }
+    .spotlight-info-card {
+      background: var(--glass); border: 1px solid var(--line); border-radius: 12px; padding: 10px 11px;
+      display: flex; align-items: flex-start; gap: 8px; min-height: 74px;
+    }
+    .spotlight-info-card .icon { width: 13px; height: 13px; color: var(--brain-color, var(--accent2)); flex-shrink: 0; margin-top: 2px; }
+    .spotlight-info-card strong { display: block; font-size: 10px; color: var(--text); margin-bottom: 4px; letter-spacing: .06em; text-transform: uppercase; }
+    .spotlight-info-card span:last-child { display: block; font-size: 10px; line-height: 1.35; color: var(--muted); }
+    .spotlight-narrative {
+      background: var(--glass); border: 1px solid var(--line); border-radius: 12px; padding: 11px 12px;
+      font-size: 11px; line-height: 1.45; color: var(--muted); flex-shrink: 0;
+    }
+    .spotlight-narrative strong { display: block; color: var(--brain-color, var(--accent2)); font-size: 11px; margin-bottom: 4px; }
+
+    /* Horizontal viz track — agent mini-pipeline */
+    .viz-h-track { flex: 1; display: flex; align-items: center; gap: 0; min-height: 0; padding: 8px 0; }
+    .viz-h-step { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; min-width: 0; padding: 0 4px; }
+    .viz-h-ico { width: 40px; height: 40px; border-radius: 11px; background: var(--s2); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; color: var(--accent2); }
+    .viz-h-ico .icon { width: 18px; height: 18px; }
+    .viz-h-label { font-size: 11px; font-weight: 700; line-height: 1.2; }
+    .viz-h-desc { font-size: 9px; color: var(--muted); line-height: 1.3; max-width: 100px; }
+    .g2.fill > .diagram { flex: 1; min-height: 0; height: 100%; }
+    .viz-h-sep { flex: 0 0 20px; display: flex; align-items: center; justify-content: center; color: var(--s3); margin-bottom: 28px; }
+    .viz-h-sep .icon { width: 12px; height: 12px; }
+
+    /* Example block */
+    .example-hero { border-radius: 14px; padding: 12px; background: var(--glass); backdrop-filter: blur(12px); border: 1px solid var(--line); flex-shrink: 0; position: relative; overflow: hidden; }
+    .example-hero .q { font-size: 13px; font-weight: 700; line-height: 1.4; margin-bottom: 0; display: flex; gap: 8px; align-items: flex-start; }
+    .example-hero .q .icon { width: 16px; height: 16px; margin-top: 1px; opacity: .85; flex-shrink: 0; }
+    .outcome-card { display: flex; align-items: flex-start; gap: 8px; font-size: 12px; font-weight: 600; line-height: 1.45; padding: 10px 12px; border-radius: 12px; background: var(--glass); border: 1px solid var(--line); flex-shrink: 0; }
+    .outcome-card .icon { width: 15px; height: 15px; flex-shrink: 0; margin-top: 1px; }
+
+    /* Flow steps — used elsewhere */
+    .flow-steps { display: flex; flex-direction: column; gap: 0; flex: 1; min-height: 0; }
+    .flow-step { display: flex; align-items: stretch; gap: 10px; position: relative; }
+    .flow-step:not(:last-child) { padding-bottom: 6px; }
+    .flow-step-rail { display: flex; flex-direction: column; align-items: center; width: 28px; flex-shrink: 0; }
+    .flow-step-num { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; flex-shrink: 0; }
+    .flow-step-line { flex: 1; width: 2px; background: linear-gradient(180deg, var(--step-color, var(--s3)), transparent); margin: 4px 0; min-height: 8px; }
+    .flow-step-body { flex: 1; padding: 6px 10px; border-radius: 10px; background: var(--s2); border: 1px solid var(--line); font-size: 11px; font-weight: 500; line-height: 1.4; display: flex; align-items: center; gap: 8px; margin-bottom: 2px; }
+    .flow-step-body .icon { width: 14px; height: 14px; opacity: .65; flex-shrink: 0; }
+
+    .tools-panel { background: var(--glass); border: 1px solid var(--line); border-radius: 12px; padding: 10px; flex-shrink: 0; display: flex; flex-direction: column; }
+    .tools-panel-label { display: flex; align-items: center; gap: 6px; font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; flex-shrink: 0; }
+    .tools-panel-label .icon { width: 12px; height: 12px; }
+    .tool-tabs { display: flex; flex-direction: column; gap: 5px; min-height: 0; }
+    .tool-tab {
+      position: relative; min-height: 38px; width: 100%;
+      display: flex; align-items: center; gap: 9px; padding: 8px 10px 8px 12px;
+      border: 1px solid var(--line); border-radius: 12px; background: var(--s2);
+      color: var(--muted); font: inherit; font-size: 11px; font-weight: 700;
+      cursor: pointer; text-align: left; transition: all .2s;
+    }
+    .tool-tab:hover { color: var(--text); border-color: rgba(148,163,184,.3); transform: translateX(2px); }
+    .tool-tab.active {
+      color: var(--tool-color, var(--accent2));
+      border-color: color-mix(in srgb, var(--tool-color, var(--accent2)) 45%, transparent);
+      background: color-mix(in srgb, var(--tool-color, var(--accent2)) 14%, transparent);
+      box-shadow: 0 4px 16px rgba(15,23,42,.2);
+    }
+    .tool-tab.active::before {
+      content: ''; position: absolute; left: 0; top: 9px; bottom: 9px; width: 3px;
+      border-radius: 0 3px 3px 0; background: var(--tool-color, var(--accent2));
+    }
+    .tool-tab-num { width: 20px; height: 20px; border-radius: 7px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; background: rgba(255,255,255,.05); border: 1px solid var(--line); font-size: 9px; font-weight: 800; }
+    .tool-tab.active .tool-tab-num { background: var(--tool-color, var(--accent2)); color: #0f172a; border-color: transparent; }
+    .tool-tab .icon { width: 13px; height: 13px; opacity: .75; flex-shrink: 0; }
+
+    /* Win cards — department examples */
+    .wins-shell { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+    .wins-body { display: grid; grid-template-columns: 172px 1fr; gap: 10px; flex: 1; min-height: 0; }
+    .dept-tab .v-tab-sub { max-width: 120px; }
+    .wins-main { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
+
+    .copilot-shell, .learn-shell, .dev-shell, .map-shell { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+    .dept-hero {
+      display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+      background: var(--glass); backdrop-filter: blur(12px);
+      border: 1px solid var(--line); border-radius: 14px; flex-shrink: 0;
+      border-left: 4px solid var(--dept-color, var(--accent));
+    }
+    .dept-hero-ico { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .dept-hero-ico .icon { width: 22px; height: 22px; }
+    .dept-hero-name { font-size: 15px; font-weight: 800; line-height: 1.2; }
+    .dept-hero-tag { font-size: 11px; color: var(--muted); margin-top: 2px; line-height: 1.35; }
+    .dept-hero-count { margin-left: auto; font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); flex-shrink: 0; white-space: nowrap; }
+    .win-examples-grid { display: grid; gap: 10px; flex: 1; min-height: 0; height: 100%; align-items: stretch; align-content: stretch; overflow-y: auto; }
+    .win-examples-grid::-webkit-scrollbar { width: 4px; }
+    .win-examples-grid::-webkit-scrollbar-thumb { background: var(--s3); border-radius: 2px; }
+    .win-example-card {
+      background: var(--glass); backdrop-filter: blur(12px);
+      border: 1px solid var(--line); border-radius: 16px; padding: 14px;
+      display: flex; flex-direction: column; gap: 10px; height: 100%; min-height: 0;
+      transition: transform .2s, box-shadow .2s, border-color .2s;
+      position: relative; overflow: hidden;
+    }
+    .win-example-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: var(--card-color, var(--accent));
+    }
+    .win-example-card:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,.22); border-color: rgba(148,163,184,.22); }
+    .wec-brain { display: inline-flex; align-items: center; gap: 6px; font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    .wec-brain .icon { width: 12px; height: 12px; }
+    .wec-brain-ico { width: 24px; height: 24px; border-radius: 7px; display: inline-flex; align-items: center; justify-content: center; }
+    .wec-brain-ico .icon { width: 12px; height: 12px; }
+    .wec-q { font-size: 13px; font-weight: 700; line-height: 1.4; display: flex; gap: 8px; align-items: flex-start; }
+    .wec-q .icon { width: 15px; height: 15px; flex-shrink: 0; margin-top: 2px; opacity: .8; }
+    .win-card-summary { display: grid; grid-template-columns: 1.1fr .9fr; gap: 8px; flex-shrink: 0; }
+    .win-mini-panel {
+      background: var(--s2); border: 1px solid var(--line); border-radius: 12px; padding: 10px 11px;
+      display: flex; align-items: flex-start; gap: 8px; min-height: 62px;
+    }
+    .win-mini-panel .icon { width: 13px; height: 13px; flex-shrink: 0; margin-top: 2px; color: var(--card-color, var(--accent)); }
+    .win-mini-panel strong { display: block; font-size: 10px; color: var(--text); margin-bottom: 3px; letter-spacing: .04em; text-transform: uppercase; }
+    .win-mini-panel span:last-child { display: block; font-size: 10px; line-height: 1.35; color: var(--muted); }
+    .win-flow-diagram {
+      flex: 1; min-height: 170px; display: grid; grid-template-columns: repeat(var(--flow-count, 4), minmax(0, 1fr));
+      align-items: center; gap: 8px; padding: 14px 10px; border-radius: 14px;
+      background: linear-gradient(135deg, rgba(15,23,42,.72), rgba(30,41,59,.34));
+      border: 1px solid var(--line); position: relative; overflow: hidden;
+    }
+    .win-flow-diagram::before {
+      content: ''; position: absolute; left: 10px; right: 10px; top: 50%; height: 2px;
+      background: linear-gradient(90deg, var(--card-color, var(--accent)), transparent);
+      opacity: .35;
+    }
+    .win-flow-node {
+      position: relative; z-index: 1; min-width: 0; min-height: 118px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 8px; padding: 10px 8px; border-radius: 12px; text-align: center;
+      background: rgba(15,23,42,.78); border: 1px solid rgba(148,163,184,.14);
+    }
+    .win-flow-node:first-child { border-color: color-mix(in srgb, var(--card-color, var(--accent)) 48%, transparent); background: color-mix(in srgb, var(--card-color, var(--accent)) 14%, rgba(15,23,42,.82)); }
+    .win-flow-index { width: 28px; height: 28px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; background: var(--card-color, var(--accent)); color: #0f172a; box-shadow: 0 6px 18px rgba(0,0,0,.25); }
+    .win-flow-label { font-size: 11px; font-weight: 700; line-height: 1.25; color: var(--text); }
+    .win-flow-desc { font-size: 9px; line-height: 1.3; color: var(--muted); max-width: 120px; }
+    .win-flow-arrow {
+      position: absolute; z-index: 2; right: -13px; top: 50%; transform: translateY(-50%);
+      width: 24px; height: 24px; border-radius: 999px; display: flex; align-items: center; justify-content: center;
+      background: var(--surface); border: 1px solid var(--line); color: var(--card-color, var(--accent));
+    }
+    .win-flow-arrow .icon { width: 12px; height: 12px; }
+    .win-flow-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; flex-shrink: 0; align-content: start; }
+    .wec-outcome { display: flex; align-items: flex-start; gap: 8px; font-size: 11px; font-weight: 600; line-height: 1.4; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); margin-top: auto; }
+    .wec-outcome .icon { width: 14px; height: 14px; flex-shrink: 0; margin-top: 1px; }
+
+    .copilot-shell, .learn-shell, .dev-shell, .map-shell { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+    .copilot-body, .learn-body { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; flex: 1; min-height: 0; }
+    .copilot-surface-tabs { display: flex; gap: 7px; margin-bottom: 8px; flex-shrink: 0; overflow-x: auto; scrollbar-width: none; }
+    .copilot-surface-tabs::-webkit-scrollbar { display: none; }
+    .copilot-surface-tab {
+      display: inline-flex; align-items: center; gap: 7px; padding: 8px 12px;
+      border: 1px solid var(--line); border-radius: 999px; background: var(--s2);
+      color: var(--muted); font-size: 11px; font-weight: 700; cursor: pointer;
+      white-space: nowrap; transition: all .2s;
+    }
+    .copilot-surface-tab:hover { color: var(--text); border-color: rgba(148,163,184,.3); transform: translateY(-1px); }
+    .copilot-surface-tab.active {
+      color: #0f172a; background: linear-gradient(135deg,#a78bfa,#6366f1);
+      border-color: transparent; box-shadow: 0 4px 14px rgba(99,102,241,.28);
+    }
+    .copilot-surface-tab .icon { width: 13px; height: 13px; }
+    .copilot-left { display: flex; flex-direction: column; gap: 8px; min-height: 0; height: 100%; }
+    .editor-mock { flex: 1; min-height: 80px; max-height: none; overflow-y: auto; }
+    .chat-wrap { flex: 1; min-height: 80px; max-height: none; }
+    .copilot-context-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex-shrink: 0; }
+    .copilot-info-card {
+      background: var(--glass); border: 1px solid var(--line); border-radius: 14px; padding: 11px 12px;
+      display: flex; align-items: flex-start; gap: 9px; min-height: 68px;
+    }
+    .copilot-info-card .icon { width: 15px; height: 15px; color: var(--accent2); flex-shrink: 0; margin-top: 2px; }
+    .copilot-info-card h4 { font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+    .copilot-info-card p { font-size: 11px; line-height: 1.4; color: var(--text); }
+    .copilot-left .editor-mock { flex: .9; min-height: 110px; max-height: none; }
+    .copilot-left .chat-wrap { flex: 1.1; min-height: 150px; max-height: none; justify-content: center; }
+    .copilot-left .bubble { max-width: 96%; }
+    .copilot-feature-hero {
+      background: linear-gradient(135deg, rgba(99,102,241,.18), rgba(15,23,42,.65));
+      border: 1px solid rgba(99,102,241,.35); border-radius: 16px; padding: 16px;
+      display: flex; align-items: flex-start; gap: 14px; flex-shrink: 0;
+    }
+    .copilot-feature-ico { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; background: rgba(99,102,241,.2); color: var(--accent2); flex-shrink: 0; }
+    .copilot-feature-ico .icon { width: 23px; height: 23px; }
+    .copilot-feature-hero h3 { font-size: 15px; font-weight: 800; margin-bottom: 5px; color: var(--text); }
+    .copilot-feature-hero p { font-size: 12px; line-height: 1.45; color: var(--muted); }
+    .copilot-feature-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; flex: 1; min-height: 0; }
+    .copilot-feature-card {
+      background: var(--glass); border: 1px solid var(--line); border-radius: 14px; padding: 13px 14px;
+      display: flex; flex-direction: column; gap: 8px; min-height: 0;
+    }
+    .copilot-feature-top { display: flex; align-items: center; gap: 9px; }
+    .copilot-feature-top .icon { width: 16px; height: 16px; color: var(--accent2); flex-shrink: 0; }
+    .copilot-feature-top strong { font-size: 12px; color: var(--text); }
+    .copilot-feature-card p { font-size: 11px; line-height: 1.45; color: var(--muted); }
+    .copilot-feature-card.highlight { border-color: rgba(52,211,153,.3); background: rgba(52,211,153,.06); }
+    .copilot-feature-card.highlight .icon { color: #34d399; }
+    .copilot-review-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; flex-shrink: 0; }
+    .copilot-review-card {
+      background: var(--s2); border: 1px solid var(--line); border-radius: 12px; padding: 10px 11px;
+      display: flex; align-items: flex-start; gap: 8px; min-height: 70px;
+    }
+    .copilot-review-card .icon { width: 14px; height: 14px; color: #34d399; flex-shrink: 0; margin-top: 2px; }
+    .copilot-review-card strong { display: block; font-size: 11px; color: var(--text); margin-bottom: 3px; }
+    .copilot-review-card span:last-child { display: block; font-size: 10px; line-height: 1.35; color: var(--muted); }
+    .copilot-tool-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; flex-shrink: 0; }
+    .copilot-tool-tab {
+      background: var(--glass); border: 1px solid var(--line); border-radius: 12px; padding: 9px 10px;
+      display: flex; align-items: flex-start; gap: 8px; min-height: 64px;
+    }
+    .copilot-tool-tab .icon { width: 13px; height: 13px; color: var(--accent2); flex-shrink: 0; margin-top: 2px; }
+    .copilot-tool-tab strong { display: block; font-size: 11px; color: var(--text); margin-bottom: 3px; }
+    .copilot-tool-tab span:last-child { display: block; font-size: 10px; line-height: 1.35; color: var(--muted); }
+    .sc-pills { flex-shrink: 0; margin-bottom: 8px; }
+    .learn-body { grid-template-columns: 188px minmax(340px, 40%) 1fr; }
+    .learn-scenario-tabs .v-tab-sub { max-width: 126px; }
+    .learn-card-wrap { display: flex; flex-direction: column; gap: 8px; height: 100%; min-height: 0; }
+    .learn-card { flex: 1; }
+    .dev-shell .dev-grid { flex: 1; min-height: 0; grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)); align-content: start; }
+    .win-flow-chip { font-size: 9px; font-weight: 600; padding: 4px 8px; border-radius: 8px; background: var(--s2); border: 1px solid var(--line); color: var(--muted); }
+    .win-flow-sep { color: var(--s3); display: flex; align-items: center; }
+    .win-flow-sep .icon { width: 10px; height: 10px; }
+
+    /* Closing slide */
+    .closing-shell { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+    .closing-body { display: grid; grid-template-columns: minmax(300px, 34%) 1fr; gap: 10px; flex: 1; min-height: 0; }
+    .value-pillars { display: flex; flex-direction: column; gap: 8px; min-height: 0; }
+    .value-pillar {
+      flex: 1; display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px;
+      background: var(--glass); backdrop-filter: blur(12px);
+      border: 1px solid var(--line); border-radius: 14px;
+      transition: transform .2s, border-color .2s; position: relative; overflow: hidden; min-height: 0;
+    }
+    .value-pillar::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--pillar-color, var(--accent)); }
+    .value-pillar:hover { transform: translateX(3px); border-color: rgba(148,163,184,.22); }
+    .value-pillar-ico { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .value-pillar-ico .icon { width: 18px; height: 18px; }
+    .value-pillar h3 { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+    .value-pillar p { font-size: 11px; color: var(--muted); line-height: 1.4; }
+    .value-proof { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-top: 8px; }
+    .value-proof span { display: block; padding: 6px 8px; border-radius: 9px; background: var(--s2); border: 1px solid var(--line); font-size: 9px; color: var(--muted); line-height: 1.25; }
+    .value-proof strong { display: block; color: var(--pillar-color, var(--accent)); font-size: 11px; margin-bottom: 2px; }
+    .closing-right { display: flex; flex-direction: column; gap: 8px; min-height: 0; }
+    .cap-map-card, .memory-timeline-card, .flywheel-card {
+      background: var(--glass); backdrop-filter: blur(12px);
+      border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px;
+      display: flex; flex-direction: column; min-height: 0;
+    }
+    .cap-map-card { flex-shrink: 0; }
+    .flywheel-card { flex: 1; }
+    .memory-timeline-card { flex-shrink: 0; }
+    .closing-card-head { display: flex; align-items: center; gap: 6px; font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; flex-shrink: 0; }
+    .closing-card-head .icon { width: 12px; height: 12px; }
+    .cap-map { position: relative; flex: 1; min-height: 140px; border-radius: 12px; background: var(--s2); border: 1px solid var(--line); overflow: hidden; }
+    .cap-map-grid { position: absolute; inset: 0; background:
+      linear-gradient(rgba(148,163,184,.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(148,163,184,.06) 1px, transparent 1px);
+      background-size: 20% 20%; }
+    .cap-map-axis { position: absolute; font-size: 8px; font-weight: 600; color: var(--muted); letter-spacing: .04em; text-transform: uppercase; }
+    .cap-axis-x { bottom: 6px; left: 50%; transform: translateX(-50%); white-space: nowrap; }
+    .cap-axis-y { top: 50%; left: 6px; transform: rotate(-90deg) translateX(-50%); transform-origin: left center; white-space: nowrap; }
+    .cap-dot {
+      position: absolute; transform: translate(-50%, -50%);
+      font-size: 8px; font-weight: 700; padding: 4px 8px; border-radius: 999px;
+      border: 1px solid; white-space: nowrap; z-index: 1;
+      box-shadow: 0 2px 8px rgba(0,0,0,.25);
+    }
+    .memory-track { display: flex; align-items: flex-start; gap: 0; overflow-x: auto; padding: 4px 0; }
+    .memory-track::-webkit-scrollbar { height: 3px; }
+    .memory-track::-webkit-scrollbar-thumb { background: var(--s3); border-radius: 2px; }
+    .mem-step { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; min-width: 88px; position: relative; }
+    .mem-step-ico { width: 36px; height: 36px; border-radius: 10px; background: var(--s2); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; color: var(--accent2); z-index: 1; }
+    .mem-step-ico .icon { width: 16px; height: 16px; }
+    .mem-step-label { font-size: 10px; font-weight: 700; text-align: center; line-height: 1.2; }
+    .mem-step-desc { font-size: 8px; color: var(--muted); text-align: center; line-height: 1.3; max-width: 90px; }
+    .mem-connector { flex: 1; height: 2px; background: linear-gradient(90deg, var(--accent), var(--s3)); margin-top: 18px; min-width: 12px; align-self: flex-start; }
+    .value-outcome-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .value-outcome {
+      background: var(--s2); border: 1px solid var(--line); border-radius: 14px; padding: 12px;
+      display: flex; flex-direction: column; gap: 7px; min-height: 92px; position: relative; overflow: hidden;
+    }
+    .value-outcome::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 3px; background: var(--outcome-color, var(--accent)); }
+    .value-outcome .icon { width: 17px; height: 17px; color: var(--outcome-color, var(--accent)); }
+    .value-outcome strong { font-size: 17px; line-height: 1; color: var(--outcome-color, var(--accent)); }
+    .value-outcome span { font-size: 10px; line-height: 1.35; color: var(--muted); }
+    .flywheel {
+      flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+      align-items: stretch; padding: 10px; border-radius: 14px; background: rgba(15,23,42,.45); border: 1px solid var(--line);
+    }
+    .flywheel-step {
+      display: flex; flex-direction: column; justify-content: center; gap: 8px; padding: 12px;
+      border-radius: 14px; border: 1px solid var(--line); background: var(--s2); min-height: 0; position: relative;
+    }
+    .flywheel-step::before {
+      content: attr(data-step); position: absolute; top: 10px; right: 10px;
+      width: 24px; height: 24px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      background: color-mix(in srgb, var(--fly-color, var(--accent)) 24%, transparent);
+      border: 1px solid color-mix(in srgb, var(--fly-color, var(--accent)) 42%, transparent);
+      color: var(--fly-color, var(--accent)); font-size: 10px; font-weight: 800;
+    }
+    .flywheel-ico { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: var(--fly-color, var(--accent))22; color: var(--fly-color, var(--accent)); }
+    .flywheel-ico .icon { width: 18px; height: 18px; }
+    .flywheel-step h3 { font-size: 13px; color: var(--text); }
+    .flywheel-step p { font-size: 11px; line-height: 1.45; color: var(--muted); }
+
+    /* Legacy win-card (unused) */
+    .win-card { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid var(--line); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+    .win-card:hover { transform: translateY(-2px); border-color: rgba(148,163,184,.25); }
+    .win-card .brain-name { display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    .win-card .brain-name .icon { width: 13px; height: 13px; }
+    .win-card .question { font-size: 12px; font-weight: 700; line-height: 1.35; }
+    .win-card .flow-text { font-size: 10px; color: var(--muted); line-height: 1.45; }
+    .win-card .result { display: flex; align-items: flex-start; gap: 5px; font-size: 11px; font-weight: 600; padding-top: 4px; line-height: 1.35; }
+    .win-card .result .icon { width: 12px; height: 12px; flex-shrink: 0; margin-top: 1px; }
+
+    /* Chat mock */
+    .chat-wrap { background: var(--s2); border: 1px solid var(--line); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow-y: auto; }
+    .bubble { padding: 9px 13px; border-radius: 14px; font-size: 12px; line-height: 1.45; max-width: 92%; display: flex; align-items: flex-start; gap: 8px; }
+    .bubble .icon { width: 14px; height: 14px; flex-shrink: 0; margin-top: 1px; opacity: .85; }
+    .bubble.user { background: linear-gradient(135deg,#6366f1,#4f46e5); color: white; align-self: flex-end; border-radius: 14px 14px 4px 14px; }
+    .bubble.ai { background: var(--surface); color: var(--text); align-self: flex-start; border-radius: 14px 14px 14px 4px; border: 1px solid var(--line); }
+
+    /* Editor mock */
+    .editor-mock { background: #0a0f1a; border: 1px solid var(--line); border-radius: 14px; padding: 12px; font-family: 'Menlo','Monaco',ui-monospace,monospace; font-size: 11px; color: #94a3b8; white-space: pre-wrap; overflow-x: auto; max-height: 130px; }
+    .editor-head { display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--muted); margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+    .editor-head .icon { width: 12px; height: 12px; }
+    .editor-mock .hl { color: #f9fafb; font-weight: 700; }
+
+    /* Learning card */
+    .learn-card {
+      background: linear-gradient(135deg,#1a1105,#1c1408); border: 1px solid #78350f;
+      border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px; min-height: 0;
+    }
+    .learn-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 999px; margin-right: 7px; margin-bottom: 8px; }
+    .learn-badge .icon { width: 11px; height: 11px; }
+    .learn-badge.high { background: #14532d; color: #4ade80; }
+    .learn-badge.medium { background: #78350f; color: #fde68a; }
+    .learn-card h4 { font-size: 13px; font-weight: 700; margin-bottom: 5px; }
+    .learn-card p { font-size: 12px; color: #fcd34d; line-height: 1.45; }
+    .learn-summary { flex-shrink: 0; }
+    .learn-detail-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; flex-shrink: 0; }
+    .learn-detail-card {
+      background: rgba(15,23,42,.55); border: 1px solid rgba(251,191,36,.22);
+      border-radius: 12px; padding: 11px 12px; display: flex; align-items: flex-start; gap: 9px; min-height: 74px;
+    }
+    .learn-detail-card .icon { width: 14px; height: 14px; color: #fbbf24; flex-shrink: 0; margin-top: 2px; }
+    .learn-detail-card h5 { font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #fcd34d; margin-bottom: 4px; }
+    .learn-detail-card span { display: block; font-size: 11px; color: #fef3c7; line-height: 1.4; }
+    .learn-rule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex: 1; min-height: 0; }
+    .learn-rule-card {
+      background: rgba(15,23,42,.55); border: 1px solid rgba(251,191,36,.22);
+      border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px; min-height: 0;
+    }
+    .learn-rule-card h5 { display: flex; align-items: center; gap: 7px; font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #fcd34d; }
+    .learn-rule-card h5 .icon { width: 13px; height: 13px; }
+    .learn-rule-copy {
+      flex: 1; min-height: 0; display: flex; align-items: center;
+      font-size: 12px; line-height: 1.5; color: #fde68a;
+      background: rgba(0,0,0,.22); border: 1px solid rgba(251,191,36,.16);
+      border-radius: 10px; padding: 12px;
+    }
+    .learn-control-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; flex-shrink: 0; }
+    .learn-control-card {
+      background: rgba(15,23,42,.55); border: 1px solid rgba(251,191,36,.2);
+      border-radius: 12px; padding: 10px; display: flex; align-items: flex-start; gap: 8px;
+    }
+    .learn-control-card .icon { width: 13px; height: 13px; color: #4ade80; flex-shrink: 0; margin-top: 2px; }
+    .learn-control-card strong { display: block; font-size: 10px; color: #fef3c7; margin-bottom: 3px; }
+    .learn-control-card span:last-child { display: block; font-size: 9px; line-height: 1.35; color: #fcd34d; }
+    .learn-actions { display: flex; gap: 7px; margin-top: 0; flex-shrink: 0; }
+    .learn-btn { font-size: 11px; padding: 5px 11px; border-radius: 8px; cursor: pointer; font-weight: 700; border: 1px solid; }
+    .learn-btn.accept { background: #92400e; border-color: #92400e; color: white; }
+    .learn-btn.edit { background: transparent; border-color: #78350f; color: #fcd34d; }
+    .learn-btn.dismiss { background: transparent; border-color: #374151; color: #6b7280; }
+
+    /* Agent slide — vertical tabs */
+    .agent-slide { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+    .agent-shell { display: grid; grid-template-columns: 176px 1fr; gap: 10px; flex: 1; min-height: 0; }
+    .usecase-tabs { display: flex; gap: 7px; margin-bottom: 8px; flex-shrink: 0; overflow-x: auto; scrollbar-width: none; }
+    .usecase-tabs::-webkit-scrollbar { display: none; }
+    .usecase-tab {
+      display: inline-flex; align-items: center; gap: 7px; padding: 8px 12px;
+      border: 1px solid var(--line); border-radius: 999px; background: var(--s2);
+      color: var(--muted); font-size: 11px; font-weight: 700; cursor: pointer;
+      white-space: nowrap; transition: all .2s;
+    }
+    .usecase-tab:hover { color: var(--text); border-color: rgba(148,163,184,.3); transform: translateY(-1px); }
+    .usecase-tab.active {
+      color: #0f172a; background: linear-gradient(135deg,#93c5fd,#6366f1);
+      border-color: transparent; box-shadow: 0 4px 14px rgba(99,102,241,.28);
+    }
+    .usecase-tab .icon { width: 13px; height: 13px; }
+    .v-tabs { display: flex; flex-direction: column; gap: 0; min-height: 0; overflow-y: auto; padding: 4px 0; }
+    .v-tabs::-webkit-scrollbar { width: 3px; }
+    .v-tabs::-webkit-scrollbar-thumb { background: var(--s3); border-radius: 2px; }
+    .v-tab {
+      display: flex; align-items: center; gap: 8px; width: 100%;
+      padding: 9px 10px; border: 1px solid transparent; border-radius: 12px;
+      background: transparent; color: var(--muted); cursor: pointer;
+      text-align: left; transition: all .2s; position: relative;
+    }
+    .v-tab:hover { background: var(--s2); color: var(--text); border-color: var(--line); }
+    .v-tab.active {
+      background: linear-gradient(135deg, rgba(99,102,241,.22), rgba(99,102,241,.08));
+      border-color: rgba(99,102,241,.45); color: var(--text);
+      box-shadow: 0 4px 16px rgba(99,102,241,.18);
+    }
+    .v-tab.active::before {
+      content: ''; position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px;
+      border-radius: 0 3px 3px 0; background: var(--tab-color, var(--accent));
+    }
+    .v-tab-num { font-size: 9px; font-weight: 800; width: 18px; height: 18px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: var(--s2); border: 1px solid var(--line); }
+    .v-tab.active .v-tab-num { background: var(--tab-color, var(--accent)); color: #0f172a; border-color: transparent; }
+    .v-tab-ico { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: rgba(255,255,255,.05); }
+    .v-tab.active .v-tab-ico { background: color-mix(in srgb, var(--tab-color, var(--accent)) 22%, transparent); color: var(--tab-color, var(--accent)); }
+    .v-tab-ico .icon { width: 14px; height: 14px; }
+    .v-tab-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+    .v-tab-agent { font-size: 11px; font-weight: 700; line-height: 1.2; }
+    .v-tab-sub { font-size: 9px; opacity: .75; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px; }
+    .v-tab-connector { width: 2px; height: 10px; background: linear-gradient(180deg, var(--line), transparent); margin: 0 0 0 22px; flex-shrink: 0; }
+
+    .agent-content { display: flex; flex-direction: column; gap: 8px; min-height: 0; flex: 1; }
+    .agent-step-card {
+      background: var(--glass); backdrop-filter: blur(12px);
+      border: 1px solid var(--line); border-radius: 16px; padding: 16px;
+      display: flex; flex-direction: column; gap: 14px; flex: 1; min-height: 0;
+      position: relative; overflow: hidden;
+    }
+    .agent-step-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: var(--step-color, var(--accent));
+    }
+    .asc-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .asc-agent { display: flex; align-items: center; gap: 10px; }
+    .asc-agent-ico { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+    .asc-agent-ico .icon { width: 22px; height: 22px; }
+    .asc-agent-name { font-size: 16px; font-weight: 800; line-height: 1.15; }
+    .asc-step-badge { font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 4px 9px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+    .asc-title { font-size: 14px; font-weight: 600; color: var(--accent2); line-height: 1.4; }
+    .asc-output {
+      display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px;
+      background: var(--s2); border: 1px solid var(--line); border-radius: 12px; font-size: 12px; line-height: 1.45;
+    }
+    .asc-output .icon { width: 16px; height: 16px; color: #34d399; flex-shrink: 0; margin-top: 1px; }
+    .asc-explain-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .asc-explain-card {
+      background: var(--s2); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px;
+      min-height: 92px; display: flex; flex-direction: column; gap: 7px;
+    }
+    .asc-explain-title { display: flex; align-items: center; gap: 7px; font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+    .asc-explain-title .icon { width: 13px; height: 13px; }
+    .asc-explain-copy { font-size: 12px; line-height: 1.45; color: var(--text); }
+    .asc-tools-label { display: flex; align-items: center; gap: 6px; font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+    .asc-tools-label .icon { width: 12px; height: 12px; }
+    .asc-tools-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; align-content: start; }
+    .tool-mini-card {
+      display: flex; align-items: flex-start; gap: 9px; padding: 11px 12px;
+      background: var(--s2); border: 1px solid var(--line); border-radius: 10px;
+      font-size: 12px; font-weight: 600; color: var(--muted); transition: border-color .2s; min-height: 58px; height: auto;
+    }
+    .tool-mini-card:hover { border-color: rgba(148,163,184,.3); color: var(--text); }
+    .tool-mini-card .icon { width: 13px; height: 13px; opacity: .8; flex-shrink: 0; margin-top: 2px; }
+    .tool-mini-card strong { display: block; color: var(--text); font-size: 11px; margin-bottom: 3px; }
+    .tool-mini-card span:last-child { display: block; font-size: 10px; line-height: 1.35; color: var(--muted); font-weight: 500; }
+
+    .asc-mini-pipeline { flex: 1; display: flex; flex-direction: column; gap: 10px; min-height: 0; }
+    .asc-mini-pipeline .viz-h-track { flex: 1; align-items: stretch; padding: 12px 0; }
+    .asc-mini-pipeline .viz-h-step { justify-content: center; padding: 10px 6px; border-radius: 12px; transition: background .2s; }
+    .asc-mini-pipeline .viz-h-step.active { background: rgba(99,102,241,.12); border: 1px solid rgba(99,102,241,.35); }
+    .asc-mini-pipeline .viz-h-ico { width: 44px; height: 44px; border-radius: 12px; }
+    .asc-mini-pipeline .viz-h-label { font-size: 12px; }
+    .asc-mini-pipeline .viz-h-desc { font-size: 9px; max-width: 110px; }
+    .agent-pipeline-diagram { flex: 1; min-height: 180px; }
+    .agent-pipeline-diagram .diagram-head { margin-bottom: 6px; }
+
+    .agent-flow-card {
+      background: var(--glass); backdrop-filter: blur(12px);
+      border: 1px solid var(--line); border-radius: 16px; padding: 12px;
+      display: flex; flex-direction: column; min-height: 0; overflow: hidden;
+    }
+    .afc-head { display: flex; align-items: center; gap: 6px; font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--line); flex-shrink: 0; }
+    .afc-head .icon { width: 12px; height: 12px; }
+    .afc-pipeline { display: flex; flex-direction: column; gap: 0; flex: 1; overflow-y: auto; justify-content: center; }
+    .afc-node {
+      display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 10px;
+      border: 1px solid var(--line); background: var(--s2); font-size: 10px; font-weight: 600;
+      color: var(--muted); transition: all .2s; width: 100%; cursor: pointer; font-family: inherit;
+    }
+    .afc-node.active { background: linear-gradient(135deg,#6366f1,#4f46e5); border-color: transparent; color: white; box-shadow: 0 4px 14px rgba(99,102,241,.35); transform: scale(1.02); }
+    .afc-node.done { border-color: rgba(52,211,153,.35); color: #6ee7b7; }
+    .afc-node-ico { width: 22px; height: 22px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: rgba(255,255,255,.06); }
+    .afc-node.active .afc-node-ico { background: rgba(255,255,255,.2); }
+    .afc-node-ico .icon { width: 11px; height: 11px; }
+    .afc-arrow { display: flex; justify-content: center; padding: 2px 0; color: var(--s3); }
+    .afc-arrow .icon { width: 12px; height: 12px; }
+
+    .agent-logic-card {
+      background: var(--glass); backdrop-filter: blur(12px);
+      border: 1px solid var(--line); border-radius: 14px; padding: 10px 14px;
+      flex-shrink: 0; display: flex; align-items: center; gap: 8px; overflow-x: auto;
+    }
+    .agent-logic-card::-webkit-scrollbar { height: 3px; }
+    .agent-logic-card::-webkit-scrollbar-thumb { background: var(--s3); border-radius: 2px; }
+    .logic-label { display: flex; align-items: center; gap: 5px; font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); flex-shrink: 0; white-space: nowrap; }
+    .logic-label .icon { width: 11px; height: 11px; }
+    .logic-track { display: flex; align-items: center; gap: 5px; flex: 1; min-width: 0; }
+    .logic-pill { padding: 5px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--s2); font-size: 9px; font-weight: 600; color: var(--muted); white-space: nowrap; flex-shrink: 0; }
+    .logic-pill.highlight { border-color: rgba(99,102,241,.5); background: rgba(99,102,241,.15); color: var(--accent2); }
+    .logic-pill.diamond { border-radius: 8px; border-color: rgba(251,191,36,.4); background: rgba(251,191,36,.1); color: #fde68a; }
+    .logic-sep { color: var(--s3); flex-shrink: 0; }
+    .logic-sep .icon { width: 10px; height: 10px; }
+
+    /* Step stepper — legacy horizontal (unused on agent slide) */
+    .step-strip { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; flex-shrink: 0; }
+    .step-btn { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--s2); color: var(--muted); font-size: 11px; font-weight: 600; cursor: pointer; transition: all .2s; }
+    .step-btn .icon { width: 12px; height: 12px; }
+    .step-btn.active { background: linear-gradient(135deg,#6366f1,#4f46e5); border-color: transparent; color: white; box-shadow: 0 2px 10px rgba(99,102,241,.35); }
+
+    /* Scenario pills */
+    .sc-pills { display: flex; gap: 7px; margin-bottom: 10px; flex-wrap: wrap; flex-shrink: 0; }
+    .sc-pill { display: inline-flex; align-items: center; gap: 5px; padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--s2); color: var(--muted); font-size: 11px; font-weight: 600; cursor: pointer; transition: all .2s; }
+    .sc-pill .icon { width: 12px; height: 12px; }
+    .sc-pill.active { background: #78350f; border-color: #92400e; color: #fde68a; }
+
+    /* Jump overlay */
+    .jump-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.82); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; z-index: 200; opacity: 0; pointer-events: none; transition: opacity .2s; }
+    .jump-overlay.open { opacity: 1; pointer-events: auto; }
+    .jump-grid-modal { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 22px; display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; max-width: 680px; width: 92%; box-shadow: 0 24px 64px rgba(0,0,0,.5); }
+    .jump-tile { background: var(--s2); border-radius: 14px; padding: 14px 8px; cursor: pointer; text-align: center; transition: all .2s; border: 1px solid var(--line); }
+    .jump-tile:hover, .jump-tile.cur { background: linear-gradient(135deg,#6366f1,#4f46e5); border-color: transparent; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(99,102,241,.35); }
+    .jump-tile .jn { font-size: 20px; font-weight: 800; }
+    .jump-tile .jl { font-size: 10px; color: var(--muted); margin-top: 3px; line-height: 1.3; }
+    .jump-tile:hover .jl, .jump-tile.cur .jl { color: rgba(255,255,255,.85); }
+
+    /* Brain list compact */
+    .brain-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; overflow-y: auto; flex: 1; min-height: 0; align-content: start; }
+    .brain-list-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border-radius: 12px; background: var(--glass); border: 1px solid var(--line); min-height: 0; }
+    .brain-list-item .bl-ico { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .brain-list-item .bl-ico .icon { width: 15px; height: 15px; }
+    .brain-list-item h3 { font-size: 12px; font-weight: 700; margin-bottom: 1px; }
+    .brain-list-item p { font-size: 10px; color: var(--muted); line-height: 1.35; }
+    .brain-list-copy { flex: 1; min-width: 0; }
+    .brain-list-detail { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 7px; }
+    .brain-list-detail span {
+      display: block; padding: 6px 7px; border-radius: 8px; background: var(--s2); border: 1px solid var(--line);
+      font-size: 9px; line-height: 1.25; color: var(--muted);
+    }
+    .brain-list-detail strong { display: block; font-size: 8px; text-transform: uppercase; letter-spacing: .06em; color: var(--brain-color, var(--accent2)); margin-bottom: 2px; }
+
+    /* Title slide */
+    .title-slide { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; background: radial-gradient(ellipse at 30% 40%,rgba(99,102,241,.15) 0%,transparent 60%); border-radius: 20px; padding: 32px 24px; border: 1px solid var(--line); }
+    .title-logo { width: 64px; height: 64px; border-radius: 18px; background: linear-gradient(135deg,#6366f1,#818cf8); display: flex; align-items: center; justify-content: center; margin-bottom: 18px; box-shadow: 0 8px 32px rgba(99,102,241,.4); }
+    .title-logo .icon { width: 32px; height: 32px; color: white; }
+    .title-h1 { font-size: clamp(36px, 5vw, 52px); font-weight: 800; line-height: 1.05; letter-spacing: -.03em; background: linear-gradient(135deg,#c084fc,#6366f1,#38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 12px; max-width: 800px; }
+    .title-sub { font-size: 17px; color: var(--muted); max-width: 520px; line-height: 1.55; margin-bottom: 28px; }
+    .title-hint { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted); margin-top: 20px; padding: 8px 14px; border-radius: 999px; background: var(--s2); border: 1px solid var(--line); }
+    .title-hint .icon { width: 14px; height: 14px; }
+
+    /* Agent detail card */
+    .agent-detail { display: flex; flex-direction: column; gap: 10px; overflow-y: auto; height: 100%; }
+    .agent-detail h3 { display: flex; align-items: center; gap: 8px; color: var(--accent2); font-size: 14px; }
+    .agent-detail h3 .icon { width: 16px; height: 16px; }
+    .output-row { display: flex; align-items: flex-start; gap: 8px; padding: 10px 12px; background: var(--s2); border-radius: 10px; border: 1px solid var(--line); font-size: 12px; }
+    .output-row .icon { width: 14px; height: 14px; color: #34d399; flex-shrink: 0; margin-top: 1px; }
+
+    /* Developer tools slide */
+    .dev-body { display: grid; grid-template-columns: 188px 1fr; gap: 10px; flex: 1; min-height: 0; }
+    .dev-main { display: grid; grid-template-columns: minmax(360px, 42%) 1fr; gap: 10px; min-height: 0; overflow: hidden; }
+    .dev-cat-tab .v-tab-sub { max-width: 120px; }
+    .dev-arch-card {
+      background: var(--glass); backdrop-filter: blur(12px); border: 1px solid var(--line);
+      border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 10px; min-height: 0;
+      border-top: 3px solid var(--dev-active-color, var(--accent));
+    }
+    .dev-arch-head { display: flex; align-items: flex-start; gap: 10px; flex-shrink: 0; }
+    .dev-arch-icon { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: color-mix(in srgb, var(--dev-active-color, var(--accent)) 18%, transparent); color: var(--dev-active-color, var(--accent)); }
+    .dev-arch-icon .icon { width: 20px; height: 20px; }
+    .dev-arch-title { font-size: 15px; font-weight: 800; color: var(--dev-active-color, var(--accent)); line-height: 1.2; }
+    .dev-arch-copy { font-size: 11px; color: var(--muted); line-height: 1.45; margin-top: 2px; }
+    .dev-diagram { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-between; gap: 7px; padding: 10px; border-radius: 14px; background: rgba(15,23,42,.5); border: 1px solid var(--line); }
+    .dev-diagram-node {
+      display: flex; align-items: center; gap: 10px; padding: 10px 11px; border-radius: 12px;
+      background: var(--s2); border: 1px solid var(--line); min-height: 52px;
+    }
+    .dev-diagram-node.active { border-color: color-mix(in srgb, var(--node-color, var(--accent)) 48%, transparent); background: color-mix(in srgb, var(--node-color, var(--accent)) 13%, rgba(15,23,42,.7)); }
+    .dev-node-ico { width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: color-mix(in srgb, var(--node-color, var(--accent)) 18%, transparent); color: var(--node-color, var(--accent)); }
+    .dev-node-ico .icon { width: 15px; height: 15px; }
+    .dev-node-name { font-size: 11px; font-weight: 800; line-height: 1.25; }
+    .dev-node-desc { font-size: 9px; color: var(--muted); line-height: 1.35; margin-top: 2px; }
+    .dev-diagram-arrow { display: flex; justify-content: center; color: var(--s3); flex-shrink: 0; }
+    .dev-diagram-arrow .icon { width: 13px; height: 13px; }
+    .dev-stack-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; flex-shrink: 0; }
+    .dev-stack-stat { background: var(--s2); border: 1px solid var(--line); border-radius: 12px; padding: 9px 10px; }
+    .dev-stack-stat strong { display: block; font-size: 16px; color: var(--dev-active-color, var(--accent)); line-height: 1; margin-bottom: 4px; }
+    .dev-stack-stat span { display: block; font-size: 9px; color: var(--muted); line-height: 1.25; }
+    .dev-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; flex: 1; min-height: 0; overflow-y: auto; align-content: start; padding-bottom: 4px; }
+    .dev-grid::-webkit-scrollbar { width: 4px; }
+    .dev-grid::-webkit-scrollbar-thumb { background: var(--s3); border-radius: 2px; }
+    .dev-card {
+      background: var(--glass); backdrop-filter: blur(12px);
+      border: 1px solid var(--line); border-radius: 16px;
+      padding: 14px; display: flex; flex-direction: column; gap: 10px;
+      transition: transform .2s, border-color .2s, box-shadow .2s;
+      position: relative; overflow: hidden;
+    }
+    .dev-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: var(--dev-color, var(--accent)); opacity: .85;
+    }
+    .dev-card:hover { transform: translateY(-3px); border-color: rgba(148,163,184,.25); box-shadow: 0 8px 24px rgba(0,0,0,.25); }
+    .dev-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+    .dev-card-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .dev-card-icon .icon { width: 20px; height: 20px; }
+    .dev-tag { font-size: 8px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 3px 7px; border-radius: 999px; border: 1px solid; flex-shrink: 0; }
+    .dev-card h3 { font-size: 13px; font-weight: 700; line-height: 1.25; }
+    .dev-card p { font-size: 11px; color: var(--muted); line-height: 1.45; flex: 1; }
+    .dev-cat-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; flex-shrink: 0; }
+    .dev-cat-pill { display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px; border-radius: 999px; font-size: 10px; font-weight: 600; border: 1px solid var(--line); background: var(--s2); color: var(--muted); cursor: pointer; transition: all .2s; }
+    .dev-cat-pill .icon { width: 11px; height: 11px; }
+    .dev-cat-pill.active { color: #0f172a; border-color: transparent; box-shadow: 0 2px 10px rgba(0,0,0,.2); }
+
+    /* Misc */
+    .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+    .label-sm { font-size: 12px; color: var(--muted); font-weight: 600; }
+    select.deck-sel { background: var(--s2); border: 1px solid var(--s3); color: var(--text); padding: 7px 13px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .note { font-size: 12px; color: var(--muted); font-style: italic; margin-top: 8px; }
+    .spacer { flex: 1; }
+
+    @media (max-width:820px) {
+      .slide { padding: 14px 14px 10px; }
+      .slide-h1 { font-size: 22px !important; }
+      .slide-sub { font-size: 13px !important; }
+      .g2, .g3, .stats-row { grid-template-columns: 1fr; }
+      .dev-grid { grid-template-columns: repeat(2, 1fr); }
+      .agent-shell { grid-template-columns: 1fr; }
+      .copilot-body, .learn-body { grid-template-columns: 1fr; }
+      .wins-body { grid-template-columns: 1fr; }
+      .closing-body { grid-template-columns: 1fr; }
+      .v-tabs { flex-direction: row; overflow-x: auto; overflow-y: hidden; flex-wrap: nowrap; padding-bottom: 4px; }
+      .v-tab { flex: 0 0 auto; min-width: 140px; }
+      .v-tab-connector { display: none; }
+      .jump-grid-modal { grid-template-columns: repeat(2,1fr); }
+    }
+    @media (max-width:480px) {
+      .spotlight-body { grid-template-columns: 1fr; }
+      .brain-chip { flex: 0 0 72px; }
+    }
+  </style>
+</head>
+<body>
+<div class="deck">
+  <nav class="progress-rail" id="progressRail"></nav>
+  <main class="stage" id="stage"></main>
+  <div class="controls">
+    <button class="btn" id="btnPrev"><i data-lucide="chevron-left"></i> Prev</button>
+    <button class="btn" id="btnJump"><i data-lucide="layout-grid"></i> Slides</button>
+    <button class="btn" id="btnAutoplay"><i data-lucide="play"></i> Autoplay</button>
+    <span class="counter" id="counter">1 / 9</span>
+    <button class="btn primary" id="btnNext">Next <i data-lucide="chevron-right"></i></button>
+  </div>
+</div>
+<div class="jump-overlay" id="jumpOverlay">
+  <div class="jump-grid-modal" id="jumpGridModal"></div>
+</div>
+<script>
+  mermaid.initialize({
+    startOnLoad: false, theme: 'dark',
+    themeVariables: {
+      primaryColor: '#1f2937', primaryTextColor: '#f9fafb',
+      primaryBorderColor: '#6366f1', lineColor: '#6b7280',
+      fontFamily: '"Inter",system-ui,sans-serif', fontSize: '13px',
+      background: '#111827', mainBkg: '#1f2937',
+    },
+    flowchart: { curve: 'basis', padding: 10 },
+    sequence: { actorMargin: 38, messageMargin: 18 },
+  });
+
+  let _mSeq = 0;
+  async function renderMermaid(el, src, opts) {
+    if (!el || !src) return;
+    opts = opts || {};
+    const id = 'mmd' + (++_mSeq);
+    el.innerHTML = '';
+    if (opts.label) {
+      const h = document.createElement('div');
+      h.className = 'diagram-head';
+      h.innerHTML = ico('workflow') + opts.label;
+      el.appendChild(h);
+    }
+    const host = document.createElement('div');
+    host.className = opts.spotlight ? 'mermaid-wrap' : 'mermaid-host';
+    const div = document.createElement('div');
+    div.className = 'mermaid'; div.id = id; div.textContent = src.trim();
+    host.appendChild(div);
+    el.appendChild(host);
+    try {
+      await mermaid.run({ nodes: [div] });
+      const svg = div.querySelector('svg');
+      if (svg) {
+        svg.removeAttribute('width');
+        svg.removeAttribute('height');
+        svg.style.maxWidth = '100%';
+        svg.style.width = '100%';
+        svg.style.height = '100%';
+        svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        if (opts.labelColors) tintMermaidLabels(svg, opts.labelColors);
+      }
+    } catch(e) { console.warn('Mermaid:', e); }
+  }
+
+  function tintMermaidLabels(svg, labelColors) {
+    const labels = Object.keys(labelColors || {});
+    if (!labels.length) return;
+    svg.querySelectorAll('text,tspan').forEach(function(textNode) {
+      const label = textNode.textContent.trim();
+      const color = labelColors[label];
+      if (!color) return;
+      const group = textNode.closest('g');
+      if (!group) return;
+      textNode.style.fill = '#f8fafc';
+      textNode.style.fontWeight = '700';
+      const shape = group.querySelector('rect, polygon, ellipse');
+      if (shape) {
+        shape.style.fill = color;
+        shape.style.stroke = color;
+        shape.style.fillOpacity = '0.85';
+        return;
+      }
+      const path = group.querySelector('path');
+      if (path) {
+        path.style.fill = color;
+        path.style.stroke = color;
+        path.style.fillOpacity = '0.85';
+      }
+    });
+  }
+
+  // ─── Brain data ──────────────────────────────────────────────────────────
+  const BRAIN_ICONS = {
+    ceo:'crown', finance:'trending-up', ops:'cog', hr:'users',
+    pipeline:'git-branch', kb:'book-open', repo:'folder-open',
+    chat:'message-square', backlog:'list-checks'
+  };
+  const TOOL_ICON = 'wrench';
+  const AGENT_ICONS = { Intake:'inbox', Context:'database', Router:'git-branch', Specialist:'sparkles', Artifact:'file-text', Approval:'user-check', Memory:'brain' };
+  const AGENT_COLORS = { Intake:'#60a5fa', Context:'#2dd4bf', Router:'#fbbf24', Specialist:'#c084fc', Artifact:'#6366f1', Approval:'#34d399', Memory:'#fb7185' };
+
+  function agentColor(agent) { return AGENT_COLORS[agent] || '#6366f1'; }
+
+  function agentTabHtml(step, i, activeIdx, total) {
+    const active = i === activeIdx;
+    const color = agentColor(step.agent);
+    const icon = AGENT_ICONS[step.agent] || 'circle';
+    const conn = i < total - 1 ? '<div class="v-tab-connector"></div>' : '';
+    return conn + '<button class="v-tab' + (active ? ' active' : '') + '" data-step="' + i + '" style="--tab-color:' + color + '">' +
+      '<span class="v-tab-num">' + (i + 1) + '</span>' +
+      '<span class="v-tab-ico">' + ico(icon) + '</span>' +
+      '<span class="v-tab-text"><span class="v-tab-agent">' + step.agent + '</span>' +
+      '<span class="v-tab-sub">' + step.title + '</span></span></button>';
+  }
+
+  function agentPipelineHtml(steps, activeIdx) {
+    return steps.map(function(s, i) {
+      const icon = AGENT_ICONS[s.agent] || 'circle';
+      const cls = i === activeIdx ? ' active' : (i < activeIdx ? ' done' : '');
+      const arrow = i < steps.length - 1
+        ? '<div class="afc-arrow">' + ico('chevron-down') + '</div>' : '';
+      return '<button type="button" class="afc-node' + cls + '" data-step="' + i + '">' +
+        '<span class="afc-node-ico">' + ico(icon) + '</span>' +
+        '<span>' + s.agent + '</span></button>' + arrow;
+    }).join('');
+  }
+
+  const AGENT_EXPLAIN = {
+    Intake: {
+      what:'Turns the raw request, recording, or uploaded source into a clean payload the pipeline can reason over.',
+      why:'Prevents downstream agents from guessing intent or missing critical source material.',
+      guardrail:'Keeps source artifacts attached so later outputs can be traced back to the original input.'
+    },
+    Context: {
+      what:'Retrieves institutional memory, prior decisions, policy, repository content, and matching examples.',
+      why:'Gives the next agent grounded context instead of generating from a blank prompt.',
+      guardrail:'Only approved or relevant source material is passed forward, with citations preserved.'
+    },
+    Router: {
+      what:'Classifies the request and selects the right specialist path, document type, and approval route.',
+      why:'Keeps one intake surface flexible while still sending work to the correct expert chain.',
+      guardrail:'Ambiguous requests can be routed to clarification or human review before drafting.'
+    },
+    Specialist: {
+      what:'Performs the domain-heavy reasoning: drafting sections, applying rules, modelling scenarios, or resolving owners.',
+      why:'This is where the work becomes useful business output rather than generic AI text.',
+      guardrail:'Specialist output is constrained by context, templates, and tool results from earlier steps.'
+    },
+    Artifact: {
+      what:'Packages the specialist output into the target artifact: business case, requirements document, onboarding pack, backlog, or decision brief.',
+      why:'Turns reasoning into a durable document that stakeholders can review, approve, and reuse.',
+      guardrail:'Versioning and formatting keep the artifact consistent with the repository standard.'
+    },
+    Approval: {
+      what:'Presents the draft to a human reviewer with copilot editing available at the gate.',
+      why:'Keeps humans in control before anything becomes trusted institutional knowledge.',
+      guardrail:'No artifact is published until the reviewer accepts or edits the output.'
+    },
+    Memory: {
+      what:'Publishes approved outputs into the Knowledge Base, decision log, or people/process repository.',
+      why:'Every completed run becomes reusable context for future questions and pipeline runs.',
+      guardrail:'The memory write includes citations, version metadata, and retrieval tags.'
+    }
+  };
+
+  const TOOL_EXPLAIN = {
+    'Transcript Parser':'Extracts speakers, decisions, action items, and reusable facts from the meeting transcript.',
+    'Audio Chunker':'Splits long recordings into model-safe segments while preserving sequence and timestamps.',
+    'KB Search':'Finds approved business cases, requirements documents, glossary entries, and decisions that match the request.',
+    'Prior Business Case Fetch':'Pulls the closest historical business cases so new drafts reuse proven structure.',
+    'Node Rules':'Applies pipeline rules to decide which nodes should run next.',
+    'Objective Classifier':'Classifies the business objective and routes to the right document path.',
+    'Business Case Generator':'Drafts business case sections from context, transcript evidence, and templates.',
+    'Compliance Check':'Checks required sections, approval language, and missing source evidence.',
+    'Markdown Assembler':'Converts generated sections into the final document structure.',
+    'Versioning':'Tracks artifact version, approver state, and publish history.',
+    'Approval UI':'Shows the reviewer exactly what is ready to accept, edit, or reject.',
+    'Copilot Chat':'Lets the reviewer make natural-language edits without leaving the approval step.',
+    'KB Write':'Publishes approved output into trusted memory for retrieval later.',
+    'Citation Index':'Stores source links so future answers can cite where the fact came from.',
+    'Intent Parser':'Converts the user question into a scoped objective and constraints.',
+    'Decision Log':'Retrieves comparable decision history and rationale.',
+    'Routing Rules':'Maps the request to the right specialist and approval chain.',
+    'Risk Lens':'Surfaces operational, financial, and strategic risk trade-offs.',
+    'Executive Reasoning':'Frames the answer as an executive-ready recommendation.',
+    'Brief Formatter':'Packages the result into a concise decision brief.',
+    'Citation Formatter':'Adds cited source references to the final artifact.',
+    'Decision Log Write':'Stores the final decision and rationale for future reuse.',
+    'Role Parser':'Extracts role, department, seniority, and onboarding requirements.',
+    'Repo Lookup':'Finds repository pages, process maps, and department deep dives.',
+    'Policy Fetch':'Retrieves relevant policy and HR guidance.',
+    'Role Classifier':'Selects the right onboarding or people-process path.',
+    'Onboarding Composer':'Creates role-specific 30/60/90 day plans.',
+    'Key Contacts':'Identifies owners, reviewers, SMEs, and escalation contacts.',
+    'Pack Assembler':'Combines plans, contacts, context, and policy into one pack.',
+    'People KB Write':'Stores approved people-process templates for reuse.',
+    'Issue Extractor':'Turns an operational complaint into a scoped process issue.',
+    'Workflow Diagram Search':'Finds matching workflow diagrams and flow assets.',
+    'Scope Classifier':'Determines whether the work is a requirements document, backlog item, or improvement plan.',
+    'Requirements Generator':'Drafts requirements and process changes from repository evidence.',
+    'Owner Resolver':'Maps handoffs and tasks to accountable owners.',
+    'Backlog Writer':'Creates implementation-ready backlog items.',
+    'Priority Scorer':'Ranks work by value, urgency, and dependency.',
+    'Pattern Index':'Stores reusable process patterns and failure modes.',
+    'KPI Fetch':'Loads metrics needed for analysis.',
+    'Cost History':'Retrieves cost, volume, and variance history.',
+    'Risk Classifier':'Classifies financial and operational risk bands.',
+    'Cost Analyzer':'Models baseline cost and automation impact.',
+    'Scenario Modeller':'Compares conservative, expected, and aggressive cases.'
+  };
+
+  function agentExplainCardsHtml(step) {
+    const copy = AGENT_EXPLAIN[step.agent] || {
+      what:'Runs the selected step with the tools and context available at this point in the pipeline.',
+      why:'Moves the request closer to a reviewable, reusable business artifact.',
+      guardrail:'Keeps outputs traceable and ready for human review.'
+    };
+    return '<div class="asc-explain-grid">' +
+      '<div class="asc-explain-card"><div class="asc-explain-title">' + ico('activity') + ' What happens</div><div class="asc-explain-copy">' + copy.what + '</div></div>' +
+      '<div class="asc-explain-card"><div class="asc-explain-title">' + ico('target') + ' Why it matters</div><div class="asc-explain-copy">' + copy.why + '</div></div>' +
+      '<div class="asc-explain-card"><div class="asc-explain-title">' + ico('shield-check') + ' Control</div><div class="asc-explain-copy">' + copy.guardrail + '</div></div>' +
+    '</div>';
+  }
+
+  function agentToolCardsHtml(tools) {
+    return tools.map(function(t) {
+      return '<div class="tool-mini-card">' + ico('wrench') + '<div><strong>' + t + '</strong><span>' + (TOOL_EXPLAIN[t] || 'Supports this step with bounded retrieval, transformation, or validation.') + '</span></div></div>';
+    }).join('');
+  }
+
+  function agentPipelineMiniHtml(steps, activeIdx) {
+    return '<div class="asc-mini-pipeline">' +
+      '<div class="asc-tools-label">' + ico('git-branch') + ' Full pipeline</div>' +
+      '<div class="viz-h-track">' + steps.map(function(s, i) {
+        var icon = AGENT_ICONS[s.agent] || 'circle';
+        var color = agentColor(s.agent);
+        var active = i === activeIdx;
+        var sep = i ? '<div class="viz-h-sep">' + ico('chevron-right') + '</div>' : '';
+        var style = active ? ' style="--step-color:' + color + '"' : '';
+        return sep + '<div class="viz-h-step' + (active ? ' active' : '') + '"' + style + '>' +
+          '<div class="viz-h-ico"' + (active ? ' style="background:' + color + '33;border-color:' + color + '55;color:' + color + '"' : '') + '>' + ico(icon) + '</div>' +
+          '<div class="viz-h-label">' + s.agent + '</div>' +
+          '<div class="viz-h-desc">' + s.title + '</div></div>';
+      }).join('') + '</div></div>';
+  }
+
+  function agentLogicHtml() {
+    var pills = [
+      { label:'Incoming request', cls:'' },
+      { label:'Context complete?', cls:'diamond' },
+      { label:'Context Agent', cls:'highlight' },
+      { label:'Intent router', cls:'diamond' },
+      { label:'Specialist chain', cls:'highlight' },
+      { label:'Human approval', cls:'highlight' },
+      { label:'Memory index', cls:'' }
+    ];
+    var sep = '<span class="logic-sep">' + ico('chevron-right') + '</span>';
+    return '<span class="logic-label">' + ico('route') + ' Routing logic</span>' +
+      '<div class="logic-track">' +
+      pills.map(function(p, i) {
+        return (i ? sep : '') + '<span class="logic-pill ' + p.cls + '">' + p.label + '</span>';
+      }).join('') +
+      '</div>';
+  }
+
+  function useCaseTabHtml(key) {
+    var uc = USE_CASES[key];
+    var active = key === agentCase;
+    return '<button class="usecase-tab' + (active ? ' active' : '') + '" data-case="' + key + '">' +
+      ico(active ? 'check-circle' : 'workflow') + uc.label + '</button>';
+  }
+
+  function mermaidLabel(txt) {
+    return String(txt || '').replace(/"/g, '\\"');
+  }
+
+  function useCaseMermaid(uc) {
+    var lines = ['flowchart LR'];
+    uc.steps.forEach(function(s, i) {
+      var icon = i === 0 ? 'Intake' : s.agent;
+      lines.push('  S' + i + '["' + (i + 1) + '. ' + mermaidLabel(icon) + '<br/>' + mermaidLabel(s.title) + '"]');
+      if (i > 0) lines.push('  S' + (i - 1) + ' --> S' + i);
+    });
+    lines.push('  S' + (uc.steps.length - 1) + ' --> DONE["Approved memory<br/>Reusable next time"]');
+    return lines.join('\n');
+  }
+
+  function ico(name, cls) {
+    return '<span class="icon' + (cls ? ' ' + cls : '') + '"><i data-lucide="' + name + '"></i></span>';
+  }
+
+  const NARRATIVES = {
+    title: ['One platform, not scattered tools', 'Every approved decision becomes reusable memory', 'Use this deck as the 9-slide story arc'],
+    brainmap: ['Start here: the assistants share one memory', 'Each assistant owns a business job', 'The center is the operating platform'],
+    spotlights: ['Pick a capability on the left', 'Middle explains the business value', 'Right shows how the work flows'],
+    agentic: ['Top tabs change the business use case', 'Left tabs show the active agent step', 'The diagram explains the whole route'],
+    copilot: ['Copilot is an approval helper, not an autopilot', 'It turns comments into controlled edits', 'Humans approve before memory is updated'],
+    learning: ['Learning is never automatic', 'The system suggests a reusable rule', 'A person must approve before it affects future runs'],
+    wins: ['Choose a department first', 'Each example starts with a real question', 'The diagram shows the path to a decision'],
+    devtools: ['Modules are what users touch', 'Tools are what support the workflow', 'This slide explains the app without technical stack jargon'],
+    closing: ['The payoff is speed plus trust', 'Memory compounds after every approval', 'This is the operating loop to remember']
+  };
+
+  function narrativeHtml(id) {
+    var points = NARRATIVES[id] || [];
+    return '<div class="narrative-card">' +
+      '<div class="narrative-ico">' + ico('list-checks') + '</div>' +
+      '<div><div class="narrative-title">Narrative guide</div>' +
+      '<div class="narrative-points">' + points.map(function(p) {
+        return '<span class="narrative-point">' + ico('check') + p + '</span>';
+      }).join('') + '</div></div></div>';
+  }
+
+  function brainChipHtml(br, activeId) {
+    const active = br.id === activeId;
+    const style = active
+      ? 'background:' + br.color + ';border-color:' + br.color + ';color:#0f172a;'
+      : '';
+    const icoStyle = active ? 'background:rgba(0,0,0,.12);color:#0f172a;' : 'color:' + br.color + ';';
+    return '<button class="brain-chip' + (active ? ' active' : '') + '" data-brain="' + br.id + '" style="' + style + '">' +
+      '<span class="chip-ico" style="' + icoStyle + '">' + ico(BRAIN_ICONS[br.id]) + '</span>' +
+      '<span class="chip-label">' + br.label + '</span></button>';
+  }
+
+  function brainTabHtml(br, activeId) {
+    const active = br.id === activeId;
+    return '<button class="v-tab brain-tab' + (active ? ' active' : '') + '" data-brain="' + br.id + '" style="--tab-color:' + br.color + '">' +
+      '<span class="v-tab-ico">' + ico(BRAIN_ICONS[br.id]) + '</span>' +
+      '<span class="v-tab-text"><span class="v-tab-agent">' + br.label + '</span>' +
+      '<span class="v-tab-sub">' + br.tagline + '</span></span></button>';
+  }
+
+  function brainListCardHtml(b) {
+    var steps = b.example.flow.split(/\s*→\s*/);
+    var handles = steps[0] || b.tagline;
+    var produces = b.example.outcome;
+    return '<div class="brain-list-item" style="--brain-color:' + b.color + ';border-left:3px solid ' + b.color + '">' +
+      '<div class="bl-ico" style="background:' + b.color + '22;color:' + b.color + '">' + ico(b.icon) + '</div>' +
+      '<div class="brain-list-copy">' +
+        '<h3 style="color:' + b.color + '">' + b.label + '</h3>' +
+        '<p>' + b.tagline + '</p>' +
+        '<div class="brain-list-detail">' +
+          '<span><strong>Handles</strong>' + handles + '</span>' +
+          '<span><strong>Produces</strong>' + produces + '</span>' +
+        '</div>' +
+      '</div></div>';
+  }
+
+  function refreshIcons(root) {
+    if (window.lucide) lucide.createIcons({ attrs: { 'stroke-width': 2 }, nameAttr: 'data-lucide', root: root || document });
+  }
+
+  const BRAINS = [
+    {
+      id:'ceo', label:'Executive Decision Assistant', color:'#a78bfa', icon:'crown',
+      tagline:'Executive decisions with full institutional context',
+      example:{
+        q:'"How do we decide between vendor X and vendor Y?"',
+        flow:'Past decisions retrieved → Risk lens applied → ROI comparison run → Decision brief generated',
+        outcome:'Structured vendor decision brief with cited precedents — ready in minutes, not days'
+      },
+      tools:['Decision Trace','Project Context','Business Case Context','Risk Lens','Precedent Search'],
+      diagram:`flowchart TD
+  Q["How do we decide vendor X vs Y?"] --> Ctx["Retrieve past vendor decisions"]
+  Ctx --> Risk["Apply risk lens"]
+  Risk --> ROI["Compare ROI scenarios"]
+  ROI --> Brief["Decision brief generated"]
+  Brief --> Action["Executive recommendation"]`
+    },
+    {
+      id:'finance', label:'Finance Analysis Assistant', color:'#34d399', icon:'trending-up',
+      tagline:'Cost models, ROI analysis, and budget-aware decisions',
+      example:{
+        q:'"What is the ROI of automating claims denial follow-up?"',
+        flow:'Claims volume loaded → Cost-per-denial modelled → Automation cost estimated → Scenarios compared',
+        outcome:'Executive brief: 3 ROI scenarios, 12-month payback — 2.4× return at conservative estimate'
+      },
+      tools:['Cost Analyzer','ROI Model','KPI Fetch','Scenario Modeller','Variance Monitor'],
+      diagram:`flowchart LR
+  Vol["Claims volume"] --> Cost["Cost per denial"]
+  Cost --> AutoCost["Automation cost"]
+  AutoCost --> Scen["3 ROI scenarios"]
+  Scen --> Brief["Exec brief — 12-mo ROI"]`
+    },
+    {
+      id:'ops', label:'Operations Process Assistant', color:'#fb923c', icon:'cog',
+      tagline:'Department process intelligence — where things actually break',
+      example:{
+        q:'"Where do claims-denial handoffs break down?"',
+        flow:'Process map retrieved → Handoff owners identified → Exception patterns surfaced → Requirements + backlog created',
+        outcome:'Process improvement requirements document with 7 owner-assigned action items — sprint-ready'
+      },
+      tools:['Process Mapper','Process Deep Dives','Process Diagram Viewer','Owner Resolver','SLA Tracker'],
+      diagram:`flowchart TD
+  Q["Where do handoffs break?"] --> Map["Pull process map"]
+  Map --> Owners["Identify handoff owners"]
+  Owners --> Patterns["Surface exception patterns"]
+  Patterns --> Req["Generate requirements document"]
+  Req --> Backlog["Sprint backlog items"]`
+    },
+    {
+      id:'hr', label:'People Onboarding Assistant', color:'#fb7185', icon:'users',
+      tagline:'Onboarding paths, capability maps, and people-process intelligence',
+      example:{
+        q:'"Draft an onboarding plan for our new billing analyst"',
+        flow:'Role context loaded → Dept deep dive fetched → 30/60/90 day path generated → Key contacts identified',
+        outcome:'Complete onboarding pack: role brief, dept map, 30-60-90 plan, contacts list'
+      },
+      tools:['Onboarding Composer','Role Context','Dept Knowledge','Review Summariser','Policy Retriever'],
+      diagram:`flowchart LR
+  Q["New billing analyst hire"] --> Ctx["Role + dept context loaded"]
+  Ctx --> Plan["30-60-90 day path"]
+  Plan --> Contacts["Key contacts mapped"]
+  Contacts --> Pack["Complete onboarding pack"]`
+    },
+    {
+      id:'pipeline', label:'Document Pipeline', color:'#60a5fa', icon:'git-branch',
+      tagline:'Meeting → business case → requirements → backlog with approval gates',
+      example:{
+        q:'"Turn last week\'s meeting into a business case"',
+        flow:'Recording ingested → Transcript parsed → Business case sections generated → Human approves → Business case published',
+        outcome:'Approved, versioned Business Case in the Knowledge Base — 45 min from recording'
+      },
+      tools:['Transcript Parser','Business Case Generator','Approval Gate','Copilot Chat','Requirements Generator','Versioning'],
+      diagram:`sequenceDiagram
+  participant M as Meeting
+  participant AI as AI Pipeline
+  participant H as Human Reviewer
+  participant KB as Knowledge Base
+  M->>AI: Upload recording
+  AI->>H: Draft business case for review
+  H->>AI: Approve via copilot chat
+  AI->>KB: Publish approved business case
+  Note over KB: Searchable institutional memory`
+    },
+    {
+      id:'kb', label:'Knowledge Base', color:'#2dd4bf', icon:'book-open',
+      tagline:'Trusted business case and requirements library — searchable institutional memory',
+      example:{
+        q:'"What did we decide about the claims portal vendor last year?"',
+        flow:'Semantic search over approved BCs → Citation resolved → Answer with source links',
+        outcome:'Cited answer in seconds, linked to the original business case with full decision rationale'
+      },
+      tools:['Semantic Search','Citation Resolver','Trust Tier','MD/HTML Export','Version History'],
+      diagram:`flowchart LR
+  Q["What did we decide last year?"] --> Search["Semantic search approved BCs"]
+  Search --> Cite["Resolve citations"]
+  Cite --> Answer["Answer + source links"]
+  Answer --> User["Trusted cited response"]`
+    },
+    {
+      id:'repo', label:'Process Repository', color:'#38bdf8', icon:'folder-open',
+      tagline:'Process documents, workflow diagrams, and department deep dives',
+      example:{
+        q:'"Show me the claims-denial end-to-end process"',
+        flow:'Process repository searched → Claims denial deep dive fetched → Workflow diagram retrieved',
+        outcome:'Full process document + workflow diagram — download or add to AI context'
+      },
+      tools:['Document Lookup','Workflow Diagram Viewer','Department Folder Nav','AI Context Feed','Download'],
+      diagram:`flowchart TB
+  DR["Process Repository"] --> D1["Revenue Cycle"]
+  DR --> D2["Claims"]
+  DR --> D3["Dept 3 – 8"]
+  D2 --> DD["Claims Denial Deep Dive"]
+  D2 --> BPM["Claims Denial Workflow Diagram"]
+  DD --> Ctx["AI Context + Knowledge Chat"]`
+    },
+    {
+      id:'chat', label:'Knowledge Chat', color:'#c084fc', icon:'message-square',
+      tagline:'Cited Q&A over all approved institutional memory',
+      example:{
+        q:'"What did we decide about pricing changes in Q1?"',
+        flow:'Memory + KB + Repo + Backlog searched → Citations assembled → Answer with source chips',
+        outcome:'Accurate cited answer — no archaeology, no hallucinations, full source trail'
+      },
+      tools:['Vector Search','Memory Retrieval','Citation Chips','Project Scope','Answer Composer'],
+      diagram:`flowchart LR
+  Mem[("Memory")] --> Chat["Knowledge Chat"]
+  Vec[("Vector index")] --> Chat
+  KB["Knowledge Base"] --> Chat
+  Repo["Process Repository"] --> Chat
+  BL["Backlog"] --> Chat
+  Chat -->|"citations"| User["Cited answer"]`
+    },
+    {
+      id:'backlog', label:'Backlog & Planning', color:'#94a3b8', icon:'list-checks',
+      tagline:'Actions extracted, scored, and sprint-ready from every meeting',
+      example:{
+        q:'"What should we work on next cycle?"',
+        flow:'Meetings + BCs searched → Actions extracted → Scored for priority → Cycle plan generated',
+        outcome:'Prioritised backlog with cycle assignment — pushed to Google Sheets automatically'
+      },
+      tools:['Action Extractor','Priority Scorer','Cycle Planner','Sheets Sync','Duplicate Detect'],
+      diagram:`flowchart LR
+  Src["Meetings + BCs"] --> Extract["Extract actions"]
+  Extract --> Score["Score priority"]
+  Score --> Dedup["Deduplicate"]
+  Dedup --> Cycle["Assign to cycle"]
+  Cycle --> Sheets["Google Sheets sync"]`
+    }
+  ];
+  const BRAIN_MAP = Object.fromEntries(BRAINS.map(b => [b.id, b]));
+
+  // ─── Agentic use cases ───────────────────────────────────────────────────
+  const USE_CASES = {
+    meetingToBc:{label:'Meeting → Business Case',steps:[
+      {agent:'Intake',title:'Ingest meeting recording',tools:['Transcript Parser','Audio Chunker'],output:'Structured meeting payload'},
+      {agent:'Context',title:'Attach institutional knowledge',tools:['KB Search','Prior Business Case Fetch'],output:'Enriched context bundle'},
+      {agent:'Router',title:'Select business case path',tools:['Node Rules','Objective Classifier'],output:'Business case route confirmed'},
+      {agent:'Specialist',title:'Generate business case sections',tools:['Business Case Generator','Compliance Check'],output:'Draft business case content'},
+      {agent:'Artifact',title:'Assemble business case document',tools:['Markdown Assembler','Versioning'],output:'Business case pending review'},
+      {agent:'Approval',title:'Human review + copilot edit',tools:['Approval UI','Copilot Chat'],output:'Approved business case'},
+      {agent:'Memory',title:'Publish to Knowledge Base',tools:['KB Write','Citation Index'],output:'Trusted institutional memory'}
+    ]},
+    vendorDecision:{label:'CEO — Vendor Decision',steps:[
+      {agent:'Intake',title:'Capture decision question',tools:['Intent Parser'],output:'Decision query scoped'},
+      {agent:'Context',title:'Retrieve past vendor decisions',tools:['KB Search','Decision Log'],output:'Precedent bundle'},
+      {agent:'Router',title:'Route to CEO Specialist',tools:['Routing Rules'],output:'CEO path selected'},
+      {agent:'Specialist',title:'Apply risk lens and compare',tools:['Risk Lens','Executive Reasoning'],output:'Comparison narrative'},
+      {agent:'Artifact',title:'Compose decision brief',tools:['Brief Formatter','Citation Formatter'],output:'Decision brief'},
+      {agent:'Memory',title:'Log decision and rationale',tools:['Decision Log Write'],output:'Decision in memory'}
+    ]},
+    hrOnboarding:{label:'HR — New Hire Onboarding',steps:[
+      {agent:'Intake',title:'Receive hire details and role',tools:['Role Parser'],output:'Hire context payload'},
+      {agent:'Context',title:'Load dept deep dive and policy',tools:['Repo Lookup','Policy Fetch'],output:'Dept and policy bundle'},
+      {agent:'Router',title:'Select HR specialist path',tools:['Role Classifier'],output:'Onboarding path'},
+      {agent:'Specialist',title:'Build 30-60-90 day plan',tools:['Onboarding Composer','Key Contacts'],output:'Draft onboarding plan'},
+      {agent:'Artifact',title:'Assemble onboarding pack',tools:['Pack Assembler'],output:'Full onboarding document'},
+      {agent:'Approval',title:'HR manager reviews',tools:['Approval UI'],output:'Approved onboarding pack'},
+      {agent:'Memory',title:'Store in People knowledge',tools:['People KB Write'],output:'Reusable template'}
+    ]},
+    processImprovement:{label:'Ops — Process Improvement',steps:[
+      {agent:'Intake',title:'Capture operational pain point',tools:['Issue Extractor'],output:'Process issue scoped'},
+      {agent:'Context',title:'Fetch process map',tools:['Repo Lookup','Workflow Diagram Search'],output:'Current process evidence'},
+      {agent:'Router',title:'Select improvement path',tools:['Scope Classifier'],output:'Requirements route'},
+      {agent:'Specialist',title:'Draft improvement design',tools:['Requirements Generator','Owner Resolver'],output:'Improvement proposal'},
+      {agent:'Artifact',title:'Package as backlog items',tools:['Backlog Writer','Priority Scorer'],output:'Sprint-ready backlog'},
+      {agent:'Approval',title:'Department head reviews',tools:['Approval UI'],output:'Approved plan'},
+      {agent:'Memory',title:'Persist process intelligence',tools:['KB Write','Pattern Index'],output:'Reusable process intel'}
+    ]},
+    financeROI:{label:'Finance — ROI Analysis',steps:[
+      {agent:'Intake',title:'Capture ROI question',tools:['Intent Parser'],output:'Finance query scoped'},
+      {agent:'Context',title:'Load KPIs and cost history',tools:['KPI Fetch','Cost History'],output:'Financial evidence bundle'},
+      {agent:'Router',title:'Route to Finance specialist',tools:['Risk Classifier'],output:'Finance path selected'},
+      {agent:'Specialist',title:'Model ROI scenarios',tools:['Cost Analyzer','Scenario Modeller'],output:'ROI matrix — 3 scenarios'},
+      {agent:'Artifact',title:'Prepare executive brief',tools:['Brief Formatter'],output:'Decision brief'},
+      {agent:'Memory',title:'Store finance precedent',tools:['Decision Log Write'],output:'Finance benchmark'}
+    ]}
+  };
+
+  // ─── Copilot steps ───────────────────────────────────────────────────────
+  const COPILOT_STEPS = [
+    {label:'Business Case approval gate',surface:'Live',
+     editor:'# Business Case Clarifying Questions\n\nQ1: What is the scope of billing SME involvement?\nQ2: Who owns the claims denial workflow?\nQ3: What is the target SLA for follow-up?',
+     userMsg:'Reword Q3 to be clearer for the billing SME audience',
+     aiMsg:'Updated Q3: "For billing-team SMEs: what is the expected turnaround from denial receipt to follow-up action?" — does this work?',
+     tools:['Copilot Chat','Section Edit','KB Context']},
+    {label:'Business Case document chat',surface:'Live',
+     editor:'# Business Case §3 — Current State\n\nClaims denial rate is elevated relative to benchmarks. Manual follow-up requires 3–5 days per case with inconsistent ownership.',
+     userMsg:'Tighten §3 and add a risk table',
+     aiMsg:'Condensed §3 to 2 sentences and added a 3-row risk table: operational risk, revenue impact, reputational risk.',
+     tools:['Doc Chat','Section Rewrite','Risk Table']},
+    {label:'Requirements document chat',surface:'Live',
+     editor:'# Requirements §4 — Functional Requirements\n\n4.1 System must ingest claims denial data daily\n4.2 System must route to appropriate specialist',
+     userMsg:'Add acceptance criteria under 4.2',
+     aiMsg:'Added 4 acceptance criteria: input validation, routing confidence threshold, escalation path, audit trail.',
+     tools:['Requirements Chat','Acceptance Criteria Generator','Validation Rules']},
+    {label:'Step 11 — Task chat',surface:'Live',
+     editor:'Proposed tasks (12 items)\n\n#3  Billing follow-up SOP review   [Do Next]\n#4  Claims portal evaluation       [Do Next]\n#7  Denial rate dashboard          [Do Next]',
+     userMsg:'Band all billing-related tasks as Operational Autonomy',
+     aiMsg:'Re-banded 4 billing tasks to Operational Autonomy. Flagged #7 (dashboard) as potentially Strategic — confirm?',
+     tools:['Task Chat','Band Classifier','Learning Detector']},
+    {label:'Process Repository document edit',surface:'Live',
+     editor:'# Claims Denial Deep Dive\n\n§4 Process Steps\n\nStep 1: Claim received and logged\nStep 2: Initial triage review',
+     userMsg:'Add an OFI table after §4',
+     aiMsg:'Inserted 5-row OFI table after §4: manual routing delay, ownership gaps, SLA monitoring, escalation triggers, reporting cadence.',
+     tools:['Doc Edit Chat','OFI Generator','Dept Context']},
+    {label:'Knowledge Base glossary edit',surface:'Live',
+     editor:'# Approved Glossary\n\nClaims denial: a refusal by payer to reimburse...\nSLA: Service Level Agreement...',
+     userMsg:'Align glossary with latest approved terminology',
+     aiMsg:'Synced 6 glossary terms against approved business case language. Updated "denial" definition and added "appeals cycle" as a new entry.',
+     tools:['Library Chat','Glossary Sync','Approved Business Case Reference']}
+  ];
+
+  const COPILOT_TOOL_EXPLAIN = {
+    'Copilot Chat':'Turns reviewer instructions into scoped edits tied to the current gate.',
+    'Section Edit':'Applies the change only to the selected section, preserving the rest of the draft.',
+    'KB Context':'Pulls approved memory so edits stay consistent with past business cases.',
+    'Doc Chat':'Lets users ask for structural changes across the current document.',
+    'Section Rewrite':'Rewrites the selected section while preserving the source intent.',
+    'Risk Table':'Creates a compact risk table from the available evidence.',
+    'Requirements Chat':'Edits requirements and acceptance criteria in the requirements document surface.',
+    'Acceptance Criteria Generator':'Drafts testable acceptance criteria for the selected requirement.',
+    'Validation Rules':'Checks that requirements are complete and verifiable.',
+    'Task Chat':'Edits backlog items and task metadata through natural language.',
+    'Band Classifier':'Classifies tasks into strategic, operational, or autonomy bands.',
+    'Learning Detector':'Detects reusable reviewer preferences for future runs.',
+    'Doc Edit Chat':'Applies repository edits while keeping the source document intact.',
+    'OFI Generator':'Generates opportunities-for-improvement rows from process context.',
+    'Dept Context':'Loads department-specific repository context before editing.',
+    'Library Chat':'Edits approved Knowledge Base entries with citations preserved.',
+    'Glossary Sync':'Aligns terms with the latest approved business case language.',
+    'Approved Business Case Reference':'Uses the approved business case as the source of truth.'
+  };
+
+  function copilotToolTabsHtml(tools) {
+    return tools.map(function(t) {
+      return '<div class="copilot-tool-tab">' + ico('wrench') + '<div><strong>' + t + '</strong><span>' + (COPILOT_TOOL_EXPLAIN[t] || 'Supports the copilot edit with bounded context and validation.') + '</span></div></div>';
+    }).join('');
+  }
+
+  function copilotSurfaceTabHtml(step, i) {
+    var active = i === copilotStep;
+    return '<button class="copilot-surface-tab' + (active ? ' active' : '') + '" data-copilot="' + i + '">' +
+      ico(active ? 'check-circle' : 'layout') + step.label + '</button>';
+  }
+
+  // ─── Learning scenarios ──────────────────────────────────────────────────
+  const LEARN_SC = [
+    {
+      label:'Task banding', badge:'high',
+      title:'Always classify billing tasks as Operational Autonomy',
+      target:'categorize_items.md',
+      text:'When tasks mention billing workflows, claims, or denial follow-up, default band to Operational Autonomy rather than Do Next.',
+      signal:'User corrected the same billing task category more than once during Step 11 review.',
+      before:'Billing-related tasks were being treated as generic next-step work, which forced reviewers to correct the category repeatedly.',
+      after:'Future billing, claims, and denial follow-up tasks are suggested as Operational Autonomy by default, with the learning cited for transparency.',
+      store:'prompt_learnings table + LEARNED PREFERENCES block',
+      applies:'Future backlog classification and Step 11 task chat suggestions'
+    },
+    {
+      label:'CEO time = None', badge:'medium',
+      title:"AI Expert tasks: CEO time involvement = None",
+      target:'score_items.md',
+      text:"Tasks assigned to AI Expert don't require CEO time unless explicitly marked strategic. Apply automatically in scoring.",
+      signal:'Reviewer repeatedly removed CEO-time requirements from owner-specific tasks.',
+      before:'Owner-specific tasks were being scored as if they needed CEO review, even when the work was routine or already delegated.',
+      after:'Future routine tasks assigned to AI Expert are treated as requiring no CEO time unless the reviewer marks them strategic.',
+      store:'scoring preference + audit note on task score runs',
+      applies:'Future priority scoring, cycle planning, and ownership recommendations'
+    },
+    {
+      label:'Project definition', badge:'high',
+      title:'Create project from repeated corrections',
+      target:'project_definitions',
+      text:'Repeated "SyncMD ambient notes" context suggests a new project. Create a project definition to auto-tag future tasks.',
+      signal:'Multiple corrections pointed to the same recurring context that was not yet a project.',
+      before:'Repeated SyncMD ambient-note tasks were being grouped as miscellaneous, so reviewers had to reclassify them each run.',
+      after:'The system creates a reusable project definition so future SyncMD ambient-note work is automatically tagged and routed with the right context.',
+      store:'project definition registry + matching rules',
+      applies:'Future intake tagging, task grouping, and project-aware summaries'
+    }
+  ];
+
+  function learnScenarioTabHtml(s, i) {
+    var active = i === learnSc;
+    var color = s.badge === 'high' ? '#f97316' : '#fbbf24';
+    return '<button class="v-tab learn-scenario-tab' + (active ? ' active' : '') + '" data-sc="' + i + '" style="--tab-color:' + color + '">' +
+      '<span class="v-tab-ico">' + ico(s.badge === 'high' ? 'flame' : 'alert-circle') + '</span>' +
+      '<span class="v-tab-text"><span class="v-tab-agent">' + s.label + '</span>' +
+      '<span class="v-tab-sub">' + s.target + '</span></span></button>';
+  }
+
+  // ─── Mermaid sources ─────────────────────────────────────────────────────
+  const MIND_BRAINS = `mindmap
+  root((AI Platform))
+    Executive Decision Assistant
+      Decision Trace
+      Risk Lens
+    Finance Analysis Assistant
+      ROI Model
+      Cost Analyzer
+    Operations Process Assistant
+      Process Maps
+      Workflow Diagrams
+    People Onboarding Assistant
+      Onboarding
+      Review Summariser
+    Pipeline
+      Business Case Generator
+      Requirements Generator
+    Knowledge Base
+      Semantic Search
+      Trust Tiers
+    Dynamic Repository
+      Deep Dives
+      Workflow Assets
+    Knowledge Chat
+      Vector Search
+      Citations
+    Backlog Planning
+      Cycle Planner
+      Sheets Sync`;
+
+  const COPILOT_SEQ = `sequenceDiagram
+  participant U as User
+  participant C as Copilot
+  participant A as AI Agent
+  participant T as Tools
+  participant D as Document
+  U->>C: Natural language edit
+  C->>A: Message + current draft
+  A->>T: Retrieve context
+  T-->>A: KB or repo snippets
+  A->>D: Apply patch
+  D-->>U: Updated preview
+  Note over U,D: Human approves before publish`;
+
+  const LEARN_LOOP = `flowchart LR
+  Edit["Step chat correction"] --> Detect{"Generalizable?"}
+  Detect -->|Yes| Card["Learning card shown"]
+  Detect -->|No| Edit
+  Card --> Confirm["User confirms"]
+  Confirm --> Block["LEARNED PREFERENCES block"]
+  Confirm --> Audit["prompt_learnings DB"]
+  Block --> Next["Applies on next pipeline run"]`;
+
+  const CAP_CHART = `quadrantChart
+    title Capability Map
+    x-axis "Process Automation" --> "Strategic Intelligence"
+    y-axis "Single Feature" --> "Platform Integration"
+    Pipeline: [0.52, 0.92]
+    Executive Decision Assistant: [0.88, 0.90]
+    Finance Analysis Assistant: [0.78, 0.85]
+    Knowledge Chat: [0.72, 0.80]
+    Knowledge Base: [0.60, 0.82]
+    Operations Process Assistant: [0.58, 0.65]
+    People Onboarding Assistant: [0.65, 0.72]
+    Process Repository: [0.42, 0.58]
+    Backlog Planning: [0.75, 0.52]`;
+
+  const TIMELINE_MEMORY = `timeline
+    title From Meeting to Institutional Memory
+    Capture : Recording uploaded to PRM Pipeline
+    Transcribe : Whisper ASR — full transcript
+    Extract : Business case sections generated
+    Review : Human approves via copilot chat
+    Publish : Approved business case enters Knowledge Base
+    Retrieve : Future runs and Knowledge Chat cite it`;
+
+  const CAP_POINTS = [
+    { label:'Executive Decision Assistant', x:0.88, y:0.90, color:'#a78bfa' },
+    { label:'Finance Analysis Assistant', x:0.78, y:0.85, color:'#34d399' },
+    { label:'Knowledge Chat', x:0.72, y:0.80, color:'#c084fc' },
+    { label:'Knowledge Base', x:0.60, y:0.82, color:'#2dd4bf' },
+    { label:'Pipeline', x:0.52, y:0.92, color:'#60a5fa' },
+    { label:'People Onboarding Assistant', x:0.65, y:0.72, color:'#fb7185' },
+    { label:'Operations Process Assistant', x:0.58, y:0.65, color:'#fb923c' },
+    { label:'Process Repository', x:0.42, y:0.58, color:'#38bdf8' },
+    { label:'Backlog Planning', x:0.75, y:0.52, color:'#94a3b8' }
+  ];
+
+  const PLATFORM_VALUES = [
+    { icon:'database', color:'#6366f1', title:'Institutional Memory', desc:'Every approved business case, requirements document, meeting, and decision is indexed and retrievable.', proof:['No archaeology','Cited source links'] },
+    { icon:'zap', color:'#34d399', title:'Decision Velocity', desc:'Questions turn into drafts, briefs, plans, or answers in minutes instead of days.', proof:['Minutes to brief','Reusable context'] },
+    { icon:'brain', color:'#fb923c', title:'Self-Improving', desc:'Confirmed corrections become preferences that improve future runs.', proof:['Learns standards','Reduces repeat edits'] },
+    { icon:'shield-check', color:'#60a5fa', title:'Human in the Loop', desc:'Every output moves through an approval gate before becoming trusted knowledge.', proof:['Approval required','Audit trail kept'] }
+  ];
+
+  const VALUE_OUTCOMES = [
+    { icon:'file-check', color:'#a78bfa', value:'Case → Requirements', label:'Business intent becomes requirements, backlog, and reusable memory.' },
+    { icon:'search', color:'#2dd4bf', value:'Cited answers', label:'Stakeholders get answers with source links instead of tribal knowledge.' },
+    { icon:'route', color:'#60a5fa', value:'One path', label:'Meeting, approval, publishing, and retrieval stay in one governed flow.' },
+    { icon:'repeat', color:'#34d399', value:'Compounding', label:'Every approved output makes the next run faster and better.' }
+  ];
+
+  const VALUE_FLYWHEEL = [
+    { icon:'mic', color:'#60a5fa', title:'Capture work', desc:'Meetings, notes, questions, and repository context enter the system.' },
+    { icon:'sparkles', color:'#c084fc', title:'Generate artifacts', desc:'AI drafts business cases, requirements, backlog, answers, and process updates with context.' },
+    { icon:'user-check', color:'#34d399', title:'Human approval', desc:'Reviewers edit, approve, and decide what becomes trusted.' },
+    { icon:'book-open', color:'#2dd4bf', title:'Publish memory', desc:'Approved outputs become searchable institutional memory.' },
+    { icon:'message-square', color:'#a78bfa', title:'Reuse in chat', desc:'Future questions cite approved decisions and source documents.' },
+    { icon:'brain', color:'#fb923c', title:'Learn preferences', desc:'Confirmed corrections tune future runs to organizational standards.' }
+  ];
+
+  const MEMORY_STEPS = [
+    { icon:'upload', label:'Capture', desc:'Recording uploaded' },
+    { icon:'mic', label:'Transcribe', desc:'Whisper ASR transcript' },
+    { icon:'sparkles', label:'Extract', desc:'Business case sections generated' },
+    { icon:'user-check', label:'Review', desc:'Copilot approval' },
+    { icon:'book-open', label:'Publish', desc:'Knowledge Base' },
+    { icon:'search', label:'Retrieve', desc:'Cited forever' }
+  ];
+
+  function capMapHtml() {
+    return '<div class="value-outcome-grid">' + VALUE_OUTCOMES.map(function(o) {
+      return '<div class="value-outcome" style="--outcome-color:' + o.color + '">' +
+        ico(o.icon) + '<strong>' + o.value + '</strong><span>' + o.label + '</span></div>';
+    }).join('') + '</div>';
+  }
+
+  function valueFlywheelHtml() {
+    return '<div class="flywheel">' + VALUE_FLYWHEEL.map(function(s, i) {
+      return '<div class="flywheel-step" data-step="' + (i + 1) + '" style="--fly-color:' + s.color + '">' +
+        '<div class="flywheel-ico">' + ico(s.icon) + '</div>' +
+        '<h3>' + s.title + '</h3><p>' + s.desc + '</p></div>';
+    }).join('') + '</div>';
+  }
+
+  function memoryTimelineHtml() {
+    return MEMORY_STEPS.map(function(s, i) {
+      var conn = i < MEMORY_STEPS.length - 1 ? '<div class="mem-connector"></div>' : '';
+      return (i ? conn : '') +
+        '<div class="mem-step">' +
+          '<div class="mem-step-ico">' + ico(s.icon) + '</div>' +
+          '<div class="mem-step-label">' + s.label + '</div>' +
+          '<div class="mem-step-desc">' + s.desc + '</div>' +
+        '</div>';
+    }).join('');
+  }
+
+  function valuePillarHtml(v) {
+    return '<div class="value-pillar" style="--pillar-color:' + v.color + '">' +
+      '<div class="value-pillar-ico" style="background:' + v.color + '22;color:' + v.color + '">' + ico(v.icon) + '</div>' +
+      '<div><h3 style="color:' + v.color + '">' + v.title + '</h3><p>' + v.desc + '</p>' +
+      '<div class="value-proof">' + v.proof.map(function(p) {
+        return '<span><strong>' + p.split(' ')[0] + '</strong>' + p + '</span>';
+      }).join('') + '</div></div></div>';
+  }
+
+  const NODE_LOGIC = `flowchart LR
+  In["Incoming request"] --> CtxOK{"Context complete?"}
+  CtxOK -->|No| Retrieve["Context Agent retrieves"]
+  Retrieve --> Route
+  CtxOK -->|Yes| Route{"Intent?"}
+  Route -->|Executive| CEO["CEO Specialist"]
+  Route -->|Formal artifact| Art["Business case / requirements chain"]
+  Route -->|Ops/Process| Ops["Ops Specialist"]
+  CEO --> App["Human Approval Gate"]
+  Art --> App
+  Ops --> App
+  App --> Mem["Memory Agent — index"]`;
+
+  function buildAgentDiag(steps, activeIdx) {
+    const nodes = steps.map((s, i) => '  N' + i + '["' + s.agent + '"]').join('\n');
+    const arrows = steps.slice(0,-1).map((_,i) => '  N' + i + ' --> N' + (i+1)).join('\n');
+    return 'flowchart LR\n' + nodes + '\n' + arrows + '\n  style N' + activeIdx + ' fill:#6366f1,color:#fff,stroke:#818cf8,stroke-width:2px';
+  }
+
+  // ─── State ───────────────────────────────────────────────────────────────
+  let cur = 0;
+  let autoTimer = null;
+  let spotBrain = 'ceo';
+  let agentCase = 'meetingToBc';
+  let agentStep = 0;
+  let copilotStep = 0;
+  let learnSc = 0;
+  let devCat = 'all';
+  let winDept = 'executive';
+
+  const DEPT_WINS = [
+    { id:'executive', label:'Executive', icon:'crown', color:'#a78bfa', tagline:'C-suite decisions, vendor strategy & institutional precedent', brains:['ceo'] },
+    { id:'finance', label:'Finance', icon:'trending-up', color:'#34d399', tagline:'ROI models, cost analysis & budget-aware executive briefs', brains:['finance'] },
+    { id:'operations', label:'Operations', icon:'cog', color:'#fb923c', tagline:'Process maps, handoff fixes, backlog & cycle planning', brains:['ops','repo','backlog'] },
+    { id:'hr', label:'HR & People', icon:'users', color:'#fb7185', tagline:'Onboarding paths, role context & people-process intelligence', brains:['hr'] },
+    { id:'it', label:'IT & Platform', icon:'cpu', color:'#60a5fa', tagline:'Pipeline delivery, knowledge retrieval & cited AI chat', brains:['pipeline','kb','chat'] }
+  ];
+  const DEPT_MAP = Object.fromEntries(DEPT_WINS.map(function(d) { return [d.id, d]; }));
+
+  function deptTabHtml(dept, activeId) {
+    const active = dept.id === activeId;
+    return '<button class="v-tab dept-tab' + (active ? ' active' : '') + '" data-dept="' + dept.id + '" style="--tab-color:' + dept.color + '">' +
+      '<span class="v-tab-ico">' + ico(dept.icon) + '</span>' +
+      '<span class="v-tab-text"><span class="v-tab-agent">' + dept.label + '</span>' +
+      '<span class="v-tab-sub">' + dept.brains.length + ' example' + (dept.brains.length > 1 ? 's' : '') + '</span></span></button>';
+  }
+
+  function winFlowChipsHtml(flowStr, color) {
+    var steps = flowStr.split(/\s*→\s*/);
+    return steps.map(function(step, i) {
+      var sep = i > 0 ? '<span class="win-flow-sep">' + ico('chevron-right') + '</span>' : '';
+      return sep + '<span class="win-flow-chip" style="border-color:' + color + '33;color:' + color + '">' + step + '</span>';
+    }).join('');
+  }
+
+  function winFlowDiagramHtml(b) {
+    var steps = b.example.flow.split(/\s*→\s*/);
+    return '<div class="win-flow-diagram" style="--flow-count:' + steps.length + ';--card-color:' + b.color + '">' +
+      steps.map(function(step, i) {
+        var arrow = i < steps.length - 1 ? '<span class="win-flow-arrow">' + ico('chevron-right') + '</span>' : '';
+        return '<div class="win-flow-node">' +
+          '<div class="win-flow-index">' + (i + 1) + '</div>' +
+          '<div class="win-flow-label">' + step + '</div>' +
+          '<div class="win-flow-desc">' + (i === 0 ? 'Input and source context' : i === steps.length - 1 ? 'Decision-ready output' : 'Agentic handoff') + '</div>' +
+          arrow +
+        '</div>';
+      }).join('') +
+    '</div>';
+  }
+
+  function winExampleCardHtml(b) {
+    return '<div class="win-example-card" style="--card-color:' + b.color + '">' +
+      '<div class="wec-brain" style="color:' + b.color + '">' +
+        '<span class="wec-brain-ico" style="background:' + b.color + '22">' + ico(b.icon) + '</span>' +
+        b.label + '</div>' +
+      '<div class="wec-q">' + ico('message-square') + '<span>' + b.example.q + '</span></div>' +
+      '<div class="win-card-summary">' +
+        '<div class="win-mini-panel">' + ico('search-check') + '<div><strong>Evidence path</strong><span>Pulls source context, applies the specialist assistant, and keeps each handoff visible.</span></div></div>' +
+        '<div class="win-mini-panel">' + ico('file-check') + '<div><strong>Delivered artifact</strong><span>' + b.example.outcome + '</span></div></div>' +
+      '</div>' +
+      winFlowDiagramHtml(b) +
+      '<div class="win-flow-chips">' + winFlowChipsHtml(b.example.flow, b.color) + '</div>' +
+      '<div class="wec-outcome" style="color:' + b.color + ';background:' + b.color + '0d;border-color:' + b.color + '33">' +
+        ico('circle-check') + '<span>' + b.example.outcome + '</span></div>' +
+    '</div>';
+  }
+
+  const DEV_CATEGORIES = [
+    { id:'all', label:'All modules & tools', icon:'layers', color:'#94a3b8' },
+    { id:'backend', label:'App modules', icon:'layout-template', color:'#6366f1' },
+    { id:'ai', label:'AI work tools', icon:'bot', color:'#c084fc' },
+    { id:'data', label:'Memory tools', icon:'database', color:'#2dd4bf' },
+    { id:'integrations', label:'Capture & sync tools', icon:'plug', color:'#34d399' },
+    { id:'frontend', label:'User workspaces', icon:'monitor', color:'#60a5fa' }
+  ];
+
+  const DEV_TOOLS = [
+    { cat:'backend', icon:'file-text', color:'#6366f1', tag:'Module', name:'Business Case module', desc:'Turns meeting context and stakeholder input into a structured business case with sections, assumptions, risks, and approval status.' },
+    { cat:'backend', icon:'clipboard-list', color:'#6366f1', tag:'Module', name:'Requirements module', desc:'Converts approved business intent into requirements, acceptance criteria, dependencies, and implementation-ready details.' },
+    { cat:'backend', icon:'list-checks', color:'#6366f1', tag:'Module', name:'Backlog planning module', desc:'Transforms decisions and requirements into scored tasks, ownership, cycle planning, and sprint-ready work.' },
+    { cat:'backend', icon:'folder-open', color:'#6366f1', tag:'Module', name:'Process Repository module', desc:'Organizes department deep dives, process documents, workflow diagrams, and reusable operating knowledge.' },
+    { cat:'ai', icon:'mic', color:'#c084fc', tag:'Tool', name:'Audio to meeting transcription', desc:'Takes a meeting recording and produces a readable transcript that the pipeline can use as source evidence.' },
+    { cat:'ai', icon:'sparkles', color:'#c084fc', tag:'Tool', name:'Business case / requirements drafting agent', desc:'Drafts business case sections or requirements from approved context, templates, and prior examples.' },
+    { cat:'ai', icon:'message-square', color:'#c084fc', tag:'Tool', name:'Copilot edit tool', desc:'Lets a reviewer ask for wording, table, requirement, or task changes in plain language before approval.' },
+    { cat:'ai', icon:'user-check', color:'#c084fc', tag:'Tool', name:'Approval gate tool', desc:'Makes sure a person reviews, edits, and approves outputs before they become trusted organizational memory.' },
+    { cat:'data', icon:'book-open', color:'#2dd4bf', tag:'Module', name:'Knowledge Base module', desc:'Stores approved business cases, requirements, decisions, glossary entries, and cited answers so teams can reuse them later.' },
+    { cat:'data', icon:'search', color:'#2dd4bf', tag:'Tool', name:'Semantic search tool', desc:'Finds related past decisions, documents, and examples even when users ask with different wording.' },
+    { cat:'data', icon:'link', color:'#2dd4bf', tag:'Tool', name:'Citation resolver tool', desc:'Attaches source links to answers so stakeholders can see where each recommendation came from.' },
+    { cat:'data', icon:'git-branch', color:'#38bdf8', tag:'Tool', name:'Workflow diagram viewer', desc:'Shows process diagrams from the repository so teams can understand handoffs and improvement areas.' },
+    { cat:'integrations', icon:'sheet', color:'#34d399', tag:'Tool', name:'Google Sheets sync', desc:'Sends approved backlog, cycle plans, and scored action items to the planning sheets teams already use.' },
+    { cat:'integrations', icon:'upload', color:'#fb923c', tag:'Tool', name:'Meeting upload tool', desc:'Lets users upload recordings or notes that become the starting point for business case, requirements, or backlog generation.' },
+    { cat:'integrations', icon:'lightbulb', color:'#fde68a', tag:'Tool', name:'Learning capture tool', desc:'Captures user-approved corrections so the next run follows the organization’s preferred wording and classification rules.' },
+    { cat:'frontend', icon:'layout-template', color:'#60a5fa', tag:'Workspace', name:'Pipeline review workspace', desc:'Guides users through intake, generated drafts, copilot edits, approval, and publishing in one place.' },
+    { cat:'frontend', icon:'message-circle', color:'#60a5fa', tag:'Workspace', name:'Knowledge Chat workspace', desc:'Lets stakeholders ask questions across approved memory and receive cited answers instead of searching manually.' },
+    { cat:'frontend', icon:'book-open', color:'#60a5fa', tag:'Workspace', name:'Repository browser workspace', desc:'Lets users browse department process docs, diagrams, deep dives, and reusable context without needing technical access.' }
+  ];
+
+  function devCardHtml(t) {
+    return '<div class="dev-card" style="--dev-color:' + t.color + '">' +
+      '<div class="dev-card-top">' +
+        '<div class="dev-card-icon" style="background:' + t.color + '22;color:' + t.color + '">' + ico(t.icon) + '</div>' +
+        '<span class="dev-tag" style="color:' + t.color + ';border-color:' + t.color + '44;background:' + t.color + '15">' + t.tag + '</span>' +
+      '</div>' +
+      '<h3>' + t.name + '</h3>' +
+      '<p>' + t.desc + '</p>' +
+    '</div>';
+  }
+
+  function filteredDevTools() {
+    if (devCat === 'all') return DEV_TOOLS;
+    return DEV_TOOLS.filter(function(t) { return t.cat === devCat; });
+  }
+
+  function devCategoryTabHtml(cat) {
+    var active = devCat === cat.id;
+    var count = cat.id === 'all' ? DEV_TOOLS.length : DEV_TOOLS.filter(function(t) { return t.cat === cat.id; }).length;
+    return '<button class="v-tab dev-cat-tab' + (active ? ' active' : '') + '" data-cat="' + cat.id + '" style="--tab-color:' + cat.color + '">' +
+      '<span class="v-tab-ico">' + ico(cat.icon) + '</span>' +
+      '<span class="v-tab-text"><span class="v-tab-agent">' + cat.label + '</span>' +
+      '<span class="v-tab-sub">' + count + ' app piece' + (count === 1 ? '' : 's') + '</span></span></button>';
+  }
+
+  function devArchitectureHtml() {
+    var cat = DEV_CATEGORIES.find(function(c) { return c.id === devCat; }) || DEV_CATEGORIES[0];
+    var tools = filteredDevTools();
+    var nodes = devCat === 'all'
+      ? DEV_CATEGORIES.filter(function(c) { return c.id !== 'all'; }).map(function(c) {
+          var count = DEV_TOOLS.filter(function(t) { return t.cat === c.id; }).length;
+          return { icon:c.icon, color:c.color, name:c.label, desc:count + ' modules, workspaces, or tools in this part of the app', active:false };
+        })
+      : tools.slice(0, 5).map(function(t) {
+          return { icon:t.icon, color:t.color, name:t.name, desc:t.desc, active:true };
+        });
+    return '<div class="dev-arch-card" style="--dev-active-color:' + cat.color + '">' +
+      '<div class="dev-arch-head">' +
+        '<div class="dev-arch-icon">' + ico(cat.icon) + '</div>' +
+        '<div><div class="dev-arch-title">' + cat.label + '</div>' +
+        '<div class="dev-arch-copy">' + (devCat === 'all' ? 'A plain-English map of the app: which parts are modules users work in, and which supporting tools move information between meetings, business cases, requirements, backlog, repository, and memory.' : 'This view separates app modules from supporting tools so stakeholders can see what users touch versus what the system does behind the scenes.') + '</div></div>' +
+      '</div>' +
+      '<div class="dev-diagram">' +
+        nodes.map(function(n, i) {
+          var arrow = i < nodes.length - 1 ? '<div class="dev-diagram-arrow">' + ico('chevron-down') + '</div>' : '';
+          return '<div class="dev-diagram-node' + (n.active ? ' active' : '') + '" style="--node-color:' + n.color + '">' +
+            '<div class="dev-node-ico">' + ico(n.icon) + '</div>' +
+            '<div><div class="dev-node-name">' + n.name + '</div><div class="dev-node-desc">' + n.desc + '</div></div>' +
+          '</div>' + arrow;
+        }).join('') +
+      '</div>' +
+      '<div class="dev-stack-stats">' +
+        '<div class="dev-stack-stat"><strong>' + tools.length + '</strong><span>Modules/tools shown</span></div>' +
+        '<div class="dev-stack-stat"><strong>Case</strong><span>Business case flow</span></div>' +
+        '<div class="dev-stack-stat"><strong>Reqs</strong><span>Requirements flow</span></div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  const SLIDE_META = [
+    {id:'title',label:'Overview'},
+    {id:'brainmap',label:'Platform Map'},
+    {id:'spotlights',label:'Spotlights'},
+    {id:'agentic',label:'Agents'},
+    {id:'copilot',label:'Copilot'},
+    {id:'learning',label:'Learning'},
+    {id:'wins',label:'Real Wins'},
+    {id:'devtools',label:'Dev Tools'},
+    {id:'closing',label:'Value'}
+  ];
+
+  // ─── Slide HTML ──────────────────────────────────────────────────────────
+  const SLIDES = [
+
+    // 0 — Title
+    () => `
+    <div class="title-slide fill">
+      <div class="title-logo">${ico('brain')}</div>
+      <p class="eyebrow">${ico('zap')} PRM Pipeline · AI-Powered Platform</p>
+      <h1 class="title-h1">AI Operating Platform</h1>
+      <p class="title-sub">Nine specialized assistants. One shared memory.<br>Every decision traceable, reusable, and compounding.</p>
+      ${narrativeHtml('title')}
+      <div class="stats-row">
+        <div class="stat-chip"><div class="stat-ico">${ico('layers')}</div><span class="n">9</span><div class="l">Specialized Assistants</div></div>
+        <div class="stat-chip"><div class="stat-ico">${ico('database')}</div><span class="n">1</span><div class="l">Shared Memory</div></div>
+        <div class="stat-chip"><div class="stat-ico">${ico('route')}</div><span class="n">100%</span><div class="l">Traceable Decisions</div></div>
+        <div class="stat-chip"><div class="stat-ico">${ico('trending-up')}</div><span class="n">∞</span><div class="l">Compounds Over Time</div></div>
+      </div>
+      <p class="title-hint">${ico('keyboard')} Arrow keys · Next · Autoplay for presentation mode</p>
+    </div>`,
+
+    // 1 — Whole brain map
+    () => `
+    <div class="map-shell fill">
+      <div class="slide-header">
+        <div class="slide-header-left">
+          <p class="eyebrow">${ico('network')} The Architecture</p>
+          <h1 class="slide-h1">One Operating System for Your Organisation</h1>
+        </div>
+      </div>
+      <p class="slide-sub">Nine specialist assistants connected to a single shared memory — every meeting, decision, and document feeds every future query.</p>
+      ${narrativeHtml('brainmap')}
+      <div class="g2 fill">
+        <div class="diagram" id="mindmapDiagram"></div>
+        <div class="brain-list">
+          ${BRAINS.map(brainListCardHtml).join('')}
+        </div>
+      </div>
+    </div>`,
+
+    // 2 — Brain spotlights
+    () => {
+      const b = BRAIN_MAP[spotBrain];
+      return `
+    <div class="spotlight-shell fill">
+      <div class="spotlight-top">
+        <p class="eyebrow">${ico('scan-search')} Capability Examples</p>
+        <h1 class="slide-h1">Real-world examples — click any capability</h1>
+      </div>
+      ${narrativeHtml('spotlights')}
+      <div class="spotlight-body">
+        <nav class="v-tabs spotlight-brain-tabs" id="brainTabs">
+          ${BRAINS.map(br => brainTabHtml(br, spotBrain)).join('')}
+        </nav>
+        <aside class="spotlight-aside" style="--brain-color:${b.color};">
+          <div class="example-hero" style="border-left:3px solid ${b.color};">
+            <div class="brain-badge" style="display:flex;align-items:center;gap:7px;margin-bottom:8px;color:${b.color};font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;">
+              <span style="width:26px;height:26px;border-radius:7px;background:${b.color}22;display:flex;align-items:center;justify-content:center;">${ico(b.icon)}</span>
+              ${b.label}
+            </div>
+            <div class="q">${ico('message-square')} ${b.example.q}</div>
+          </div>
+          <div class="spotlight-narrative">
+            <strong>What this assistant does</strong>
+            ${b.tagline}. It turns a specific business question into a traceable answer with source context, specialist reasoning, and a reusable artifact.
+          </div>
+          <div class="spotlight-info-grid">
+            <div class="spotlight-info-card">${ico('search-check')}<div><strong>Inputs</strong><span>${b.example.flow.split(/\s*→\s*/)[0]}</span></div></div>
+            <div class="spotlight-info-card">${ico('route')}<div><strong>Reasoning path</strong><span>${b.example.flow.split(/\s*→\s*/).slice(1, -1).join(' → ') || 'Specialist assistant applies context and rules'}</span></div></div>
+            <div class="spotlight-info-card">${ico('file-check')}<div><strong>Output</strong><span>${b.example.flow.split(/\s*→\s*/).slice(-1)[0]}</span></div></div>
+            <div class="spotlight-info-card">${ico('repeat')}<div><strong>Reusable memory</strong><span>The decision and citations become context for future runs.</span></div></div>
+          </div>
+          <div class="outcome-card" style="color:${b.color};border-color:${b.color}33;background:${b.color}0d;">
+            ${ico('circle-check')} ${b.example.outcome}
+          </div>
+          <div class="tools-panel">
+            <div class="tools-panel-label">${ico('wrench')} Tools</div>
+            <div class="tool-tabs" style="--tool-color:${b.color};">
+              ${b.tools.map((t,i)=>'<button type="button" class="tool-tab '+(i===0?'active':'')+'" data-tool="'+i+'"><span class="tool-tab-num">'+(i+1)+'</span>'+ico('puzzle')+'<span>'+t+'</span></button>').join('')}
+            </div>
+          </div>
+        </aside>
+        <div class="diagram spotlight-diagram" id="brainDiagram"></div>
+      </div>
+    </div>`;
+    },
+
+    // 3 — Agentic flow
+    () => {
+      const uc = USE_CASES[agentCase];
+      const step = uc.steps[agentStep];
+      const agentIco = AGENT_ICONS[step.agent] || 'bot';
+      const color = agentColor(step.agent);
+      const total = uc.steps.length;
+      return `
+    <div class="agent-slide fill">
+      <div class="slide-header">
+        <div class="slide-header-left">
+          <p class="eyebrow">${ico('bot')} Agentic Control Flow</p>
+          <h1 class="slide-h1">Agents Handle the Heavy Lifting</h1>
+        </div>
+      </div>
+      <div class="usecase-tabs" id="ucTabs">
+        ${Object.keys(USE_CASES).map(useCaseTabHtml).join('')}
+      </div>
+      ${narrativeHtml('agentic')}
+      <div class="agent-shell">
+        <nav class="v-tabs" id="agentVTabs">
+          ${uc.steps.map(function(s, i) { return agentTabHtml(s, i, agentStep, total); }).join('')}
+        </nav>
+        <div class="agent-content">
+          <div class="agent-step-card" style="--step-color:${color}">
+            <div class="asc-head">
+              <div class="asc-agent">
+                <div class="asc-agent-ico" style="background:${color}22;color:${color}">${ico(agentIco)}</div>
+                <div>
+                  <div class="asc-agent-name" style="color:${color}">${step.agent}</div>
+                  <div class="asc-title">${step.title}</div>
+                </div>
+              </div>
+              <span class="asc-step-badge">Step ${agentStep + 1} / ${total}</span>
+            </div>
+            <div class="asc-output">${ico('circle-check')}<span><strong style="color:var(--text)">Output — </strong>${step.output}</span></div>
+            ${agentExplainCardsHtml(step)}
+            <div class="asc-tools-label">${ico('puzzle')} Agent tools</div>
+            <div class="asc-tools-grid">${agentToolCardsHtml(step.tools)}</div>
+            <div class="diagram agent-pipeline-diagram" id="agentPipelineDiag"></div>
+          </div>
+          <div class="agent-logic-card">${agentLogicHtml()}</div>
+        </div>
+      </div>
+    </div>`;
+    },
+
+    // 4 — Copilot
+    () => {
+      const s = COPILOT_STEPS[copilotStep];
+      return `
+    <div class="copilot-shell fill">
+      <div class="slide-header">
+        <div class="slide-header-left">
+          <p class="eyebrow">${ico('message-square')} Copilot Mode — Live at Every Gate</p>
+          <h1 class="slide-h1">Edit Anything With Natural Language</h1>
+        </div>
+      </div>
+      <div class="copilot-surface-tabs" id="copilotSurfaceTabs">
+        ${COPILOT_STEPS.map(copilotSurfaceTabHtml).join('')}
+      </div>
+      ${narrativeHtml('copilot')}
+      <div class="copilot-body">
+        <div class="copilot-left">
+          <p class="label-sm" style="display:flex;align-items:center;gap:6px;flex-shrink:0;">${ico('radio')} ${s.label} · ${s.surface}</p>
+          <div class="copilot-feature-hero">
+            <div class="copilot-feature-ico">${ico('message-square')}</div>
+            <div>
+              <h3>Copilot edits every approval surface in plain language</h3>
+              <p>Instead of asking users to edit raw documents, the copilot turns reviewer instructions into controlled changes for business case gates, requirements documents, repository docs, backlog tasks, and Knowledge Base entries.</p>
+            </div>
+          </div>
+          <div class="copilot-feature-grid">
+            <div class="copilot-feature-card">
+              <div class="copilot-feature-top">${ico('scan-text')}<strong>Understands the current surface</strong></div>
+              <p>Uses the selected module, document section, gate, and approved memory so the suggestion is grounded in the current work.</p>
+            </div>
+            <div class="copilot-feature-card">
+              <div class="copilot-feature-top">${ico('wand-sparkles')}<strong>Turns comments into edits</strong></div>
+              <p>Converts requests like “tighten this section” or “add acceptance criteria” into a concrete proposed change.</p>
+            </div>
+            <div class="copilot-feature-card highlight">
+              <div class="copilot-feature-top">${ico('shield-check')}<strong>Human approval stays mandatory</strong></div>
+              <p>Every suggestion remains a draft until a reviewer accepts, edits, or rejects it at the gate.</p>
+            </div>
+            <div class="copilot-feature-card">
+              <div class="copilot-feature-top">${ico('history')}<strong>Keeps an audit trail</strong></div>
+              <p>Preserves the source document, user instruction, AI proposal, reviewer action, and final approved version.</p>
+            </div>
+          </div>
+          <div class="copilot-review-grid">
+            <div class="copilot-review-card">${ico('check-circle')}<div><strong>Preview diff</strong><span>Reviewer sees the changed wording before it is applied.</span></div></div>
+            <div class="copilot-review-card">${ico('file-check')}<div><strong>Preserve source</strong><span>Original draft and cited context remain attached for audit.</span></div></div>
+            <div class="copilot-review-card">${ico('database')}<div><strong>Publish memory</strong><span>Only approved edits become trusted Knowledge Base content.</span></div></div>
+          </div>
+          <div class="copilot-tool-tabs">${copilotToolTabsHtml(s.tools)}</div>
+        </div>
+        <div class="diagram" id="copilotSeqDiag"></div>
+      </div>
+      <p class="note" style="flex-shrink:0;display:flex;align-items:center;gap:6px;margin-top:6px;">${ico('shield-check')} Human approves all AI edits before they are published to the Knowledge Base.</p>
+    </div>`;
+    },
+
+    // 5 — Learning loop
+    () => {
+      const sc = LEARN_SC[learnSc];
+      return `
+    <div class="learn-shell fill">
+      <div class="slide-header">
+        <div class="slide-header-left">
+          <p class="eyebrow">${ico('lightbulb')} Learning Loop — Live in Step 11</p>
+          <h1 class="slide-h1">The System Gets Smarter With Every Correction</h1>
+        </div>
+      </div>
+      ${narrativeHtml('learning')}
+      <div class="learn-body">
+        <nav class="v-tabs learn-scenario-tabs" id="scenPills">
+          ${LEARN_SC.map(learnScenarioTabHtml).join('')}
+        </nav>
+        <div class="learn-card-wrap">
+          <div class="learn-card">
+            <div class="learn-summary">
+              <span class="learn-badge ${sc.badge}">${ico(sc.badge==='high'?'flame':'alert-circle')} ${sc.badge.toUpperCase()}</span>
+              <h4>${sc.title}</h4>
+              <p>Target: <strong>${sc.target}</strong><br>${sc.text}</p>
+            </div>
+            <div class="learn-detail-grid">
+              <div class="learn-detail-card">${ico('radar')}<div><h5>Signal detected</h5><span>${sc.signal}</span></div></div>
+              <div class="learn-detail-card">${ico('database')}<div><h5>Stored in memory</h5><span>${sc.store}</span></div></div>
+            </div>
+            <div class="learn-rule-grid">
+              <div class="learn-rule-card">
+                <h5>${ico('history')} Before this learning</h5>
+                <div class="learn-rule-copy">${sc.before}</div>
+              </div>
+              <div class="learn-rule-card">
+                <h5>${ico('sparkles')} What changes after approval</h5>
+                <div class="learn-rule-copy">${sc.after}</div>
+              </div>
+            </div>
+            <div class="learn-control-row">
+              <div class="learn-control-card">${ico('mouse-pointer-click')}<div><strong>Explicit click</strong><span>Nothing changes unless a user accepts or edits it.</span></div></div>
+              <div class="learn-control-card">${ico('file-search')}<div><strong>Audit trail</strong><span>Stores who approved it, source run, and target file.</span></div></div>
+              <div class="learn-control-card">${ico('repeat')}<div><strong>Next run</strong><span>${sc.applies}</span></div></div>
+            </div>
+            <div class="learn-actions">
+              <button class="learn-btn accept">${ico('check')} Accept as-is</button>
+              <button class="learn-btn edit">${ico('pencil')} Edit &amp; accept</button>
+              <button class="learn-btn dismiss">${ico('x')} Not now</button>
+            </div>
+          </div>
+          <p class="note" style="display:flex;align-items:flex-start;gap:6px;flex-shrink:0;">${ico('info')} Nothing is auto-applied. Every learning requires an explicit user click.</p>
+        </div>
+        <div class="diagram" id="learnDiag"></div>
+      </div>
+    </div>`;
+    },
+
+    // 6 — Real-world wins (by department)
+    () => {
+      const dept = DEPT_MAP[winDept];
+      const examples = dept.brains.map(function(id) { return BRAIN_MAP[id]; });
+      return `
+    <div class="wins-shell fill">
+      <div class="slide-header">
+        <div class="slide-header-left">
+          <p class="eyebrow">${ico('trophy')} Real-World Examples</p>
+          <h1 class="slide-h1">From Question to Decision in Minutes</h1>
+        </div>
+      </div>
+      <p class="slide-sub" style="margin-bottom:8px;">Organised by department — Executive, Finance, Operations, HR, and IT each have live examples.</p>
+      ${narrativeHtml('wins')}
+      <div class="wins-body">
+        <nav class="v-tabs" id="deptTabs">
+          ${DEPT_WINS.map(function(d) { return deptTabHtml(d, winDept); }).join('')}
+        </nav>
+        <div class="wins-main">
+          <div class="dept-hero" style="--dept-color:${dept.color};border-left-color:${dept.color}">
+            <div class="dept-hero-ico" style="background:${dept.color}22;color:${dept.color}">${ico(dept.icon)}</div>
+            <div>
+              <div class="dept-hero-name" style="color:${dept.color}">${dept.label}</div>
+              <div class="dept-hero-tag">${dept.tagline}</div>
+            </div>
+            <span class="dept-hero-count">${examples.length} live ${examples.length === 1 ? 'example' : 'examples'}</span>
+          </div>
+          <div class="win-examples-grid" style="grid-template-columns:repeat(${Math.min(examples.length, 3)}, 1fr);">
+            ${examples.map(winExampleCardHtml).join('')}
+          </div>
+        </div>
+      </div>
+    </div>`;
+    },
+
+    // 7 — Developer tools
+    () => `
+    <div class="dev-shell fill">
+      <div class="slide-header">
+        <div class="slide-header-left">
+          <p class="eyebrow">${ico('layers')} App Modules & Tools</p>
+          <h1 class="slide-h1">What the App Is Made Of</h1>
+        </div>
+      </div>
+      <p class="slide-sub">Modules are the parts users work in, like Business Case, Requirements, Backlog, Repository, and Knowledge Base. Tools are supporting capabilities, like transcription, copilot edits, search, citations, approval gates, and sync.</p>
+      ${narrativeHtml('devtools')}
+    <div class="dev-body">
+      <nav class="v-tabs" id="devCatRow">
+        ${DEV_CATEGORIES.map(devCategoryTabHtml).join('')}
+      </nav>
+      <div class="dev-main">
+        ${devArchitectureHtml()}
+        <div class="dev-grid" id="devGrid">
+          ${filteredDevTools().map(devCardHtml).join('')}
+        </div>
+      </div>
+      </div>
+    </div>`,
+
+    // 8 — Closing value
+    () => `
+    <div class="closing-shell fill">
+      <div class="slide-header">
+        <div class="slide-header-left">
+          <p class="eyebrow">${ico('gem')} Platform Value</p>
+          <h1 class="slide-h1">Everything You Need to Run a Smarter Organisation</h1>
+        </div>
+      </div>
+      <p class="slide-sub" style="margin-bottom:8px;">Nine assistants. One memory. Every decision traceable, reusable, and compounding.</p>
+      ${narrativeHtml('closing')}
+      <div class="closing-body">
+        <div class="value-pillars">
+          ${PLATFORM_VALUES.map(valuePillarHtml).join('')}
+        </div>
+        <div class="closing-right">
+          <div class="cap-map-card">
+            <div class="closing-card-head">${ico('layout-grid')} What stakeholders get</div>
+            ${capMapHtml()}
+          </div>
+          <div class="flywheel-card">
+            <div class="closing-card-head">${ico('refresh-cw')} The compounding operating loop</div>
+            ${valueFlywheelHtml()}
+          </div>
+          <div class="memory-timeline-card">
+            <div class="closing-card-head">${ico('route')} From meeting to institutional memory</div>
+            <div class="memory-track">${memoryTimelineHtml()}</div>
+          </div>
+        </div>
+      </div>
+    </div>`
+  ];
+
+  // ─── Post-render setup ───────────────────────────────────────────────────
+  const SETUP = [
+    null,
+    el => renderMermaid(el.querySelector('#mindmapDiagram'), MIND_BRAINS, {
+      labelColors: {
+        'Backlog Planning':'#2563eb',
+        'Cycle Planner':'#1d4ed8',
+        'Sheets Sync':'#3b82f6'
+      }
+    }),
+    el => {
+      const diag = el.querySelector('#brainDiagram');
+      const steps = BRAIN_MAP[spotBrain].example.flow.split(/\s*→\s*/).length;
+      return renderMermaid(diag, BRAIN_MAP[spotBrain].diagram, {
+        spotlight: true,
+        label: 'Process flow · ' + steps + ' steps'
+      }).then(function() {
+        el.querySelectorAll('.brain-tab').forEach(c => {
+          c.addEventListener('click', () => { spotBrain = c.dataset.brain; renderSlide(cur); });
+        });
+        el.querySelectorAll('.tool-tab').forEach(tab => {
+          tab.addEventListener('click', () => {
+            el.querySelectorAll('.tool-tab').forEach(t => t.classList.toggle('active', t === tab));
+          });
+        });
+      });
+    },
+    el => {
+      return renderMermaid(el.querySelector('#agentPipelineDiag'), useCaseMermaid(USE_CASES[agentCase]), {
+        label: 'Use-case pipeline · ' + USE_CASES[agentCase].label
+      }).then(function() {
+        el.querySelectorAll('.usecase-tab').forEach(btn => {
+          btn.addEventListener('click', () => { agentCase = btn.dataset.case; agentStep = 0; renderSlide(cur); });
+        });
+        el.querySelectorAll('#agentVTabs .v-tab').forEach(btn => {
+          btn.addEventListener('click', () => { agentStep = +btn.dataset.step; renderSlide(cur); });
+        });
+      });
+    },
+    el => {
+      return renderMermaid(el.querySelector('#copilotSeqDiag'), COPILOT_SEQ).then(function() {
+        el.querySelectorAll('.copilot-surface-tab').forEach(function(tab) {
+          tab.addEventListener('click', function() { copilotStep = +tab.dataset.copilot; renderSlide(cur); });
+        });
+      });
+    },
+    el => {
+      return renderMermaid(el.querySelector('#learnDiag'), LEARN_LOOP).then(function() {
+        el.querySelectorAll('.learn-scenario-tab').forEach(p => {
+          p.addEventListener('click', () => { learnSc = +p.dataset.sc; renderSlide(cur); });
+        });
+      });
+    },
+    el => {
+      el.querySelectorAll('.dept-tab').forEach(function(btn) {
+        btn.addEventListener('click', function() { winDept = btn.dataset.dept; renderSlide(cur); });
+      });
+    },
+    el => {
+      el.querySelectorAll('.dev-cat-tab').forEach(function(p) {
+        p.addEventListener('click', function() { devCat = p.dataset.cat; renderSlide(cur); });
+      });
+    },
+    null
+  ];
+
+  // ─── Render engine ───────────────────────────────────────────────────────
+  async function renderSlide(idx) {
+    const stage = document.getElementById('stage');
+    [...stage.querySelectorAll('.slide')].forEach(el => el.remove());
+    const slide = document.createElement('div');
+    slide.className = 'slide active';
+    slide.innerHTML = SLIDES[idx]();
+    stage.appendChild(slide);
+    refreshIcons(slide);
+    if (SETUP[idx]) await SETUP[idx](slide);
+    document.querySelectorAll('.p-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
+    document.getElementById('counter').textContent = `${idx + 1} / ${SLIDE_META.length}`;
+    document.querySelectorAll('.jump-tile').forEach((t, i) => t.classList.toggle('cur', i === idx));
+  }
+
+  // ─── Navigation ──────────────────────────────────────────────────────────
+  function goTo(idx) {
+    if (idx < 0 || idx >= SLIDE_META.length) return;
+    cur = idx;
+    renderSlide(idx);
+  }
+  const next = () => goTo(Math.min(cur + 1, SLIDE_META.length - 1));
+  const prev = () => goTo(Math.max(cur - 1, 0));
+
+  function toggleAutoplay() {
+    const btn = document.getElementById('btnAutoplay');
+    if (autoTimer) {
+      clearInterval(autoTimer); autoTimer = null;
+      btn.innerHTML = ico('play') + ' Autoplay'; btn.className = 'btn';
+      refreshIcons(btn);
+    } else {
+      autoTimer = setInterval(() => {
+        if (cur >= SLIDE_META.length - 1) {
+          clearInterval(autoTimer); autoTimer = null;
+          btn.innerHTML = ico('play') + ' Autoplay'; btn.className = 'btn';
+          refreshIcons(btn);
+        } else { next(); }
+      }, 9000);
+      btn.innerHTML = ico('pause') + ' Pause'; btn.className = 'btn playing';
+      refreshIcons(btn);
+    }
+  }
+
+  // ─── Init ────────────────────────────────────────────────────────────────
+  const rail = document.getElementById('progressRail');
+  const jgrid = document.getElementById('jumpGridModal');
+  SLIDE_META.forEach((m, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'p-dot' + (i === 0 ? ' active' : '');
+    dot.title = m.label;
+    dot.addEventListener('click', () => goTo(i));
+    rail.appendChild(dot);
+    if (i < SLIDE_META.length - 1) { const sep = document.createElement('div'); sep.className = 'p-sep'; rail.appendChild(sep); }
+
+    const tile = document.createElement('div');
+    tile.className = 'jump-tile' + (i === 0 ? ' cur' : '');
+    tile.innerHTML = `<div class="jn">${i + 1}</div><div class="jl">${m.label}</div>`;
+    tile.addEventListener('click', () => { goTo(i); document.getElementById('jumpOverlay').classList.remove('open'); });
+    jgrid.appendChild(tile);
+  });
+
+  goTo(0);
+  refreshIcons(document);
+
+  document.getElementById('btnPrev').addEventListener('click', prev);
+  document.getElementById('btnNext').addEventListener('click', next);
+  document.getElementById('btnAutoplay').addEventListener('click', toggleAutoplay);
+  document.getElementById('btnJump').addEventListener('click', () => document.getElementById('jumpOverlay').classList.toggle('open'));
+  document.getElementById('jumpOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('open'); });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next();
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') prev();
+    if (e.key === 'Escape') document.getElementById('jumpOverlay').classList.remove('open');
+  });
+</script>
+</body>
+</html>
