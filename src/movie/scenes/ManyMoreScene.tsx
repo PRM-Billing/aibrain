@@ -1,15 +1,30 @@
 import { useCallback } from 'react';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, BookOpen, Users, Briefcase, FileSignature, ClipboardCheck, ShieldAlert, FileBarChart, GitMerge, Activity, Mail, Star, AlertOctagon, GraduationCap, Search, Building2, ArrowRight } from 'lucide-react';
 import { SceneShell } from '../../components/SceneShell';
-import { GlassCard } from '../../components/GlassCard';
+import { GlassCard, IconBadge } from '../../components/GlassCard';
 import { useSceneTimeline, staggerIn } from '../useSceneTimeline';
 
 type Props = { active: boolean };
 
-const types = [
-  'SOPs', 'Onboarding Docs', 'Project Briefs', 'Proposals', 'Contracts', 'Audit Reports',
-  'Policy Documents', 'Decision Memos', 'Runbooks', 'Status Reports', 'Executive Summaries',
-  'Meeting Briefs', 'Risk Registers', 'Training Guides', 'RFP Responses', 'Vendor Comparisons',
+type AccentColor = 'blue' | 'teal' | 'green' | 'gold' | 'rose' | 'purple' | 'sky' | 'orange' | 'pink';
+
+const types: { icon: React.ReactNode; color: AccentColor; label: string }[] = [
+  { icon: <BookOpen size={13} />,       color: 'teal',   label: 'SOPs' },
+  { icon: <Users size={13} />,          color: 'blue',   label: 'Onboarding Docs' },
+  { icon: <Briefcase size={13} />,      color: 'gold',   label: 'Project Briefs' },
+  { icon: <FileSignature size={13} />,  color: 'purple', label: 'Proposals' },
+  { icon: <FileSignature size={13} />,  color: 'rose',   label: 'Contracts' },
+  { icon: <ClipboardCheck size={13} />, color: 'green',  label: 'Audit Reports' },
+  { icon: <ShieldAlert size={13} />,    color: 'orange', label: 'Policy Documents' },
+  { icon: <GitMerge size={13} />,       color: 'sky',    label: 'Decision Memos' },
+  { icon: <Activity size={13} />,       color: 'teal',   label: 'Runbooks' },
+  { icon: <FileBarChart size={13} />,   color: 'blue',   label: 'Status Reports' },
+  { icon: <Mail size={13} />,           color: 'purple', label: 'Executive Summaries' },
+  { icon: <Star size={13} />,           color: 'gold',   label: 'Meeting Briefs' },
+  { icon: <AlertOctagon size={13} />,   color: 'rose',   label: 'Risk Registers' },
+  { icon: <GraduationCap size={13} />,  color: 'green',  label: 'Training Guides' },
+  { icon: <Search size={13} />,         color: 'sky',    label: 'RFP Responses' },
+  { icon: <Building2 size={13} />,      color: 'orange', label: 'Vendor Comparisons' },
 ];
 
 export function ManyMoreScene({ active }: Props) {
@@ -24,19 +39,24 @@ export function ManyMoreScene({ active }: Props) {
   return (
     <div ref={ref}>
       <SceneShell
-        eyebrow={<><Sparkles size={12} /> Endless Possibilities</>}
+        eyebrow={<><Sparkles size={11} /> Extensible by Design</>}
         headline="Define the Rules — Get Any Document."
         subline="Anything your organisation writes repeatedly, Aura can produce once you set the template and rules."
       >
-        <div className="fill" style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', overflow: 'hidden' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6, overflowY: 'auto', flex: 1 }}>
+        <div className="fill" style={{ display: 'flex', flexDirection: 'column', gap: '0.55rem', overflow: 'hidden' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '0.4rem', flex: 1, overflowY: 'auto' }}>
             {types.map((t) => (
-              <GlassCard key={t} animate="card" style={{ padding: '0.5rem 0.6rem', fontSize: '0.68rem', fontWeight: 700 }}>{t}</GlassCard>
+              <div key={t.label} data-animate="card" className="card" style={{ padding: '0.55rem 0.65rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <IconBadge color={t.color} size="sm">{t.icon}</IconBadge>
+                <span style={{ fontSize: '0.67rem', fontWeight: 700, lineHeight: 1.2 }}>{t.label}</span>
+              </div>
             ))}
-            <GlassCard animate="card" style={{ padding: '0.5rem', fontSize: '0.68rem', fontWeight: 700, borderColor: 'rgba(109,125,252,.4)', color: 'var(--accent2)' }}>+ Your custom artifact</GlassCard>
           </div>
-          <GlassCard animate="rule" style={{ padding: '0.65rem', textAlign: 'center', fontSize: '0.78rem', fontWeight: 700, color: 'var(--accent2)' }}>
-            Define the rules → Aura produces it
+
+          <GlassCard accent="blue" animate="rule" style={{ padding: '0.65rem 1rem', display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <span style={{ fontSize: '0.7rem', fontWeight: 700 }}>Your template + rules</span>
+            <ArrowRight size={14} color="var(--muted2)" />
+            <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--accent2)' }}>New document type, produced automatically</span>
           </GlassCard>
         </div>
       </SceneShell>
