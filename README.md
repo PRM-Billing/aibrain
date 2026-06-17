@@ -26,16 +26,18 @@ This app is Railway-ready:
 - `server.js` serves the static deck and uses Railway's `PORT` environment variable.
 - `railway.json` tells Railway to use Nixpacks and run `npm start`.
 
-### Required environment variables (Railway)
+### Environment variables (Railway)
 
-| Variable | Value |
-|----------|-------|
-| `APP_USERNAME` | `prm` |
-| `APP_PASSWORD` | `PrmAIBrain2026!` |
+Auth is **on by default on Railway**. Set any one password variable (they are equivalent):
 
-When `APP_PASSWORD` is set, visitors are redirected to a **sign-in page** (`/login.html`) before the deck loads. Sessions last 24 hours via secure cookie.
+| Variable | Recommended value |
+|----------|-------------------|
+| `APP_USERNAME` or `DECK_USERNAME` | `prm` |
+| `APP_PASSWORD` or `DECK_PASSWORD` or `SITE_PASSWORD` | `PrmAIBrain2026!` |
 
-Optional: set `SESSION_SECRET` for cookie signing (defaults to `APP_PASSWORD`).
+If none are set on Railway, the documented default password above is used automatically.
+
+To disable auth locally only: `AUTH_DISABLED=true npm start`
 
 ### Search engine blocking
 
