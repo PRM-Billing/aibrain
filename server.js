@@ -6,7 +6,6 @@ const crypto = require('crypto');
 const port = process.env.PORT || 3000;
 const root = __dirname;
 
-const railwayHosted = Boolean(process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY_PROJECT_ID);
 const authDisabled = ['1', 'true', 'yes'].includes(String(process.env.AUTH_DISABLED || '').toLowerCase());
 
 const appUsername = (
@@ -15,16 +14,21 @@ const appUsername = (
   'prm'
 ).trim();
 
-// Accept several Railway variable names; fall back to documented deck password on Railway
 const appPassword = (
   process.env.APP_PASSWORD ||
   process.env.SITE_PASSWORD ||
   process.env.DECK_PASSWORD ||
   process.env.AUTH_PASSWORD ||
-  (railwayHosted ? 'PrmAIBrain2026!' : '')
+  'PrmAIBrain2026!'
 ).trim();
 
 const authEnabled = !authDisabled && Boolean(appPassword);
+const passwordFromEnv = Boolean(
+  process.env.APP_PASSWORD ||
+  process.env.SITE_PASSWORD ||
+  process.env.DECK_PASSWORD ||
+  process.env.AUTH_PASSWORD
+);
 const sessionSecret = (process.env.SESSION_SECRET || appPassword || 'dev-insecure-secret').trim();
 const sessionCookie = 'aibrain_session';
 const sessionMaxAgeSec = 60 * 60 * 24; // 24 hours
@@ -222,10 +226,9 @@ const server = http.createServer(async (req, res) => {
 
 server.listen(port, () => {
   if (authEnabled) {
-    const source = process.env.APP_PASSWORD || process.env.DECK_PASSWORD || process.env.SITE_PASSWORD
-      ? 'env'
-      : railwayHosted ? 'railway-default' : 'fallback';
-    console.log(`AI Operating Platform deck on port ${port} — UI login enabled (user: "${appUsername}", source: ${source})`);
+    console.log(
+      `AI Operating Platform deck on port ${port} — UI login enabled (user: "${appUsername}", password: ${passwordFromEnv ? 'env' : 'built-in default'})`
+    );
   } else {
     console.warn(`AI Operating Platform deck on port ${port} — WARNING: auth disabled; site is public`);
   }
