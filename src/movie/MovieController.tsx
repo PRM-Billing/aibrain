@@ -1,68 +1,20 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, Pause, Play, Volume2, VolumeX } from 'lucide-react';
-import { ParticleField } from '../components/ParticleField';
+import { DeckBackground } from '../components/DeckBackground';
+import { NARRATION_AUDIO } from '../narration/audio';
 import { NARRATION } from '../narration/narration';
+import { PlaybackProvider } from './PlaybackContext';
 import { SCENES } from './scenes';
 
 export function MovieController() {
   const [index, setIndex] = useState(0);
-  const [playing, setPlaying] = useState(true);
+  const [paused, setPaused] = useState(false);
   const [muted, setMuted] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const scene = SCENES[index];
   const caption = NARRATION[scene.id] ?? '';
-
-  const clearTimer = () => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current = null;
-    }
-  };
-
-  const scheduleAdvance = useCallback(() => {
-    clearTimer();
-    if (!playing) return;
-
-    const audioPath = `/audio/${scene.id}.mp3`;
-    const audio = new Audio(audioPath);
-    audioRef.current = audio;
-    audio.muted = muted;
-
-    const advance = () => {
-      setIndex((i) => {
-        if (i >= SCENES.length - 1) {
-          setPlaying(false);
-          return i;
-        }
-        return i + 1;
-      });
-    };
-
-    audio.addEventListener('error', () => {
-      timerRef.current = setTimeout(advance, scene.durationMs);
-    }, { once: true });
-
-    audio.addEventListener('ended', advance, { once: true });
-
-    audio.play().catch(() => {
-      timerRef.current = setTimeout(advance, scene.durationMs);
-    });
-  }, [playing, muted, scene.id, scene.durationMs]);
-
-  useEffect(() => {
-    scheduleAdvance();
-    return clearTimer;
-  }, [index, playing, scheduleAdvance]);
-
-  useEffect(() => {
-    if (audioRef.current) audioRef.current.muted = muted;
-  }, [muted]);
+  const audioSrc = NARRATION_AUDIO[scene.id];
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -74,88 +26,118 @@ export function MovieController() {
       }
       if (e.key === ' ') {
         e.preventDefault();
-        setPlaying((p) => !p);
+        setPaused((p) => !p);
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    audio.pause();
+    audio.currentTime = 0;
+
+    if (!audioSrc || paused) return;
+
+    const playPromise = audio.play();
+    playPromise?.catch(() => {
+      // Browsers can block autoplay until the first user interaction.
+      setPaused(true);
+    });
+  }, [audioSrc, index]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio || !audioSrc) return;
+
+    if (paused) {
+      audio.pause();
+      return;
+    }
+
+    const playPromise = audio.play();
+    playPromise?.catch(() => {
+      setPaused(true);
+    });
+  }, [audioSrc, paused]);
+
+  useEffect(() => {
+    if (audioRef.current) audioRef.current.muted = muted;
+  }, [muted]);
+
   return (
     <>
-      <ParticleField />
-      <div
-        className="movie-root"
-        style={{
-          background:
-            'radial-gradient(ellipse 60% 55% at 10% -5%, rgba(109,125,252,.15), transparent 50%), var(--bg)',
-        }}
-      >
-        <nav className="progress-dots" aria-label="Scene progress">
-          {SCENES.map((s, i) => (
-            <button
-              key={s.id}
-              type="button"
-              className={`progress-dot${i === index ? ' active' : ''}`}
-              title={s.label}
-              aria-label={`Go to ${s.label}`}
-              onClick={() => setIndex(i)}
-            />
-          ))}
-        </nav>
-        <div className="scene-timer" aria-hidden>
-          <div
-            key={`${scene.id}-${playing ? 'playing' : 'paused'}`}
-            className="scene-timer-fill"
-            style={{
-              animationDuration: `${scene.durationMs}ms`,
-              animationPlayState: playing ? 'running' : 'paused',
-            }}
-          />
-        </div>
-
-        <main className="scene-stage">
-          {SCENES.map((s, i) => {
-            const Comp = s.component;
-            return (
-              <div
+      <DeckBackground />
+      <PlaybackProvider paused={paused} sceneKey={scene.id}>
+        <div className="movie-root">
+          <nav className="progress-dots" aria-label="Scene progress">
+            {SCENES.map((s, i) => (
+              <button
                 key={s.id}
-                className={`scene-layer${i === index ? ' active' : ''}`}
-                aria-hidden={i !== index}
-                data-scene-id={s.id}
-              >
-                <Comp active={i === index} />
-              </div>
-            );
-          })}
-        </main>
+                type="button"
+                className={`progress-dot${i === index ? ' active' : ''}`}
+                title={s.label}
+                aria-label={`Go to ${s.label}`}
+                onClick={() => setIndex(i)}
+              />
+            ))}
+          </nav>
 
-        <div className="caption-bar" aria-live="polite">{caption}</div>
+          <main className="scene-stage">
+            {SCENES.map((s, i) => {
+              const Comp = s.component;
+              return (
+                <div
+                  key={s.id}
+                  className={`scene-layer${i === index ? ' active' : ''}`}
+                  aria-hidden={i !== index}
+                  data-scene-id={s.id}
+                >
+                  <Comp active={i === index} />
+                </div>
+              );
+            })}
+          </main>
 
-        <div className="controls-bar">
-          <button type="button" className="ctrl-btn" onClick={() => setIndex((i) => Math.max(i - 1, 0))}>
-            <ChevronLeft size={16} /> Prev
-          </button>
-          <button
-            type="button"
-            className={`ctrl-btn${playing ? ' playing' : ''}`}
-            onClick={() => setPlaying((p) => !p)}
-          >
-            {playing ? <Pause size={16} /> : <Play size={16} />}
-            {playing ? 'Pause' : 'Play'}
-          </button>
-          <button type="button" className="ctrl-btn" onClick={() => setMuted((m) => !m)} title="Mute voiceover">
-            {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
-            {muted ? 'Muted' : 'Sound'}
-          </button>
-          <span className="scene-counter">
-            {index + 1} / {SCENES.length} · {scene.label}
-          </span>
-          <button type="button" className="ctrl-btn primary" onClick={() => setIndex((i) => Math.min(i + 1, SCENES.length - 1))}>
-            Next <ChevronRight size={16} />
-          </button>
+          <div className="caption-bar" aria-live="polite">{caption}</div>
+
+          <audio
+            key={audioSrc ?? 'no-audio'}
+            ref={audioRef}
+            src={audioSrc}
+            muted={muted}
+            preload="auto"
+          />
+
+          <div className="controls-bar">
+            <button type="button" className="ctrl-btn" onClick={() => setIndex((i) => Math.max(i - 1, 0))}>
+              <ChevronLeft size={16} /> Prev
+            </button>
+            <button
+              type="button"
+              className={`ctrl-btn${!paused ? ' playing' : ''}`}
+              onClick={() => setPaused((p) => !p)}
+              aria-pressed={!paused}
+            >
+              {paused ? <Play size={16} /> : <Pause size={16} />}
+              {paused ? 'Play' : 'Pause'}
+            </button>
+            <button type="button" className="ctrl-btn" onClick={() => setMuted((m) => !m)} title="Mute voiceover">
+              {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+              {muted ? 'Muted' : 'Sound'}
+            </button>
+            <span className="scene-counter">
+              {index + 1} / {SCENES.length} · {scene.label}
+            </span>
+            <button type="button" className="ctrl-btn primary" onClick={() => setIndex((i) => Math.min(i + 1, SCENES.length - 1))}>
+              Next <ChevronRight size={16} />
+            </button>
+          </div>
         </div>
-      </div>
+      </PlaybackProvider>
     </>
   );
 }

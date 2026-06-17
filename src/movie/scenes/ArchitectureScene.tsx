@@ -43,7 +43,7 @@ export function ArchitectureScene({ active }: Props) {
             {nodes.map((n, i) => (
               <div key={n.label} style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
                 <GlassCard accent={n.color} animate="node" style={{ padding: '0.65rem 0.8rem', display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-                  <IconBadge color={n.color}>{n.icon}</IconBadge>
+                  <IconBadge color={n.color} size="lg">{n.icon}</IconBadge>
                   <div>
                     <div style={{ fontSize: '0.72rem', fontWeight: 800 }}>{n.label}</div>
                     <div style={{ fontSize: '0.6rem', color: 'var(--muted)', marginTop: 2 }}>{n.sub}</div>

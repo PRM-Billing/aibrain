@@ -44,7 +44,7 @@ export function ArtifactsScene({ active }: Props) {
             {pipeline.map((s, i) => (
               <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                 <div data-animate="step" className="card" style={{ padding: '0.45rem 0.65rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                  <IconBadge color={s.color} size="sm">{s.icon}</IconBadge>
+                  <IconBadge color={s.color} size="md">{s.icon}</IconBadge>
                   <span style={{ fontSize: '0.65rem', fontWeight: 700 }}>{s.label}</span>
                 </div>
                 {i < pipeline.length - 1 && <ArrowRight size={12} color="var(--muted2)" />}
@@ -56,7 +56,7 @@ export function ArtifactsScene({ active }: Props) {
           <div className="grid-4" style={{ flex: 1 }}>
             {examples.map((e) => (
               <GlassCard key={e.label} accent={e.color} animate="ex" style={{ padding: '0.85rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <IconBadge color={e.color}>{e.icon}</IconBadge>
+                <IconBadge color={e.color} size="lg">{e.icon}</IconBadge>
                 <div style={{ fontSize: '0.72rem', fontWeight: 800, lineHeight: 1.2 }}>{e.label}</div>
                 <div style={{ fontSize: '0.62rem', color: 'var(--muted)', lineHeight: 1.4, flex: 1 }}>{e.sub}</div>
                 <span className="chip" style={{ color: 'var(--green2)', borderColor: 'rgba(52,211,153,.25)', width: 'fit-content', fontSize: '0.58rem' }}>Draft ready</span>

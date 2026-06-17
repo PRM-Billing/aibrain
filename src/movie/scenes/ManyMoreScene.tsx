@@ -47,7 +47,7 @@ export function ManyMoreScene({ active }: Props) {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '0.4rem', flex: 1, overflowY: 'auto' }}>
             {types.map((t) => (
               <div key={t.label} data-animate="card" className="card" style={{ padding: '0.55rem 0.65rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <IconBadge color={t.color} size="sm">{t.icon}</IconBadge>
+                <IconBadge color={t.color} size="md">{t.icon}</IconBadge>
                 <span style={{ fontSize: '0.67rem', fontWeight: 700, lineHeight: 1.2 }}>{t.label}</span>
               </div>
             ))}

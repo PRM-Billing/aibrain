@@ -46,7 +46,7 @@ export function DashboardsScene({ active }: Props) {
             {metrics.map((m, i) => (
               <GlassCard key={m.label} accent={m.color} animate="metric" style={{ padding: '0.8rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
-                  <IconBadge color={m.color}>{m.icon}</IconBadge>
+                  <IconBadge color={m.color} size="lg">{m.icon}</IconBadge>
                 </div>
                 <div style={{ fontSize: 'clamp(1.4rem, 3vw, 2rem)', fontWeight: 900, color: m.accent, lineHeight: 1, letterSpacing: '-0.04em' }}>
                   <span data-count={i}>0</span>{m.suffix}
@@ -60,7 +60,7 @@ export function DashboardsScene({ active }: Props) {
           <div className="grid-4" style={{ flex: 1 }}>
             {views.map((v) => (
               <GlassCard key={v.label} accent={v.color} animate="view" style={{ padding: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
-                <IconBadge color={v.color}>{v.icon}</IconBadge>
+                <IconBadge color={v.color} size="lg">{v.icon}</IconBadge>
                 <div style={{ fontSize: '0.7rem', fontWeight: 800, lineHeight: 1.2 }}>{v.label}</div>
                 <div style={{ fontSize: '0.6rem', color: 'var(--muted)', lineHeight: 1.35, flex: 1 }}>{v.sub}</div>
               </GlassCard>

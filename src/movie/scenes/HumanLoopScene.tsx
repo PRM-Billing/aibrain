@@ -43,7 +43,7 @@ export function HumanLoopScene({ active }: Props) {
               <div key={f.label} style={{ display: 'flex', alignItems: 'stretch', gap: '0.4rem' }}>
                 <GlassCard accent={f.color} animate="step" style={{ padding: '0.75rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <IconBadge color={f.color} size="sm">{f.icon}</IconBadge>
+                    <IconBadge color={f.color} size="md">{f.icon}</IconBadge>
                     <span style={{ fontSize: '0.58rem', fontWeight: 800, color: 'var(--muted2)', letterSpacing: '0.06em' }}>{String(i + 1).padStart(2,'0')}</span>
                   </div>
                   <div style={{ fontSize: '0.7rem', fontWeight: 800, lineHeight: 1.2 }}>{f.label}</div>

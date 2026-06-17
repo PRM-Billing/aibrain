@@ -46,7 +46,7 @@ export function LearningScene({ active }: Props) {
             {steps.map((s, i) => (
               <div key={s.label} style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 <GlassCard accent={s.color} animate="step" style={{ padding: '0.65rem 0.8rem', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                  <IconBadge color={s.color} size="sm">{s.icon}</IconBadge>
+                  <IconBadge color={s.color} size="md">{s.icon}</IconBadge>
                   <div>
                     <div style={{ fontSize: '0.72rem', fontWeight: 800 }}>{s.label}</div>
                     <div style={{ fontSize: '0.6rem', color: 'var(--muted)', marginTop: 2 }}>{s.sub}</div>
@@ -64,7 +64,7 @@ export function LearningScene({ active }: Props) {
           {/* Improvement metric */}
           <GlassCard accent="green" animate="bar-row" style={{ padding: '0.85rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 4 }}>
-              <IconBadge color="green"><TrendingUp size={14} /></IconBadge>
+              <IconBadge color="green" size="lg"><TrendingUp size={16} /></IconBadge>
               <span style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Editing effort needed over time</span>
             </div>
             {bars.map((b) => (

@@ -1,26 +1,64 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Video, Lock, Mic, MicOff, Lightbulb, AlertCircle, TrendingUp } from 'lucide-react';
+import {
+  Video, Lock, Mic, MicOff, Lightbulb, AlertCircle, TrendingUp,
+  Brain, FileSearch, Clock, FileText, Link2,
+} from 'lucide-react';
 import { SceneShell } from '../../components/SceneShell';
 import { GlassCard, IconBadge } from '../../components/GlassCard';
-import { useSceneTimeline, staggerIn } from '../useSceneTimeline';
+import { useSceneTimeline, staggerIn, sequenceIn, fadeIn } from '../useSceneTimeline';
 
 type Props = { active: boolean };
 
 const participants = [
-  { name: 'Host', muted: false, speaking: true },
-  { name: 'VP Ops', muted: false, speaking: false },
-  { name: 'Finance', muted: true, speaking: false },
-  { name: 'Claims', muted: false, speaking: false },
-  { name: 'IT', muted: true, speaking: false },
+  { name: 'Host', role: 'Facilitator', initials: 'HO', muted: false, speaking: true, color: '#6366f1' },
+  { name: 'VP Ops', role: 'Decision owner', initials: 'VO', muted: false, speaking: false, color: '#14b8a6' },
+  { name: 'Finance', role: 'Budget review', initials: 'FI', muted: true, speaking: false, color: '#f59e0b' },
+  { name: 'Claims', role: 'Stakeholder', initials: 'CL', muted: false, speaking: false, color: '#a855f7' },
+  { name: 'IT', role: 'Technical lead', initials: 'IT', muted: true, speaking: false, color: '#3b82f6' },
 ];
 
-const guidance = '"Heads up — a similar scope decision last quarter slipped by 6 weeks. Want me to pull the original estimate and actuals before you commit?"';
+const guidance = 'Heads up — a similar scope decision last quarter slipped by 6 weeks. Want me to pull the original estimate and actuals before you commit?';
 
-const nudges = [
-  { icon: <AlertCircle size={11} />, label: 'Risk flagged', color: 'var(--rose2)' },
-  { icon: <TrendingUp size={11} />, label: 'Data ready', color: 'var(--teal2)' },
-  { icon: <Lightbulb size={11} />, label: 'Action captured', color: 'var(--gold2)' },
+const sourceDocs = [
+  {
+    name: 'Q2 Infrastructure Review.pdf',
+    cite: 'p. 4',
+    excerpt: 'Original estimate: 8 weeks · Actual delivery: 14 weeks',
+    color: 'blue' as const,
+  },
+  {
+    name: 'Budget Actuals Q2.xlsx',
+    cite: 'Row 14',
+    excerpt: '$1.2M over estimate · Owner: VP Ops · Mar 2025',
+    color: 'teal' as const,
+  },
 ];
+
+const insightCards = [
+  {
+    icon: <AlertCircle size={16} />,
+    color: 'rose' as const,
+    title: 'Risk flagged',
+    body: 'Scope slip pattern detected from Q2 infrastructure review',
+  },
+  {
+    icon: <FileSearch size={16} />,
+    color: 'teal' as const,
+    title: 'Data ready',
+    body: 'Original estimate, actuals, and owner notes pulled from memory',
+  },
+  {
+    icon: <Lightbulb size={16} />,
+    color: 'gold' as const,
+    title: 'Action captured',
+    body: 'Follow-up task drafted — review data before team commits',
+  },
+];
+
+const CARD_FROM = { opacity: 0, y: 20, x: 0, scale: 0.96 } as const;
+const CARD_TO = {
+  opacity: 1, y: 0, x: 0, scale: 1, duration: 0.48, ease: 'power3.out', clearProps: 'transform',
+} as const;
 
 export function MeetingAgentScene({ active }: Props) {
   const [typed, setTyped] = useState('');
@@ -28,19 +66,29 @@ export function MeetingAgentScene({ active }: Props) {
   useEffect(() => {
     if (!active) { setTyped(''); return; }
     let i = 0;
-    const id = setInterval(() => {
-      i += 1;
-      setTyped(guidance.slice(0, i));
-      if (i >= guidance.length) clearInterval(id);
-    }, 24);
-    return () => clearInterval(id);
+    let intervalId: ReturnType<typeof setInterval> | undefined;
+    const startDelay = setTimeout(() => {
+      intervalId = setInterval(() => {
+        i += 1;
+        setTyped(guidance.slice(0, i));
+        if (i >= guidance.length && intervalId) clearInterval(intervalId);
+      }, 22);
+    }, 1200);
+    return () => {
+      clearTimeout(startDelay);
+      if (intervalId) clearInterval(intervalId);
+    };
   }, [active]);
 
   const build = useCallback((tl: gsap.core.Timeline, root: HTMLElement) => {
     staggerIn(tl, root, '[data-animate="header"]', 0.1);
-    staggerIn(tl, root, '[data-animate="tile"]', 0.08);
-    staggerIn(tl, root, '[data-animate="guide"]', 0.2);
-    staggerIn(tl, root, '[data-animate="nudge"]', 0.1);
+    fadeIn(tl, root, '[data-animate="meet-panel"]', 0.15);
+    sequenceIn(tl, root, '[data-animate="participant"]', 0.35, 0.12, CARD_FROM, CARD_TO);
+    fadeIn(tl, root, '[data-animate="aura-tile"]', 0.95);
+    fadeIn(tl, root, '[data-animate="guide-panel"]', 1.1);
+    fadeIn(tl, root, '[data-animate="guide-msg"]', 1.35);
+    sequenceIn(tl, root, '[data-animate="doc-ref"]', 1.85, 0.22, CARD_FROM, CARD_TO);
+    sequenceIn(tl, root, '[data-animate="insight"]', 2.35, 0.35, CARD_FROM, CARD_TO);
   }, []);
 
   const ref = useSceneTimeline(active, build);
@@ -52,73 +100,108 @@ export function MeetingAgentScene({ active }: Props) {
         headline="Private Intelligence, Live in Every Meeting."
         subline="Aura understands the conversation as it happens — and guides only you, in real time."
       >
-        <div className="grid-2 fill">
-          {/* Video call mock */}
-          <GlassCard animate="tile" style={{ padding: '0.75rem', overflow: 'hidden' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-              <span style={{ fontSize: '0.62rem', fontWeight: 700, color: 'var(--muted)' }}>Strategy Review</span>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: '0.6rem', color: 'var(--green2)', fontWeight: 700 }}>
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green2)', boxShadow: '0 0 6px var(--green2)' }} />
+        <div className="meeting-scene">
+          <GlassCard animate="meet-panel" accent="blue" className="meeting-panel meeting-panel--call">
+            <div className="meeting-call-header">
+              <div>
+                <div className="meeting-call-title">Strategy Review</div>
+                <div className="meeting-call-meta">
+                  <Clock size={11} /> 32:14 elapsed · 6 participants
+                </div>
+              </div>
+              <span className="meeting-live-badge">
+                <span className="meeting-live-dot" />
                 Live
               </span>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 6 }}>
+
+            <div className="meeting-participant-grid">
               {participants.map((p) => (
-                <div key={p.name} data-animate="tile" style={{
-                  background: p.speaking ? 'linear-gradient(135deg,#1e1040,#0f172a)' : 'var(--s2)',
-                  borderRadius: 8,
-                  padding: '0.55rem 0.4rem',
-                  textAlign: 'center',
-                  border: p.speaking ? '1px solid rgba(99,102,241,.4)' : '1px solid var(--line)',
-                  boxShadow: p.speaking ? '0 0 12px rgba(99,102,241,.2)' : 'none',
-                }}>
-                  <div style={{ width: 28, height: 28, borderRadius: '50%', background: p.speaking ? 'linear-gradient(135deg,#6366f1,#4f46e5)' : 'var(--s3)', margin: '0 auto 5px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    {p.muted ? <MicOff size={12} color="var(--muted)" /> : <Mic size={12} color={p.speaking ? '#fff' : 'var(--muted)'} />}
+                <div
+                  key={p.name}
+                  data-animate="participant"
+                  className={`meeting-participant${p.speaking ? ' meeting-participant--speaking' : ''}`}
+                >
+                  <div
+                    className="meeting-avatar"
+                    style={{ background: `linear-gradient(135deg, ${p.color}, ${p.color}88)` }}
+                  >
+                    {p.initials}
+                    {p.speaking && <span className="meeting-speaking-ring" aria-hidden />}
                   </div>
-                  <div style={{ fontSize: '0.6rem', fontWeight: 700 }}>{p.name}</div>
+                  <div className="meeting-participant-name">{p.name}</div>
+                  <div className="meeting-participant-role">{p.role}</div>
+                  <div className="meeting-mic-status">
+                    {p.muted
+                      ? <><MicOff size={11} /> Muted</>
+                      : <><Mic size={11} /> {p.speaking ? 'Speaking' : 'Active'}</>}
+                  </div>
                 </div>
               ))}
-              {/* Aura tile */}
-              <div data-animate="tile" style={{
-                background: 'linear-gradient(135deg,#1a1040,#0a0e24)',
-                borderRadius: 8,
-                padding: '0.55rem 0.4rem',
-                textAlign: 'center',
-                border: '2px solid rgba(99,102,241,.5)',
-                boxShadow: '0 0 16px rgba(99,102,241,.25)',
-              }}>
-                <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg,#6366f1,#14b8a6)', margin: '0 auto 5px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <span style={{ fontSize: '0.55rem', fontWeight: 900, color: '#fff' }}>AI</span>
+
+              <div data-animate="aura-tile" className="meeting-participant meeting-participant--aura">
+                <div className="meeting-avatar meeting-avatar--aura">
+                  <Brain size={16} />
                 </div>
-                <div style={{ fontSize: '0.6rem', fontWeight: 800, color: 'var(--accent2)' }}>Aura</div>
+                <div className="meeting-participant-name">Aura</div>
+                <div className="meeting-participant-role">Listening &amp; guiding</div>
+                <div className="meeting-mic-status meeting-mic-status--aura">
+                  <TrendingUp size={11} /> Active
+                </div>
               </div>
             </div>
           </GlassCard>
 
-          {/* Whisper panel */}
-          <GlassCard accent="purple" animate="guide" style={{ padding: '0.85rem', borderColor: 'rgba(99,102,241,.3)', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-              <IconBadge color="purple" size="sm"><Lock size={12} /></IconBadge>
-              <span style={{ fontSize: '0.6rem', fontWeight: 800, color: 'var(--accent2)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Only you can see this</span>
+          <GlassCard accent="purple" animate="guide-panel" className="meeting-panel meeting-panel--guide">
+            <div className="meeting-guide-header">
+              <IconBadge color="purple" size="lg"><Lock size={16} /></IconBadge>
+              <div>
+                <div className="meeting-guide-kicker">Private guidance</div>
+                <div className="meeting-guide-label">Only you can see this — never shared with the room</div>
+              </div>
             </div>
-            <div style={{
-              background: 'rgba(99,102,241,.06)',
-              border: '1px solid rgba(99,102,241,.15)',
-              borderRadius: '0.65rem',
-              padding: '0.65rem',
-              fontSize: '0.75rem',
-              lineHeight: 1.5,
-              fontStyle: 'italic',
-              minHeight: 72,
-              flex: 1,
-            }}>
-              {typed}<span style={{ opacity: 0.5 }}>|</span>
+
+            <div className="meeting-context-strip" data-animate="guide-msg">
+              <span className="meeting-context-tag">Topic detected</span>
+              <span className="meeting-context-text">Q3 infrastructure scope &amp; budget commitment</span>
             </div>
-            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-              {nudges.map((n) => (
-                <span key={n.label} data-animate="nudge" className="chip" style={{ color: n.color, borderColor: `${n.color}30` }}>
-                  {n.icon}{n.label}
-                </span>
+
+            <div className="meeting-guide-bubble" data-animate="guide-msg">
+              <div className="meeting-guide-bubble-label">
+                <Brain size={12} /> Aura whispers
+              </div>
+              <p className="meeting-guide-text">
+                &ldquo;{typed}{typed.length < guidance.length && <span className="meeting-cursor">|</span>}&rdquo;
+              </p>
+            </div>
+
+            <div className="meeting-doc-refs">
+              <div className="meeting-doc-refs-label">
+                <Link2 size={11} /> Sources pulled from memory
+              </div>
+              {sourceDocs.map((doc) => (
+                <div key={doc.name} data-animate="doc-ref" className="meeting-doc-ref">
+                  <IconBadge color={doc.color} size="md"><FileText size={14} /></IconBadge>
+                  <div className="meeting-doc-ref-body">
+                    <div className="meeting-doc-ref-name">{doc.name}</div>
+                    <div className="meeting-doc-ref-cite">
+                      <span className="meeting-doc-ref-page">{doc.cite}</span>
+                      {doc.excerpt}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="meeting-insights">
+              {insightCards.map((card) => (
+                <div key={card.title} data-animate="insight" className="meeting-insight-card">
+                  <IconBadge color={card.color} size="md">{card.icon}</IconBadge>
+                  <div>
+                    <div className="meeting-insight-title">{card.title}</div>
+                    <div className="meeting-insight-body">{card.body}</div>
+                  </div>
+                </div>
               ))}
             </div>
           </GlassCard>

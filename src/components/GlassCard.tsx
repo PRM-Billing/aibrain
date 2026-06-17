@@ -24,7 +24,7 @@ type Props = {
 
 export function GlassCard({ children, className = '', style, animate, accent }: Props) {
   return (
-    <div className={`card ${className}`} style={style} data-animate={animate}>
+    <div className={`card ${className}`.trim()} style={style} data-animate={animate}>
       {accent && (
         <div
           className="card-accent-top"
@@ -41,11 +41,14 @@ export function GlassCard({ children, className = '', style, animate, accent }: 
 type IconBadgeProps = {
   children: ReactNode;
   color?: Accent;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
 };
 
 export function IconBadge({ children, color = 'blue', size = 'md' }: IconBadgeProps) {
-  const sizeClass = size === 'lg' ? 'icon-badge-lg' : size === 'sm' ? 'icon-badge-sm' : '';
+  const sizeClass =
+    size === 'xl' ? 'icon-badge-xl' :
+    size === 'lg' ? 'icon-badge-lg' :
+    size === 'sm' ? 'icon-badge-sm' : '';
   return (
     <div className={`icon-badge ib-${color} ${sizeClass}`}>
       {children}
@@ -62,13 +65,15 @@ type FeatCardProps = {
   animate?: string;
   style?: CSSProperties;
   children?: ReactNode;
+  variant?: 'default' | 'hero';
 };
 
-export function FeatCard({ icon, iconColor = 'blue', title, body, accent, animate, style, children }: FeatCardProps) {
+export function FeatCard({ icon, iconColor = 'blue', title, body, accent, animate, style, children, variant = 'default' }: FeatCardProps) {
+  const isHero = variant === 'hero';
   return (
-    <GlassCard accent={accent} animate={animate} style={style}>
-      <div className="feat-card">
-        <IconBadge color={iconColor}>{icon}</IconBadge>
+    <GlassCard accent={accent} animate={animate} style={style} className={isHero ? 'feat-card-wrap--hero' : ''}>
+      <div className={`feat-card${isHero ? ' feat-card--hero' : ''}`}>
+        <IconBadge color={iconColor} size="xl">{icon}</IconBadge>
         <div className="feat-card-title">{title}</div>
         {body && <div className="feat-card-body">{body}</div>}
         {children}
@@ -92,7 +97,7 @@ export function RowCard({ icon, iconColor = 'blue', title, sub, accent, animate,
   return (
     <GlassCard accent={accent} animate={animate} style={style}>
       <div className="row-card">
-        <IconBadge color={iconColor} size="sm">{icon}</IconBadge>
+        <IconBadge color={iconColor} size="md">{icon}</IconBadge>
         <div className="row-card-text">
           <div className="row-card-title">{title}</div>
           {sub && <div className="row-card-sub">{sub}</div>}

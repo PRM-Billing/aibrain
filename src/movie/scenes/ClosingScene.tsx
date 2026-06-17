@@ -45,7 +45,7 @@ export function ClosingScene({ active }: Props) {
       <div className="hero-features" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
         {messages.slice(0, 4).map((m) => (
           <GlassCard key={m.label} accent={m.color} animate="card" style={{ padding: '0.7rem', display: 'flex', flexDirection: 'column', gap: '0.4rem', textAlign: 'left' }}>
-            <IconBadge color={m.color} size="sm">{m.icon}</IconBadge>
+            <IconBadge color={m.color} size="md">{m.icon}</IconBadge>
             <div style={{ fontSize: '0.68rem', fontWeight: 800 }}>{m.label}</div>
             <div style={{ fontSize: '0.58rem', color: 'var(--muted)' }}>{m.sub}</div>
           </GlassCard>
@@ -54,7 +54,7 @@ export function ClosingScene({ active }: Props) {
       <div className="hero-features" style={{ gridTemplateColumns: 'repeat(3, 1fr)', maxWidth: 580 }}>
         {messages.slice(4).map((m) => (
           <GlassCard key={m.label} accent={m.color} animate="card" style={{ padding: '0.7rem', display: 'flex', flexDirection: 'column', gap: '0.4rem', textAlign: 'left' }}>
-            <IconBadge color={m.color} size="sm">{m.icon}</IconBadge>
+            <IconBadge color={m.color} size="md">{m.icon}</IconBadge>
             <div style={{ fontSize: '0.68rem', fontWeight: 800 }}>{m.label}</div>
             <div style={{ fontSize: '0.58rem', color: 'var(--muted)' }}>{m.sub}</div>
           </GlassCard>

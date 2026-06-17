@@ -7,10 +7,10 @@ import { useSceneTimeline, staggerIn, countUp } from '../useSceneTimeline';
 type Props = { active: boolean };
 
 const features = [
-  { icon: <MessageSquare size={15} />, color: 'blue' as const, title: 'In every meeting', body: 'Real-time intelligence — private guidance only you see.' },
-  { icon: <Database size={15} />, color: 'teal' as const, title: 'Living memory', body: 'Every conversation, doc, and decision — searchable forever.' },
-  { icon: <Brain size={15} />, color: 'purple' as const, title: 'Always learning', body: 'Your corrections become permanent organisational standards.' },
-  { icon: <Shield size={15} />, color: 'green' as const, title: 'Enterprise secure', body: 'Encrypted, segmented — your IP never trains external AI.' },
+  { icon: <MessageSquare size={22} strokeWidth={2.25} />, color: 'blue' as const, title: 'In every meeting', body: 'Listens, guides you privately, and creates artifacts — not just notes.' },
+  { icon: <Database size={22} strokeWidth={2.25} />, color: 'teal' as const, title: 'Living memory', body: 'Every conversation, doc, and decision — searchable forever.' },
+  { icon: <Brain size={22} strokeWidth={2.25} />, color: 'purple' as const, title: 'Always learning', body: 'Your corrections become permanent organisational standards.' },
+  { icon: <Shield size={22} strokeWidth={2.25} />, color: 'green' as const, title: 'Enterprise secure', body: 'Encrypted, segmented — your IP never trains external AI.' },
 ];
 
 const stats = [
@@ -42,15 +42,16 @@ export function HeroScene({ active }: Props) {
         <h1 className="hero-title">{BRAND.name}</h1>
         <p className="hero-byline">{BRAND.by}</p>
         <p className="hero-tagline">
-          The AI agent that joins your meetings, remembers everything your organisation knows,
-          and turns every decision into the document that matters.
+          The intelligent agent in your meetings — listens, guides you privately, and{' '}
+          <strong style={{ color: 'var(--accent2)', fontWeight: 700 }}>creates artifacts</strong>
+          {' '}your team needs: business cases, requirements, tasks, and more.
         </p>
       </div>
 
       <div className="hero-stats">
         {stats.map((s, i) => (
           <div key={s.label} data-animate="stat" className="hero-stat card">
-            <IconBadge color={s.color}>{s.icon}</IconBadge>
+            <IconBadge color={s.color} size="lg">{s.icon}</IconBadge>
             <div className="hero-stat-value" style={{ color: s.accent }}>
               {s.display ?? <><span data-count={i}>0</span>{s.suffix}</>}
             </div>
@@ -61,7 +62,7 @@ export function HeroScene({ active }: Props) {
 
       <div className="hero-features">
         {features.map((f) => (
-          <FeatCard key={f.title} icon={f.icon} iconColor={f.color} title={f.title} body={f.body} accent={f.color} animate="feat" />
+          <FeatCard key={f.title} variant="hero" icon={f.icon} iconColor={f.color} title={f.title} body={f.body} accent={f.color} animate="feat" />
         ))}
       </div>
     </div>

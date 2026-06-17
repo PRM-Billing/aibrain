@@ -49,7 +49,7 @@ export function CitationsScene({ active }: Props) {
           {/* Chat mock */}
           <GlassCard animate="msg" style={{ padding: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.55rem', overflow: 'hidden' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 2 }}>
-              <IconBadge color="blue" size="sm"><MessageSquare size={11} /></IconBadge>
+              <IconBadge color="blue" size="md"><MessageSquare size={14} /></IconBadge>
               <span style={{ fontSize: '0.6rem', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Ask Aura</span>
             </div>
 
@@ -81,7 +81,7 @@ export function CitationsScene({ active }: Props) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             {benefits.map((b) => (
               <GlassCard key={b.label} accent={b.color} animate="benefit" style={{ padding: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.45rem', flex: 1 }}>
-                <IconBadge color={b.color}>{b.icon}</IconBadge>
+                <IconBadge color={b.color} size="lg">{b.icon}</IconBadge>
                 <div style={{ fontSize: '0.75rem', fontWeight: 800 }}>{b.label}</div>
                 <div style={{ fontSize: '0.63rem', color: 'var(--muted)', lineHeight: 1.4 }}>{b.sub}</div>
               </GlassCard>

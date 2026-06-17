@@ -54,7 +54,7 @@ export function AccessControlScene({ active }: Props) {
             {roles.map((r) => (
               <GlassCard key={r.role} accent={r.color} animate="role" style={{ padding: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <IconBadge color={r.color}>{r.icon}</IconBadge>
+                  <IconBadge color={r.color} size="lg">{r.icon}</IconBadge>
                 </div>
                 <div>
                   <div style={{ fontSize: '0.75rem', fontWeight: 900, marginBottom: 2 }}>{r.role}</div>
@@ -73,7 +73,7 @@ export function AccessControlScene({ active }: Props) {
           </div>
 
           <GlassCard accent="gold" animate="note" style={{ padding: '0.6rem 0.85rem', display: 'flex', alignItems: 'center', gap: 8 }}>
-            <IconBadge color="gold" size="sm"><Share2 size={11} /></IconBadge>
+            <IconBadge color="gold" size="md"><Share2 size={14} /></IconBadge>
             <span style={{ fontSize: '0.68rem', color: 'var(--gold2)', fontWeight: 700 }}>Sharing across departments always requires explicit approval from an admin</span>
           </GlassCard>
         </div>

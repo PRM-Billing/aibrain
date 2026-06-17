@@ -38,7 +38,7 @@ export function KnowledgeScene({ active }: Props) {
           {/* Knowledge Library */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
             <GlassCard accent="teal" animate="lib" style={{ padding: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: 2 }}>
-              <IconBadge color="teal" size="lg"><BookMarked size={18} /></IconBadge>
+              <IconBadge color="teal" size="xl"><BookMarked size={22} /></IconBadge>
               <div>
                 <div style={{ fontSize: '0.78rem', fontWeight: 900 }}>Knowledge Library</div>
                 <div style={{ fontSize: '0.62rem', color: 'var(--muted)' }}>Every document your organisation produces</div>
@@ -52,7 +52,7 @@ export function KnowledgeScene({ active }: Props) {
           {/* Process Library */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
             <GlassCard accent="gold" animate="lib" style={{ padding: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: 2 }}>
-              <IconBadge color="gold" size="lg"><FolderOpen size={18} /></IconBadge>
+              <IconBadge color="gold" size="xl"><FolderOpen size={22} /></IconBadge>
               <div>
                 <div style={{ fontSize: '0.78rem', fontWeight: 900 }}>Process Library</div>
                 <div style={{ fontSize: '0.62rem', color: 'var(--muted)' }}>Your organisation's documented ways of working</div>

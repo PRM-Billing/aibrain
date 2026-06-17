@@ -42,7 +42,7 @@ export function SecurityScene({ active }: Props) {
           {/* Segmentation visual */}
           <GlassCard accent="blue" animate="pillar" style={{ padding: '0.85rem', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 2 }}>
-              <IconBadge color="blue"><Users size={14} /></IconBadge>
+              <IconBadge color="blue" size="lg"><Users size={16} /></IconBadge>
               <div>
                 <div style={{ fontSize: '0.72rem', fontWeight: 800 }}>Department Isolation</div>
                 <div style={{ fontSize: '0.6rem', color: 'var(--muted)' }}>Each team operates in its own secure silo</div>

@@ -3,7 +3,6 @@ import { HeroScene } from './scenes/HeroScene';
 import { OperatingLoopScene } from './scenes/OperatingLoopScene';
 import { MeetingAgentScene } from './scenes/MeetingAgentScene';
 import { LivingMemoryScene } from './scenes/LivingMemoryScene';
-import { ArtifactsScene } from './scenes/ArtifactsScene';
 import { ManyMoreScene } from './scenes/ManyMoreScene';
 import { ArchitectureScene } from './scenes/ArchitectureScene';
 import { DashboardsScene } from './scenes/DashboardsScene';
@@ -13,6 +12,8 @@ import { LearningScene } from './scenes/LearningScene';
 import { SecurityScene } from './scenes/SecurityScene';
 import { HumanLoopScene } from './scenes/HumanLoopScene';
 import { AccessControlScene } from './scenes/AccessControlScene';
+import { OrgBrainScene } from './scenes/OrgBrainScene';
+import { ArtifactPipelineScene } from './scenes/ArtifactPipelineScene';
 import { ClosingScene } from './scenes/ClosingScene';
 
 export type SceneDef = {
@@ -24,10 +25,11 @@ export type SceneDef = {
 
 export const SCENES: SceneDef[] = [
   { id: 'hero', label: 'Aura', durationMs: 9000, component: HeroScene },
-  { id: 'operating-loop', label: 'How It Works', durationMs: 11000, component: OperatingLoopScene },
+  { id: 'operating-loop', label: 'How It Works', durationMs: 14000, component: OperatingLoopScene },
   { id: 'meeting-agent', label: 'In Meetings', durationMs: 12000, component: MeetingAgentScene },
+  { id: 'org-brain', label: 'Org Brain', durationMs: 12000, component: OrgBrainScene },
+  { id: 'artifact-pipeline', label: 'AI Pipelines', durationMs: 13000, component: ArtifactPipelineScene },
   { id: 'living-memory', label: 'Memory', durationMs: 11000, component: LivingMemoryScene },
-  { id: 'artifacts', label: 'Artifacts', durationMs: 11000, component: ArtifactsScene },
   { id: 'many-more', label: 'Possibilities', durationMs: 12000, component: ManyMoreScene },
   { id: 'architecture', label: 'Architecture', durationMs: 10000, component: ArchitectureScene },
   { id: 'dashboards', label: 'Dashboards', durationMs: 10000, component: DashboardsScene },
