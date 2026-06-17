@@ -28,8 +28,8 @@ export function SecurityScene({ active }: Props) {
     <div ref={ref}>
       <SceneShell
         eyebrow={<><Shield size={11} /> Secure by Design</>}
-        headline="Your Knowledge Is Your Advantage. We Guard It Like One."
-        subline="Segmented, encrypted, and never used to train anyone else's AI. Your IP stays yours."
+        headline="Your IP Stays Yours. Full Stop."
+        subline="Segmented by team, encrypted end-to-end, never used to train external AI models."
       >
         <div className="grid-2 fill">
           {/* Pillars */}

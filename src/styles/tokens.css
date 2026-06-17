@@ -9,11 +9,14 @@
   --muted2: #4a6280;
   --line: rgba(100, 140, 200, 0.10);
   --line2: rgba(100, 140, 200, 0.18);
+  --line3: rgba(165, 180, 252, 0.28);
   --accent: #6366f1;
   --accent2: #a5b4fc;
   --accent3: #818cf8;
   --glass: rgba(8, 15, 30, 0.82);
   --glass2: rgba(14, 25, 41, 0.90);
+  --shadow-card: 0 18px 48px rgba(0, 0, 0, 0.28);
+  --shadow-glow: 0 0 34px rgba(99, 102, 241, 0.16);
   --gold: #f59e0b;
   --gold2: #fbbf24;
   --teal: #14b8a6;
@@ -40,4 +43,5 @@
   --card-purple: rgba(168,85,247,.18);
   --card-sky:    rgba(59,130,246,.18);
   --card-orange: rgba(249,115,22,.18);
+  --card-pink:   rgba(236,72,153,.18);
 }

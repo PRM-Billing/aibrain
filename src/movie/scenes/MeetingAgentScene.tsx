@@ -49,8 +49,8 @@ export function MeetingAgentScene({ active }: Props) {
     <div ref={ref}>
       <SceneShell
         eyebrow={<><Video size={11} /> Intelligent Meeting Agent</>}
-        headline="It Sits in Your Meeting. And Quietly Makes You Look Brilliant."
-        subline="Aura thinks alongside you — surfacing insights and risks privately, in real time. No one else in the room sees it."
+        headline="Private Intelligence, Live in Every Meeting."
+        subline="Aura understands the conversation as it happens — and guides only you, in real time."
       >
         <div className="grid-2 fill">
           {/* Video call mock */}

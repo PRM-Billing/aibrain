@@ -31,8 +31,8 @@ export function KnowledgeScene({ active }: Props) {
     <div ref={ref}>
       <SceneShell
         eyebrow={<><BookMarked size={11} /> Knowledge Repository</>}
-        headline="Everything Your Organisation Knows — Organised, Versioned, Searchable."
-        subline="Two complementary libraries — one for documents, one for processes — with full version history and one-click revert."
+        headline="Two Libraries. One Source of Truth."
+        subline="Every document versioned and searchable — plus your organisation's documented processes, with one-click revert."
       >
         <div className="grid-2 fill">
           {/* Knowledge Library */}

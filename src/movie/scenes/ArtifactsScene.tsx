@@ -35,8 +35,8 @@ export function ArtifactsScene({ active }: Props) {
     <div ref={ref}>
       <SceneShell
         eyebrow={<><FileText size={11} /> From Conversation to Document</>}
-        headline="Talk Through It Once. Get the Document That Matters."
-        subline="From a single meeting, Aura drafts every artifact your team needs — ready for one human review before it's saved."
+        headline="One Conversation. The Document You Need."
+        subline="Business cases, requirements, tasks, and backlog — drafted with sources, ready for one human review."
       >
         <div className="fill" style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
           {/* Pipeline */}

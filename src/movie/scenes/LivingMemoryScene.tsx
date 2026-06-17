@@ -35,8 +35,8 @@ export function LivingMemoryScene({ active }: Props) {
     <div ref={ref}>
       <SceneShell
         eyebrow={<><Database size={11} /> Living Memory</>}
-        headline="It Never Forgets. So Your Organisation Never Loses Knowledge."
-        subline="Every meeting, document, and decision becomes searchable, reusable memory that compounds over time."
+        headline="Nothing Walks Out the Door."
+        subline="Every meeting, document, and decision becomes living memory — searchable, cited, and compounding."
       >
         <div className="grid-2 fill">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.45rem', alignContent: 'start' }}>

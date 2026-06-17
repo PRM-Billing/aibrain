@@ -37,8 +37,8 @@ export function LearningScene({ active }: Props) {
     <div ref={ref}>
       <SceneShell
         eyebrow={<><TrendingUp size={11} /> Learns With Every Decision</>}
-        headline="Every Human Edit Makes Aura Smarter — Permanently."
-        subline="Corrections and approvals become permanent organisational rules. Aura improves for everyone, forever."
+        headline="Your Corrections Become Permanent Rules."
+        subline="Approve an edit once — Aura follows your standard automatically, for everyone, forever."
       >
         <div className="grid-2 fill">
           {/* Learning loop */}

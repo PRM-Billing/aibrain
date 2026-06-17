@@ -34,8 +34,8 @@ export function ArchitectureScene({ active }: Props) {
     <div ref={ref}>
       <SceneShell
         eyebrow={<><Network size={11} /> Under the Hood</>}
-        headline="A Graph-Based AI Engine — Memory-Grounded, Always Learning."
-        subline="Workflows are chains of specialist AI nodes, each using tools and drawing from a shared organisational memory that improves over time."
+        headline="Memory-Grounded AI That Keeps Learning."
+        subline="Specialist nodes, smart tools, and one shared organisational memory — improving with every approved decision."
       >
         <div className="grid-2 fill">
           {/* Node graph */}

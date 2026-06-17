@@ -48,8 +48,8 @@ export function OperatingLoopScene({ active }: Props) {
     <div ref={ref}>
       <SceneShell
         eyebrow={<>How Aura Works</>}
-        headline="One Continuous Loop of Intelligence."
-        subline="Aura runs a constant cycle — listening, guiding, remembering, acting, and improving — on every meeting."
+        headline="Listen. Guide. Remember. Act. Learn."
+        subline="One continuous loop — on every meeting, every workflow, getting smarter each cycle."
       >
         <div className="fill" style={{ display: 'flex', flexDirection: 'column', gap: '0.55rem', overflow: 'hidden' }}>
           <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: '0.5rem' }}>

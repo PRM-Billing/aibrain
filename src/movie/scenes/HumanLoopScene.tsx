@@ -33,8 +33,8 @@ export function HumanLoopScene({ active }: Props) {
     <div ref={ref}>
       <SceneShell
         eyebrow={<><CheckCircle size={11} /> Human in the Loop</>}
-        headline="Aura Drafts. A Human Decides. Always."
-        subline="Nothing becomes final — or enters memory — without a person signing off. Not one exception."
+        headline="Aura Proposes. Humans Decide."
+        subline="Every output passes through an approval gate — named accountability, zero silent writes."
       >
         <div className="fill" style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
           {/* Approval flow */}

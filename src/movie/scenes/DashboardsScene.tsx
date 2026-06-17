@@ -3,7 +3,6 @@ import { LayoutDashboard, TrendingUp, Clock, CheckCircle, BarChart3, Bell } from
 import { SceneShell } from '../../components/SceneShell';
 import { GlassCard, IconBadge } from '../../components/GlassCard';
 import { useSceneTimeline, staggerIn, countUp } from '../useSceneTimeline';
-import gsap from 'gsap';
 
 type Props = { active: boolean };
 
@@ -28,7 +27,7 @@ export function DashboardsScene({ active }: Props) {
     staggerIn(tl, root, '[data-animate="view"]', 0.1);
     root.querySelectorAll('[data-count]').forEach((el, i) => {
       const m = metrics[i];
-      if (m) countUp(tl, el, m.value, m.suffix, 0.4 + i * 0.1);
+      if (m) countUp(tl, el, m.value, '', 0.4 + i * 0.1);
     });
   }, []);
 
@@ -38,8 +37,8 @@ export function DashboardsScene({ active }: Props) {
     <div ref={ref}>
       <SceneShell
         eyebrow={<><LayoutDashboard size={11} /> Dashboards</>}
-        headline="Everything Your Organisation Needs to See — In One View."
-        subline="Executive overviews, live pipelines, approval queues, and automated insights — all in clean, role-appropriate dashboards."
+        headline="See What Matters — Role by Role."
+        subline="Executive KPIs, live pipelines, approval queues, and automated insights in clean, focused dashboards."
       >
         <div className="fill" style={{ display: 'flex', flexDirection: 'column', gap: '0.55rem' }}>
           {/* Metric cards */}

@@ -42,8 +42,8 @@ export function CitationsScene({ active }: Props) {
     <div ref={ref}>
       <SceneShell
         eyebrow={<><MessageSquare size={11} /> Chat with Citations</>}
-        headline="Ask Anything. Get an Answer — With the Source Cited."
-        subline="Every response links back to the exact document it came from. Answers with proof, not just links."
+        headline="Answers With Proof — Not Guesswork."
+        subline="Ask in plain English. Every response cites the exact document it came from."
       >
         <div className="grid-2 fill">
           {/* Chat mock */}

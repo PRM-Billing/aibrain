@@ -40,8 +40,8 @@ export function ManyMoreScene({ active }: Props) {
     <div ref={ref}>
       <SceneShell
         eyebrow={<><Sparkles size={11} /> Extensible by Design</>}
-        headline="Define the Rules — Get Any Document."
-        subline="Anything your organisation writes repeatedly, Aura can produce once you set the template and rules."
+        headline="Set the Template. Get Any Document."
+        subline="SOPs, briefs, proposals, runbooks — anything your team produces repeatedly, on demand."
       >
         <div className="fill" style={{ display: 'flex', flexDirection: 'column', gap: '0.55rem', overflow: 'hidden' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '0.4rem', flex: 1, overflowY: 'auto' }}>

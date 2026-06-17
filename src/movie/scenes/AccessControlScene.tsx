@@ -46,8 +46,8 @@ export function AccessControlScene({ active }: Props) {
     <div ref={ref}>
       <SceneShell
         eyebrow={<><ShieldCheck size={11} /> Access Control</>}
-        headline="Right People. Right Knowledge. Nothing More."
-        subline="Role-based access across the whole organisation — defined once, enforced everywhere, automatically."
+        headline="Clear Roles. Enforced Everywhere."
+        subline="Org-wide access control — department isolation by default, explicit approval to share across teams."
       >
         <div className="fill" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           <div className="grid-4">

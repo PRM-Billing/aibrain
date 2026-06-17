@@ -103,12 +103,27 @@ export function MovieController() {
             />
           ))}
         </nav>
+        <div className="scene-timer" aria-hidden>
+          <div
+            key={`${scene.id}-${playing ? 'playing' : 'paused'}`}
+            className="scene-timer-fill"
+            style={{
+              animationDuration: `${scene.durationMs}ms`,
+              animationPlayState: playing ? 'running' : 'paused',
+            }}
+          />
+        </div>
 
         <main className="scene-stage">
           {SCENES.map((s, i) => {
             const Comp = s.component;
             return (
-              <div key={s.id} className={`scene-layer${i === index ? ' active' : ''}`}>
+              <div
+                key={s.id}
+                className={`scene-layer${i === index ? ' active' : ''}`}
+                aria-hidden={i !== index}
+                data-scene-id={s.id}
+              >
                 <Comp active={i === index} />
               </div>
             );
