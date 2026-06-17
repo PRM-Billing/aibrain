@@ -1,14 +1,33 @@
-# AI Operating Platform Deck
+# Aura Video Deck
 
-Interactive external-facing deck for the PRM Billing AI Operating Platform.
+Cinematic, autoplaying sales presentation for **Aura by PRM** — the intelligent meeting agent and organizational AI platform. Built with React, Vite, TypeScript, and GSAP.
 
-## Run locally
+## Development
+
+```bash
+npm install
+npm run dev
+```
+
+Open `http://localhost:5173` (Vite dev server).
+
+## Production build
+
+```bash
+npm install
+npm run build
+npm start
+```
+
+The Express server serves the built app from `dist/` and gates access behind session login.
+
+## Run locally (no login)
 
 ```bash
 AUTH_DISABLED=true npm start
 ```
 
-Then open `http://localhost:3000` (no login when auth disabled).
+Then open `http://localhost:3000`.
 
 To test the sign-in flow locally:
 
@@ -20,9 +39,9 @@ APP_USERNAME=prm APP_PASSWORD=PrmAIBrain2026! npm start
 
 This app is Railway-ready:
 
-- `package.json` defines `npm start`.
-- `server.js` serves the static deck and uses Railway's `PORT` environment variable.
-- `railway.json` tells Railway to use Nixpacks and run `npm start`.
+- `npm run build` produces `dist/` via Vite.
+- `npm start` runs `server.js`, which serves `dist/` and uses Railway's `PORT`.
+- `railway.json` runs `npm install && npm run build` then `npm start`.
 
 Auth is **on by default**. Override with env vars or disable locally with `AUTH_DISABLED=true`.
 
@@ -34,9 +53,13 @@ Auth is **on by default**. Override with env vars or disable locally with `AUTH_
 
 ### Search engine blocking
 
-- `robots.txt` disallows all crawlers (`Disallow: /`).
+- `public/robots.txt` disallows all crawlers (`Disallow: /`).
 - HTML pages include `noindex, nofollow, noarchive` meta tags.
 - Responses include `X-Robots-Tag: noindex, nofollow, noarchive`.
+
+## Voiceover (future)
+
+Each scene has a duration and narration script in `src/narration/narration.ts`. Drop MP3 files at `public/audio/{scene-id}.mp3` to drive scene advance from audio instead of the timer.
 
 ## Access credentials (share with invited viewers only)
 

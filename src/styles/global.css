@@ -1,0 +1,200 @@
+@import './tokens.css';
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body, #root {
+  height: 100%;
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+}
+
+button { font-family: inherit; cursor: pointer; }
+
+.movie-root {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+}
+
+.scene-stage {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.scene-layer {
+  position: absolute;
+  inset: 0;
+  padding: 1rem 1.75rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.45s ease;
+}
+
+.scene-layer.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.scene-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent2);
+  margin-bottom: 0.35rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(109, 125, 252, 0.12);
+  border: 1px solid rgba(109, 125, 252, 0.22);
+}
+
+.scene-h1 {
+  font-size: clamp(1.25rem, 2.4vw, 2rem);
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  margin-bottom: 0.35rem;
+}
+
+.scene-sub {
+  font-size: clamp(0.75rem, 1.1vw, 0.9rem);
+  color: var(--muted);
+  line-height: 1.5;
+  max-width: 52rem;
+  margin-bottom: 0.75rem;
+}
+
+.glass {
+  background: var(--glass);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+}
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.65rem; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.55rem; }
+.fill { flex: 1; min-height: 0; }
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  border: 1px solid var(--line);
+  background: rgba(18, 30, 51, 0.8);
+}
+
+.controls-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.25rem;
+  background: var(--glass);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid var(--line);
+  flex-shrink: 0;
+}
+
+.ctrl-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 0.65rem;
+  border: 1px solid var(--s3);
+  background: var(--s2);
+  color: var(--text);
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.ctrl-btn:hover { border-color: rgba(109, 125, 252, 0.4); transform: translateY(-1px); }
+.ctrl-btn.primary {
+  background: linear-gradient(135deg, #6d7dfc, #4f46e5);
+  border-color: transparent;
+  color: #fff;
+}
+.ctrl-btn.playing { background: #065f46; border-color: #059669; color: #d1fae5; }
+
+.scene-counter {
+  flex: 1;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.caption-bar {
+  padding: 0.5rem 1.25rem 0.65rem;
+  background: rgba(4, 11, 22, 0.92);
+  border-top: 1px solid var(--line);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--muted);
+  min-height: 2.75rem;
+  flex-shrink: 0;
+}
+
+.progress-dots {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0.45rem 1.25rem;
+  background: var(--glass);
+  border-bottom: 1px solid var(--line);
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+
+.progress-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--s3);
+  flex-shrink: 0;
+  border: none;
+  padding: 0;
+  transition: all 0.3s;
+}
+
+.progress-dot.active {
+  width: 24px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, var(--accent), #818cf8);
+  box-shadow: 0 0 10px rgba(109, 125, 252, 0.45);
+}
+
+@media (max-width: 900px) {
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr 1fr; }
+  .scene-layer { padding: 0.75rem 1rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,12 +1,29 @@
 {
-  "name": "ai-operating-platform-deck",
-  "version": "1.0.0",
+  "name": "aura-video-deck",
+  "version": "2.0.0",
   "private": true,
-  "description": "Interactive AI Operating Platform deck for PRM Billing.",
+  "description": "Aura by PRM — cinematic video-style presentation",
+  "type": "module",
   "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "start": "node server.js"
   },
   "engines": {
     "node": ">=18"
+  },
+  "dependencies": {
+    "gsap": "^3.12.7",
+    "lucide-react": "^0.487.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "^5.8.2",
+    "vite": "^6.2.2"
   }
 }

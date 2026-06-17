@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow, noarchive" />
+  <title>Sign in — Aura by PRM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #040b16; --surface: #0b1424; --s2: #121e33; --text: #f0f6ff; --muted: #7a93b4;
+      --line: rgba(100,140,200,.12); --accent: #6d7dfc; --accent2: #a5b4ff; --danger: #f87171;
+    }
+    html, body { min-height: 100%; font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); }
+    body {
+      display: flex; align-items: center; justify-content: center; padding: 1.5rem;
+      background: radial-gradient(ellipse 80% 50% at 15% -10%, rgba(109,125,252,.2), transparent 55%), var(--bg);
+    }
+    .card {
+      width: 100%; max-width: 420px; background: rgba(11,20,36,.92); border: 1px solid var(--line);
+      border-radius: 16px; padding: 2rem 1.75rem; box-shadow: 0 24px 48px rgba(0,0,0,.35); backdrop-filter: blur(12px);
+    }
+    .badge { display: inline-block; font-size: .7rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--accent2); margin-bottom: .75rem; }
+    h1 { font-size: 1.35rem; font-weight: 700; margin-bottom: .35rem; }
+    .sub { color: var(--muted); font-size: .92rem; margin-bottom: 1.5rem; line-height: 1.5; }
+    label { display: block; font-size: .82rem; font-weight: 500; color: var(--muted); margin-bottom: .35rem; }
+    input {
+      width: 100%; padding: .72rem .85rem; margin-bottom: 1rem; background: var(--s2); border: 1px solid var(--line);
+      border-radius: 10px; color: var(--text); font: inherit; outline: none;
+    }
+    input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(109,125,252,.25); }
+    button {
+      width: 100%; padding: .78rem 1rem; margin-top: .25rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent2)); border: none; border-radius: 10px;
+      color: #fff; font: inherit; font-weight: 600; cursor: pointer;
+    }
+    button:disabled { opacity: .6; cursor: wait; }
+    .error { display: none; margin-bottom: 1rem; padding: .65rem .85rem; background: rgba(248,113,113,.12); border: 1px solid rgba(248,113,113,.35); border-radius: 10px; color: var(--danger); font-size: .88rem; }
+    .error.show { display: block; }
+    .foot { margin-top: 1.25rem; text-align: center; font-size: .78rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="badge">PRM Billing · Private</div>
+    <h1>Aura</h1>
+    <p class="sub">Sign in to view the presentation. Access is restricted to invited viewers.</p>
+    <div id="error" class="error" role="alert"></div>
+    <form id="loginForm">
+      <label for="username">Username</label>
+      <input id="username" name="username" type="text" autocomplete="username" required autofocus />
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required />
+      <button type="submit" id="submitBtn">Sign in</button>
+    </form>
+    <p class="foot">Not indexed by search engines · Authorized access only</p>
+  </div>
+  <script>
+    (function () {
+      const params = new URLSearchParams(location.search);
+      const next = params.get('next') || '/';
+      const errorEl = document.getElementById('error');
+      const form = document.getElementById('loginForm');
+      const submitBtn = document.getElementById('submitBtn');
+      fetch('/api/auth/check', { credentials: 'same-origin' })
+        .then(r => r.json())
+        .then(data => { if (data.authenticated) location.replace(next.startsWith('/') ? next : '/'); })
+        .catch(() => {});
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        errorEl.classList.remove('show');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Signing in…';
+        try {
+          const res = await fetch('/api/auth/login', {
+            method: 'POST', credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              username: document.getElementById('username').value.trim(),
+              password: document.getElementById('password').value
+            })
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) {
+            errorEl.textContent = data.error || 'Invalid username or password.';
+            errorEl.classList.add('show');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Sign in';
+            return;
+          }
+          location.replace(next.startsWith('/') ? next : '/');
+        } catch {
+          errorEl.textContent = 'Network error. Please try again.';
+          errorEl.classList.add('show');
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Sign in';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

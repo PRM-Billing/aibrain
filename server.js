@@ -1,10 +1,16 @@
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
-const crypto = require('crypto');
+import http from 'http';
+import fs from 'fs';
+import path from 'path';
+import crypto from 'crypto';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const port = process.env.PORT || 3000;
-const root = __dirname;
+const appDir = __dirname;
+const distRoot = path.join(appDir, 'dist');
+const root = fs.existsSync(distRoot) ? distRoot : appDir;
 
 const authDisabled = ['1', 'true', 'yes'].includes(String(process.env.AUTH_DISABLED || '').toLowerCase());
 
@@ -31,7 +37,7 @@ const passwordFromEnv = Boolean(
 );
 const sessionSecret = (process.env.SESSION_SECRET || appPassword || 'dev-insecure-secret').trim();
 const sessionCookie = 'aibrain_session';
-const sessionMaxAgeSec = 60 * 60 * 24; // 24 hours
+const sessionMaxAgeSec = 60 * 60 * 24;
 
 const PUBLIC_PATHS = new Set(['/login.html', '/robots.txt']);
 
@@ -45,7 +51,11 @@ const contentTypes = {
   '.jpeg': 'image/jpeg',
   '.svg': 'image/svg+xml',
   '.ico': 'image/x-icon',
-  '.txt': 'text/plain; charset=utf-8'
+  '.txt': 'text/plain; charset=utf-8',
+  '.woff': 'font/woff',
+  '.woff2': 'font/woff2',
+  '.mp3': 'audio/mpeg',
+  '.webp': 'image/webp',
 };
 
 function robotsHeaders(extra = {}) {
@@ -136,6 +146,12 @@ function clearSessionCookie(res) {
   );
 }
 
+function resolveFile(safePath) {
+  if (safePath === '/') return path.join(root, 'index.html');
+  const rel = safePath.startsWith('/') ? safePath.slice(1) : safePath;
+  return path.join(root, rel);
+}
+
 function sendFile(res, filePath) {
   fs.readFile(filePath, (err, data) => {
     if (err) {
@@ -146,11 +162,15 @@ function sendFile(res, filePath) {
     const ext = path.extname(filePath).toLowerCase();
     res.writeHead(200, {
       'Content-Type': contentTypes[ext] || 'application/octet-stream',
-      'Cache-Control': 'no-store',
+      'Cache-Control': ext === '.html' ? 'no-store' : 'public, max-age=31536000, immutable',
       ...robotsHeaders()
     });
     res.end(data);
   });
+}
+
+function sendSpa(res) {
+  sendFile(res, path.join(root, 'index.html'));
 }
 
 async function handleAuthRoutes(req, res, pathname) {
@@ -202,7 +222,7 @@ const server = http.createServer(async (req, res) => {
 
   if (authEnabled && !isAuthenticated(req)) {
     if (PUBLIC_PATHS.has(safePath)) {
-      const filePath = path.join(root, safePath === '/' ? 'login.html' : safePath.slice(1));
+      const filePath = resolveFile(safePath === '/' ? '/login.html' : safePath);
       if (filePath.startsWith(root)) {
         sendFile(res, filePath);
         return;
@@ -213,23 +233,33 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  const filePath = safePath === '/' ? path.join(root, 'index.html') : path.join(root, safePath.slice(1));
-
+  const filePath = resolveFile(safePath);
   if (!filePath.startsWith(root)) {
     res.writeHead(403, robotsHeaders({ 'Content-Type': 'text/plain; charset=utf-8' }));
     res.end('Forbidden');
     return;
   }
 
-  sendFile(res, filePath);
+  fs.stat(filePath, (err, stat) => {
+    if (!err && stat.isFile()) {
+      sendFile(res, filePath);
+      return;
+    }
+    if (safePath.startsWith('/assets/') || safePath.startsWith('/audio/')) {
+      sendFile(res, filePath);
+      return;
+    }
+    sendSpa(res);
+  });
 });
 
 server.listen(port, () => {
+  console.log(`Aura video deck on port ${port} — serving ${root}`);
   if (authEnabled) {
     console.log(
-      `AI Operating Platform deck on port ${port} — UI login enabled (user: "${appUsername}", password: ${passwordFromEnv ? 'env' : 'built-in default'})`
+      `UI login enabled (user: "${appUsername}", password: ${passwordFromEnv ? 'env' : 'built-in default'})`
     );
   } else {
-    console.warn(`AI Operating Platform deck on port ${port} — WARNING: auth disabled; site is public`);
+    console.warn('WARNING: auth disabled; site is public');
   }
 });
