@@ -10,6 +10,12 @@ npm start
 
 Then open `http://localhost:3000`.
 
+Optional browser login (HTTP Basic Auth popup):
+
+```bash
+APP_USERNAME=prm APP_PASSWORD=PrmAIBrain2026! npm start
+```
+
 ## Railway deployment
 
 This app is Railway-ready:
@@ -18,4 +24,25 @@ This app is Railway-ready:
 - `server.js` serves the static deck and uses Railway's `PORT` environment variable.
 - `railway.json` tells Railway to use Nixpacks and run `npm start`.
 
-No secrets or environment variables are required.
+### Required environment variables (Railway)
+
+| Variable | Value |
+|----------|-------|
+| `APP_USERNAME` | `prm` |
+| `APP_PASSWORD` | `PrmAIBrain2026!` |
+
+When `APP_PASSWORD` is set, visitors see a browser login popup before the deck loads.
+
+### Search engine blocking
+
+- `robots.txt` disallows all crawlers (`Disallow: /`).
+- HTML pages include `noindex, nofollow, noarchive` meta tags.
+- Responses include `X-Robots-Tag: noindex, nofollow, noarchive`.
+
+## Access credentials (share with invited viewers only)
+
+| Field | Value |
+|-------|-------|
+| URL | https://aibrain-production.up.railway.app/ |
+| Username | `prm` |
+| Password | `PrmAIBrain2026!` |

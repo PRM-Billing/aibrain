@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow, noarchive">
+    <title>BRD: AI-Powered Organizational Brain</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --dark: #0f172a; --blue: #3b82f6; --purple: #8b5cf6; --green: #10b981;
+            --orange: #f59e0b; --red: #ef4444; --indigo: #6366f1; --teal: #14b8a6;
+        }
+        @page { size: A4; margin: 0; }
+        @media print {
+            html, body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                background: white !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 210mm;
+            }
+            .no-print { display: none !important; }
+            .page {
+                margin: 0 !important;
+                box-shadow: none !important;
+                page-break-after: always;
+                page-break-inside: avoid;
+                width: 210mm !important;
+                height: 297mm !important;
+            }
+            .page:last-child { page-break-after: avoid !important; }
+        }
+        body { font-family: 'Inter', sans-serif; background: #64748b; color: #1e293b; }
+        .page {
+            width: 210mm; height: 297mm; margin: 20px auto; background: white;
+            position: relative; overflow: hidden;
+        }
+        .print-btn {
+            position: fixed; top: 20px; right: 20px; background: var(--indigo); color: white;
+            border: none; padding: 14px 28px; border-radius: 12px; cursor: pointer;
+            font-family: inherit; font-size: 14px; font-weight: 700;
+            display: flex; align-items: center; gap: 10px;
+            box-shadow: 0 10px 40px rgba(99, 102, 241, 0.5); z-index: 1000;
+        }
+        .header {
+            background: var(--dark); color: white; padding: 16px 28px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .header h1 { font-size: 17px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+        .header h1 i { color: #a5b4fc; }
+        .header-info { text-align: right; font-size: 10px; opacity: 0.8; line-height: 1.6; }
+        .ai-strip {
+            background: linear-gradient(135deg, #0d9488, #6366f1);
+            color: white; padding: 8px 28px; display: flex; align-items: center; gap: 12px;
+            font-size: 10px; font-weight: 600; flex-wrap: wrap;
+        }
+        .ai-strip i { font-size: 14px; }
+        .badge {
+            background: rgba(255,255,255,0.2); border-radius: 20px; padding: 2px 10px;
+            font-size: 9px; font-weight: 700; letter-spacing: 0.5px;
+        }
+        .badge.green { background: rgba(16,185,129,0.3); color: #a7f3d0; }
+        .badge.orange { background: rgba(245,158,11,0.3); color: #fde68a; }
+        .content { padding: 12px 28px; padding-bottom: 36px; }
+        .section-title {
+            font-size: 12px; font-weight: 800; color: var(--dark); margin-bottom: 7px; margin-top: 8px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .section-title i { color: var(--indigo); font-size: 11px; }
+        .vision-grad {
+            background: linear-gradient(135deg, #4338ca, #6366f1);
+            color: white; padding: 12px 16px; border-radius: 12px; margin-bottom: 8px;
+            font-size: 10.5px; line-height: 1.6;
+        }
+        .vision-grad strong { font-weight: 800; }
+        .kpi-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 8px;
+        }
+        .kpi-grid.six { grid-template-columns: repeat(3, 1fr); }
+        .kpi-card {
+            background: var(--dark); color: white; border-radius: 10px; padding: 8px 6px; text-align: center;
+        }
+        .kpi-card i { font-size: 14px; color: #a5b4fc; margin-bottom: 3px; display: block; }
+        .kpi-value { font-size: 18px; font-weight: 800; color: #a5b4fc; }
+        .kpi-label { font-size: 7.5px; opacity: 0.7; margin-top: 2px; }
+        .kpi-sub { font-size: 7px; color: #34d399; font-weight: 600; margin-top: 2px; }
+        .asis-tobe { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+        .state-card { border-radius: 10px; padding: 8px 12px; }
+        .state-card.asis { background: #fef2f2; border-left: 4px solid var(--red); }
+        .state-card.tobe { background: #ecfdf5; border-left: 4px solid var(--green); }
+        .state-card h4 {
+            font-size: 9px; font-weight: 800; margin-bottom: 5px;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .state-card.asis h4 { color: #991b1b; }
+        .state-card.tobe h4 { color: #065f46; }
+        .state-card ul { list-style: none; padding: 0; }
+        .state-card ul li {
+            font-size: 8px; padding: 1px 0; padding-left: 12px; position: relative; line-height: 1.35;
+        }
+        .state-card.asis ul li::before {
+            content: '\f00d'; font-family: 'Font Awesome 6 Free'; font-weight: 900;
+            position: absolute; left: 0; color: var(--red); font-size: 6px; top: 3px;
+        }
+        .state-card.tobe ul li::before {
+            content: '\f00c'; font-family: 'Font Awesome 6 Free'; font-weight: 900;
+            position: absolute; left: 0; color: var(--green); font-size: 6px; top: 3px;
+        }
+        .stakeholder-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 8px; }
+        .stakeholder-card {
+            border-radius: 8px; padding: 6px 8px; text-align: center; border: 1px solid #e2e8f0;
+        }
+        .stakeholder-card i { font-size: 16px; margin-bottom: 3px; display: block; }
+        .stakeholder-card h5 { font-size: 8px; font-weight: 700; color: var(--dark); }
+        .stakeholder-card p { font-size: 7px; color: #64748b; margin-top: 2px; line-height: 1.35; }
+        .stakeholder-card.physician { background: #eff6ff; border-color: #bfdbfe; }
+        .stakeholder-card.physician i { color: var(--blue); }
+        .stakeholder-card.tech { background: #f0fdf4; border-color: #bbf7d0; }
+        .stakeholder-card.tech i { color: var(--green); }
+        .stakeholder-card.pm { background: #faf5ff; border-color: #e9d5ff; }
+        .stakeholder-card.pm i { color: var(--purple); }
+        .stakeholder-card.eng { background: #fff7ed; border-color: #fed7aa; }
+        .stakeholder-card.eng i { color: var(--orange); }
+        .flow-container {
+            background: #f8fafc; border-radius: 10px; padding: 10px; border: 1px solid #e2e8f0;
+            margin-bottom: 8px;
+        }
+        .flow-row { display: flex; align-items: center; justify-content: center; gap: 4px; flex-wrap: wrap; }
+        .flow-box {
+            background: white; border: 2px solid #e2e8f0; border-radius: 8px; padding: 6px 8px;
+            font-size: 8px; font-weight: 600; text-align: center; min-width: 64px;
+        }
+        .flow-box .flow-icon { font-size: 12px; display: block; margin-bottom: 2px; }
+        .flow-box.indigo { background: #eef2ff; border-color: var(--indigo); color: #3730a3; }
+        .flow-box.green { background: #ecfdf5; border-color: var(--green); color: #065f46; }
+        .flow-box.blue { background: #eff6ff; border-color: var(--blue); color: #1e40af; }
+        .flow-box.orange { background: #fff7ed; border-color: var(--orange); color: #9a3412; }
+        .flow-arrow { color: #94a3b8; font-size: 14px; }
+        .req-table {
+            width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: 8px;
+        }
+        .req-table th {
+            background: var(--dark); color: white; padding: 4px 6px; text-align: left;
+            font-weight: 700; font-size: 7.5px;
+        }
+        .req-table td { padding: 4px 6px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+        .req-table tr:nth-child(even) { background: #f8fafc; }
+        .req-id { font-weight: 700; color: var(--indigo); white-space: nowrap; }
+        .priority-high { background: #fef2f2; color: #991b1b; padding: 1px 5px; border-radius: 3px; font-size: 6.5px; font-weight: 700; }
+        .priority-med { background: #fff7ed; color: #9a3412; padding: 1px 5px; border-radius: 3px; font-size: 6.5px; font-weight: 700; }
+        .scope-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+        .scope-card { border-radius: 8px; padding: 8px 10px; }
+        .scope-card.in { background: #ecfdf5; border: 1px solid #a7f3d0; }
+        .scope-card.out { background: #f1f5f9; border: 1px solid #e2e8f0; }
+        .scope-card h4 { font-size: 9px; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+        .scope-card.in h4 { color: #065f46; }
+        .scope-card.out h4 { color: #64748b; }
+        .scope-card ul { list-style: none; padding: 0; }
+        .scope-card ul li { font-size: 8px; padding: 1px 0; padding-left: 11px; position: relative; line-height: 1.35; }
+        .scope-card.in ul li { color: #065f46; }
+        .scope-card.out ul li { color: #64748b; }
+        .scope-card.in ul li::before {
+            content: '\f00c'; font-family: 'Font Awesome 6 Free'; font-weight: 900;
+            position: absolute; left: 0; color: var(--green); font-size: 6px; top: 2px;
+        }
+        .scope-card.out ul li::before {
+            content: '\f00d'; font-family: 'Font Awesome 6 Free'; font-weight: 900;
+            position: absolute; left: 0; color: #94a3b8; font-size: 6px; top: 2px;
+        }
+        .hipaa-box {
+            background: #faf5ff; border: 2px solid #c084fc; border-radius: 10px;
+            padding: 8px 12px; margin-bottom: 8px;
+        }
+        .hipaa-box h4 {
+            font-size: 10px; font-weight: 700; color: #7c3aed; margin-bottom: 5px;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .hipaa-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+        .hipaa-item {
+            background: white; border-radius: 6px; padding: 6px; border: 1px solid #e9d5ff;
+        }
+        .hipaa-item h5 { font-size: 8px; font-weight: 700; color: #7c3aed; margin-bottom: 2px; }
+        .hipaa-item p { font-size: 7.5px; color: #6b21a8; line-height: 1.35; }
+        .ac-list { list-style: none; padding: 0; margin-bottom: 6px; }
+        .ac-list li {
+            display: flex; align-items: flex-start; gap: 6px; padding: 3px 0;
+            border-bottom: 1px solid #f1f5f9; font-size: 8px; line-height: 1.45;
+        }
+        .ac-list li i { color: var(--green); font-size: 9px; margin-top: 1px; flex-shrink: 0; }
+        .risk-table {
+            width: 100%; border-collapse: collapse; font-size: 8px; margin-bottom: 6px;
+        }
+        .risk-table th {
+            background: #1e293b; color: white; padding: 4px 6px; text-align: left;
+            font-size: 7.5px; font-weight: 700;
+        }
+        .risk-table td { padding: 4px 6px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+        .risk-table tr:nth-child(even) { background: #f8fafc; }
+        .risk-high { color: #dc2626; font-weight: 700; }
+        .risk-med { color: #d97706; font-weight: 700; }
+        .risk-low { color: #16a34a; font-weight: 700; }
+        .footer {
+            position: absolute; bottom: 0; left: 0; right: 0; background: #f1f5f9;
+            padding: 6px 28px; display: flex; justify-content: space-between; align-items: center;
+            font-size: 8px; color: #94a3b8; border-top: 1px solid #e2e8f0;
+        }
+        .footer strong { color: #64748b; }
+        .est-table {
+            width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: 8px;
+        }
+        .est-table th {
+            background: #6366f1; color: white; padding: 5px 8px; text-align: left;
+            font-weight: 700; font-size: 7.5px;
+        }
+        .est-table td { padding: 5px 8px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+        .est-table tr:nth-child(even) { background: #f8fafc; }
+        .est-hours { font-weight: 800; color: var(--indigo); }
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+        .mini-box {
+            background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 10px; font-size: 8px; line-height: 1.45;
+        }
+        .mini-box h5 { font-size: 9px; font-weight: 800; color: var(--dark); margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+        .mini-box ul { list-style: none; padding: 0; }
+        .mini-box ul li { padding: 2px 0; padding-left: 10px; position: relative; }
+        .mini-box ul li::before {
+            content: '\f111'; font-family: 'Font Awesome 6 Free'; font-weight: 900;
+            position: absolute; left: 0; color: var(--indigo); font-size: 5px; top: 6px;
+        }
+        code { font-size: 7px; background: #f1f5f9; padding: 1px 4px; border-radius: 3px; }
+        .effort-table {
+            width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: 7.5px;
+        }
+        .effort-table th {
+            background: #0f172a; color: white; padding: 4px 6px; text-align: left;
+            font-weight: 700; font-size: 7px;
+        }
+        .effort-table td { padding: 3px 6px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+        .effort-table tr:nth-child(even) { background: #f8fafc; }
+        .effort-table .task-id { font-weight: 700; color: var(--indigo); white-space: nowrap; }
+        .effort-table .hrs { font-weight: 800; color: var(--teal); text-align: right; white-space: nowrap; }
+        .effort-table .cum { font-weight: 700; color: #475569; text-align: right; white-space: nowrap; }
+        .effort-table .total-row td { background: #1e293b; color: white; font-weight: 700; font-size: 8px; }
+        .effort-table .total-row .hrs, .effort-table .total-row .cum { color: #a5b4fc; }
+        .mermaid-wrap {
+            background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px;
+            padding: 6px 4px; margin: 6px 0 8px; overflow-x: auto;
+        }
+        .mermaid-wrap .mermaid { display: flex; justify-content: center; font-size: 7px; }
+        .live-tag { color: var(--green); font-weight: 700; font-size: 7px; }
+        .next-tag { color: #64748b; font-weight: 700; font-size: 7px; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            mermaid.initialize({
+                startOnLoad: true, theme: 'base',
+                themeVariables: { primaryColor: '#e0e7ff', primaryBorderColor: '#6366f1', fontSize: '10px' },
+                flowchart: { curve: 'basis', padding: 8 },
+                sequence: { actorMargin: 30, messageMargin: 20 }
+            });
+        });
+    </script>
+</head>
+<body>
+
+<button class="print-btn no-print" onclick="window.print()" type="button">
+    <i class="fas fa-print"></i> Print / Export PDF
+</button>
+
+<!-- PAGE 1 -->
+<div class="page">
+    <div class="header">
+        <h1><i class="fas fa-brain"></i> BRD: AI-Powered Organizational Brain</h1>
+        <div class="header-info">
+            <div><strong>Document No.</strong> BRD-ORG-BRAIN-001</div>
+            <div><strong>Version:</strong> 1.3 &nbsp;|&nbsp; <strong>Status:</strong> Active</div>
+            <div><strong>Date:</strong> June 2026</div>
+            <div><strong>Owner:</strong> L. Menendez — CEO / Strategy &amp; Technology</div>
+        </div>
+    </div>
+    <div class="ai-strip">
+        <i class="fas fa-robot"></i>
+        <span><strong>AI Operating Platform</strong> (top-level) &rarr; Nine specialized assistants: <strong>Executive Decision</strong>, <strong>Document Pipeline</strong>, <strong>Finance</strong>, <strong>Operations</strong>, <strong>Knowledge &amp; Retrieval</strong></span>
+        <span class="badge green">Live — nine assistants operational</span>
+        <span class="badge orange">Living corporate intelligence layer</span>
+    </div>
+
+    <div class="content">
+        <div class="vision-grad">
+            <strong>Executive Summary:</strong> This initiative delivers an <strong>AI Operating Platform</strong> that captures real operating patterns from meetings, decisions, workflows, and institutional knowledge — not one-off summaries. The platform is the <strong>top-level business system</strong>; specialized assistants for executive decisions, business case and requirements documents, finance analysis, operations, people onboarding, knowledge retrieval, process documentation, and backlog planning are <strong>modules inside that platform</strong>. Phase 1 (capture, structure, and human approval) is <strong>live today</strong>; later phases add <strong>deeper memory, hybrid retrieval, SME streams, and executive-grade decision support</strong>.
+        </div>
+
+        <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:6px 10px; margin-bottom:8px; font-size:8px; color:#1e3a8a; display:flex; align-items:flex-start; gap:8px;">
+            <i class="fas fa-comments" style="color:#3b82f6; margin-top:1px; flex-shrink:0;"></i>
+            <div>
+                <strong>Presentation narrative:</strong> Present the <strong>AI Operating Platform</strong> first, then drill into assistants on demand. Example path:
+                "How do you make decisions?" → Executive Decision Assistant · "How do you turn meetings into approved documents?" → Document Pipeline (meeting → business case → requirements) · "How do departments and finance plug in?" → Operations and Finance assistants with shared memory and retrieval. Interactive deck: <strong>PRM-Billing/aibrain</strong> (Railway-hosted).
+            </div>
+        </div>
+
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <i class="fas fa-layer-group"></i>
+                <div class="kpi-value">4</div>
+                <div class="kpi-label">Delivery phases</div>
+                <div class="kpi-sub">Capture → Memory → Graph → Org-wide</div>
+            </div>
+            <div class="kpi-card">
+                <i class="fas fa-microphone-lines"></i>
+                <div class="kpi-value">Multi</div>
+                <div class="kpi-label">Input sources</div>
+                <div class="kpi-sub">Audio, transcripts, docs, SOPs</div>
+            </div>
+            <div class="kpi-card">
+                <i class="fas fa-diagram-project"></i>
+                <div class="kpi-value">8+</div>
+                <div class="kpi-label">Structured outputs</div>
+                <div class="kpi-sub">Actions, decisions, playbooks</div>
+            </div>
+            <div class="kpi-card">
+                <i class="fas fa-sitemap"></i>
+                <div class="kpi-value">5</div>
+                <div class="kpi-label">Knowledge domains</div>
+                <div class="kpi-sub">Exec, Ops, Clinical, Tech, Finance</div>
+            </div>
+        </div>
+
+        <div class="section-title"><i class="fas fa-exchange-alt"></i> Current State vs. Target State</div>
+        <div class="asis-tobe">
+            <div class="state-card asis">
+                <h4><i class="fas fa-times-circle"></i> Current (Fragmented)</h4>
+                <ul>
+                    <li>Institutional knowledge trapped in meetings, chat, and individual memory</li>
+                    <li>Repeated rediscovery of decisions, rationale, and process logic</li>
+                    <li>High bus factor; weak continuity when people are unavailable or leave</li>
+                    <li>Tools skew to transcription or static docs — not compounding intelligence</li>
+                    <li>Single monolithic prompt handles all pipeline steps → context-window limits cause silent step omission ("survival mode"); stale prompt files compound this</li>
+                    <li>Recordings require manual download/conversion before processing — no automated ingest path</li>
+                </ul>
+            </div>
+            <div class="state-card tobe">
+                <h4><i class="fas fa-check-circle"></i> Target (AI Operating Platform)</h4>
+                <ul>
+                    <li>Systematic ingest → extract → validate → store with source traceability</li>
+                    <li>Searchable knowledge objects linked to people, topics, processes, decisions</li>
+                    <li>Governed lifecycle: draft vs trusted; versioning and audit for compliance</li>
+                    <li>Progressive intelligence: retrieval today; pattern &amp; decision support tomorrow</li>
+                    <li>Whole-team multi-user access (Contributor / Reviewer / Approver); each pipeline step is an independent node — no monolithic single-call execution</li>
+                    <li>Recordings auto-picked from Google Drive / OneDrive / email — no manual handoff before pipeline triggers</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section-title"><i class="fas fa-users"></i> Stakeholders</div>
+        <div class="stakeholder-grid">
+            <div class="stakeholder-card physician">
+                <i class="fas fa-user-tie"></i>
+                <h5>CEO / Executive</h5>
+                <p>Priority-setting, tradeoffs, operational design; initial reasoning patterns to preserve.</p>
+            </div>
+            <div class="stakeholder-card tech">
+                <i class="fas fa-chalkboard-user"></i>
+                <h5>Department SMEs</h5>
+                <p>Curate domain knowledge; validate facts; expand streams beyond exec lens.</p>
+            </div>
+            <div class="stakeholder-card eng">
+                <i class="fas fa-gears"></i>
+                <h5>Operations / Onboarding</h5>
+                <p>Use playbooks and decisions; reduce rework; improve consistency.</p>
+            </div>
+            <div class="stakeholder-card pm">
+                <i class="fas fa-code"></i>
+                <h5>Engineering / IT</h5>
+                <p>Integrations, security, data residency, observability, and platform ownership.</p>
+            </div>
+        </div>
+
+        <div class="section-title"><i class="fas fa-chart-line"></i> Platform Capabilities — All Live</div>
+        <div style="font-size:8px;color:#475569;margin-bottom:4px;line-height:1.4;">
+            All nine specialized assistants are <strong>operational in PRM Pipeline today</strong>.
+        </div>
+        <div class="mermaid-wrap">
+            <div class="mermaid">
+mindmap
+  root((AI Platform))
+    Executive Decision Assistant
+      Decision Trace
+      Risk Lens
+    Finance Analysis Assistant
+      ROI Model
+      Cost Analyzer
+    Operations Process Assistant
+      Process Maps
+      Workflow Diagrams
+    People Onboarding Assistant
+      Onboarding
+      Review Summariser
+    Document Pipeline
+      Business Case Generator
+      Requirements Generator
+    Knowledge Base
+      Semantic Search
+      Trust Tiers
+    Process Repository
+      Deep Dives
+      Workflow Assets
+    Knowledge Chat
+      Vector Search
+      Citations
+    Backlog Planning
+      Cycle Planner
+      Sheets Sync
+            </div>
+        </div>
+        <table class="req-table" style="margin-bottom:6px;">
+            <thead><tr><th style="width:28%">Capability</th><th style="width:12%">Status</th><th>What it does</th></tr></thead>
+            <tbody>
+                <tr><td>Meeting → Business Case → Requirements pipeline</td><td><span class="live-tag">Live</span></td><td>Turns recordings into approved business cases and requirements documents with human gates</td></tr>
+                <tr><td>Knowledge Base</td><td><span class="live-tag">Live</span></td><td>Trusted library of approved business cases and requirements — searchable institutional memory</td></tr>
+                <tr><td>Process Repository</td><td><span class="live-tag">Live</span></td><td>Department process docs, workflow diagrams, and deep dives</td></tr>
+                <tr><td>Knowledge Chat</td><td><span class="live-tag">Live</span></td><td>Cited Q&amp;A over all approved memory</td></tr>
+                <tr><td>Backlog &amp; Cycle Planner</td><td><span class="live-tag">Live</span></td><td>Actions extracted, scored, and sprint-ready from every meeting</td></tr>
+                <tr><td>Executive Decision Assistant</td><td><span class="live-tag">Live</span></td><td>Vendor and policy decisions with cited precedents and risk lens</td></tr>
+                <tr><td>Finance Analysis Assistant</td><td><span class="live-tag">Live</span></td><td>ROI models, cost scenarios, and executive briefs</td></tr>
+                <tr><td>Operations Process Assistant</td><td><span class="live-tag">Live</span></td><td>Process maps, handoff owners, and improvement requirements</td></tr>
+                <tr><td>People Onboarding Assistant</td><td><span class="live-tag">Live</span></td><td>Onboarding plans, review summaries, and policy Q&amp;A</td></tr>
+                <tr><td>Copilot at approval gates</td><td><span class="live-tag">Live</span></td><td>Plain-language edits at business case, requirements, task review, and library surfaces</td></tr>
+                <tr><td>Learning opportunity cards</td><td><span class="live-tag">Live</span></td><td>User-confirmed preferences that improve future runs</td></tr>
+            </tbody>
+        </table>
+
+        <div class="section-title"><i class="fas fa-brain"></i> Specialized Assistants (9 Capabilities — All Live)</div>
+        <div class="two-col">
+            <div class="mini-box">
+                <h5><i class="fas fa-user-tie" style="color:var(--indigo);"></i> Executive and decision modules</h5>
+                <ul>
+                    <li><strong>Executive Decision Assistant <span class="live-tag">Live</span>:</strong> vendor decisions, policy framing, cited precedents</li>
+                    <li><strong>Finance Analysis Assistant <span class="live-tag">Live</span>:</strong> ROI models, cost scenarios, 12-month exec brief generation</li>
+                    <li><strong>Knowledge Chat <span class="live-tag">Live</span>:</strong> cited Q&amp;A over all approved institutional memory</li>
+                </ul>
+            </div>
+            <div class="mini-box">
+                <h5><i class="fas fa-gears" style="color:var(--green);"></i> Operational and people modules</h5>
+                <ul>
+                    <li><strong>Document Pipeline <span class="live-tag">Live</span>:</strong> meeting → business case → requirements with approval gates + copilot</li>
+                    <li><strong>Operations Process Assistant <span class="live-tag">Live</span>:</strong> process maps, workflow diagrams, handoff owners, improvement requirements</li>
+                    <li><strong>People Onboarding Assistant <span class="live-tag">Live</span>:</strong> onboarding plans, performance review summaries, policy Q&amp;A</li>
+                    <li><strong>Knowledge Base + Process Repository <span class="live-tag">Live</span>:</strong> trusted retrieval and operational process docs</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section-title"><i class="fas fa-star"></i> Real-World Examples — One per Assistant</div>
+        <table class="req-table" style="margin-bottom:6px;">
+            <thead><tr><th style="width:22%">Assistant</th><th style="width:33%">Business question</th><th>AI path &amp; outcome</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Executive Decision</strong></td><td>"How do we decide vendor X vs Y?"</td><td>Past decisions retrieved → risk lens applied → decision brief with cited precedents</td></tr>
+                <tr><td><strong>Finance Analysis</strong></td><td>"What is the ROI of automating claims denial follow-up?"</td><td>Claims volume modelled → 3 ROI scenarios → exec brief: 2.4× at conservative estimate</td></tr>
+                <tr><td><strong>Operations Process</strong></td><td>"Where do claims-denial handoffs break down?"</td><td>Process map retrieved → owners identified → improvement requirements + sprint backlog</td></tr>
+                <tr><td><strong>People Onboarding</strong></td><td>"Draft an onboarding plan for our new billing analyst"</td><td>Role + dept context loaded → 30/60/90 plan generated → contacts identified</td></tr>
+                <tr><td><strong>Document Pipeline</strong></td><td>"Turn last week's meeting into a business case"</td><td>Recording ingested → business case generated → human approves → published to Knowledge Base in 45 min</td></tr>
+                <tr><td><strong>Knowledge Chat</strong></td><td>"What did we decide about pricing changes in Q1?"</td><td>Memory + KB searched → cited answer with source links in seconds</td></tr>
+            </tbody>
+        </table>
+
+        <div class="section-title"><i class="fas fa-folder-tree"></i> Process Repository — Live</div>
+        <div class="mermaid-wrap">
+            <div class="mermaid">
+flowchart TB
+  DR[Process_Repository]
+  DR --> F1[Department_folders]
+  DR --> DD[Deep_dive_SME]
+  DR --> WF[Workflow_diagrams]
+  DR --> TECH[Tech_infrastructure]
+  KB[Knowledge_Base] --> DR
+  DR --> Ctx[Context_Agent]
+  Ctx --> Pipe[Pipeline_and_Knowledge_Chat]
+            </div>
+        </div>
+        <table class="req-table" style="margin-bottom:6px;">
+            <thead><tr><th>Asset type</th><th>Status</th><th>Use</th></tr></thead>
+            <tbody>
+                <tr><td>Department deep dives</td><td><span class="live-tag">Live</span></td><td>SME interview capture per department</td></tr>
+                <tr><td>Workflow diagrams</td><td><span class="live-tag">Live</span></td><td>Process maps; download + AI context</td></tr>
+                <tr><td>Department folders</td><td><span class="live-tag">Live</span></td><td>Tree + table views in Process Repository</td></tr>
+                <tr><td>Knowledge Chat context</td><td><span class="live-tag">Live</span></td><td>Repository docs feed retrieval + chat</td></tr>
+            </tbody>
+        </table>
+
+        <div class="section-title"><i class="fas fa-comments"></i> Copilot Mode — Live at Gates &amp; Document Edit</div>
+        <div style="font-size:8px;color:#475569;margin-bottom:4px;">Copilot chat is operational at business case and requirements approval gates, backlog task review, and library document edit.</div>
+        <div class="mermaid-wrap">
+            <div class="mermaid">
+sequenceDiagram
+  participant User
+  participant ChatRail
+  participant CopilotAgent
+  participant Tools
+  participant Draft
+  User->>ChatRail: natural_language_edit
+  ChatRail->>CopilotAgent: message_plus_draft
+  CopilotAgent->>Tools: retrieve_if_needed
+  Tools-->>CopilotAgent: KB_or_repo_context
+  CopilotAgent->>Draft: apply_patch
+  Draft-->>User: updated_preview
+  Note over User,Draft: Human approves before publish
+            </div>
+        </div>
+        <table class="req-table" style="margin-bottom:6px;">
+            <thead><tr><th>Surface</th><th>Chat context</th><th>Output</th></tr></thead>
+            <tbody>
+                <tr><td>Business Case approval gate</td><td>Clarifying questions review</td><td>Revised clarifications</td></tr>
+                <tr><td>Business Case document chat</td><td>Full business case draft</td><td>Updated business case sections</td></tr>
+                <tr><td>Requirements document chat</td><td>Requirements draft</td><td>Updated requirements sections</td></tr>
+                <tr><td>Backlog task review</td><td>Proposed action items</td><td>Re-banded / edited task list</td></tr>
+                <tr><td>Process Repository / KB edit</td><td>Document edit chat</td><td>Updated markdown draft</td></tr>
+            </tbody>
+        </table>
+
+        <div class="section-title"><i class="fas fa-project-diagram"></i> Target System Flow (Closed Loop)</div>
+        <div class="flow-container">
+            <div class="flow-row">
+                <div class="flow-box indigo"><span class="flow-icon"><i class="fas fa-inbox"></i></span>Ingest<br><span style="font-size:6.5px;opacity:0.7;">meetings + docs</span></div>
+                <span class="flow-arrow"><i class="fas fa-arrow-right"></i></span>
+                <div class="flow-box blue"><span class="flow-icon"><i class="fas fa-wand-magic-sparkles"></i></span>Extract<br><span style="font-size:6.5px;opacity:0.7;">Claude stack</span></div>
+                <span class="flow-arrow"><i class="fas fa-arrow-right"></i></span>
+                <div class="flow-box orange"><span class="flow-icon"><i class="fas fa-cubes"></i></span>Structure<br><span style="font-size:6.5px;opacity:0.7;">schemas + tags</span></div>
+                <span class="flow-arrow"><i class="fas fa-arrow-right"></i></span>
+                <div class="flow-box green"><span class="flow-icon"><i class="fas fa-database"></i></span>Store<br><span style="font-size:6.5px;opacity:0.7;">vector + graph</span></div>
+                <span class="flow-arrow"><i class="fas fa-arrow-right"></i></span>
+                <div class="flow-box blue"><span class="flow-icon"><i class="fas fa-magnifying-glass"></i></span>Retrieve<br><span style="font-size:6.5px;opacity:0.7;">RAG / hybrid</span></div>
+                <span class="flow-arrow"><i class="fas fa-arrow-right"></i></span>
+                <div class="flow-box indigo"><span class="flow-icon"><i class="fas fa-bullseye"></i></span>Apply<br><span style="font-size:6.5px;opacity:0.7;">support + train</span></div>
+                <span class="flow-arrow"><i class="fas fa-arrow-right"></i></span>
+                <div class="flow-box green"><span class="flow-icon"><i class="fas fa-rotate"></i></span>Feedback<br><span style="font-size:6.5px;opacity:0.7;">HITL + metrics</span></div>
+            </div>
+            <div style="margin-top:5px; font-size:7.5px; color:#64748b; text-align:center;">
+                <strong>Learning loop:</strong> corrections and approvals refine schemas and trust tiers — the system compounds over repeated input-output cycles.
+                &nbsp;|&nbsp; <strong>Existing nodes:</strong> AutoDoc · CC call analyzer · Meeting workflow — each is an independent module; LangGraph orchestrator connects them.
+            </div>
+        </div>
+
+        <div class="section-title"><i class="fas fa-list-check"></i> Business / Functional Requirements</div>
+        <table class="req-table">
+            <thead>
+                <tr>
+                    <th style="width:10%">ID</th>
+                    <th style="width:12%">Priority</th>
+                    <th>Requirement</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="req-id">BR-OB-01</td>
+                    <td><span class="priority-high">High</span></td>
+                    <td><strong>Ingestion:</strong> Accept meeting audio (transcribed via <strong>OpenAI Whisper</strong> / compatible ASR path), existing transcripts, operational notes, prompts, and linked documents with metadata (date, participants, department, sensitivity).</td>
+                </tr>
+                <tr>
+                    <td class="req-id">BR-OB-02</td>
+                    <td><span class="priority-high">High</span></td>
+                    <td><strong>Structured extraction:</strong> Produce machine-readable artifacts (JSON) beyond free-text summaries — decisions, action items, owners, deadlines, risks, open questions, process changes.</td>
+                </tr>
+                <tr>
+                    <td class="req-id">BR-OB-03</td>
+                    <td><span class="priority-high">High</span></td>
+                    <td><strong>Knowledge architecture:</strong> Categorize and tag outputs by domain, topic, role, process, and decision type; support stable identifiers and cross-links between related knowledge objects.</td>
+                </tr>
+                <tr>
+                    <td class="req-id">BR-OB-04</td>
+                    <td><span class="priority-med">Med</span></td>
+                    <td><strong>Retention &amp; memory:</strong> Persist structured knowledge with versioning; distinguish <em>draft</em>, <em>reviewed</em>, and <em>trusted</em> states; retain source pointers to original input.</td>
+                </tr>
+                <tr>
+                    <td class="req-id">BR-OB-05</td>
+                    <td><span class="priority-med">Med</span></td>
+                    <td><strong>Retrieval:</strong> Enable search and Q&amp;A over approved knowledge with citations; phase hybrid retrieval (semantic + structured / graph) as corpus grows.</td>
+                </tr>
+                <tr>
+                    <td class="req-id">BR-OB-06</td>
+                    <td><span class="priority-med">Med</span></td>
+                    <td><strong>Decision support:</strong> Surface prior decisions, rationale, and constraints when similar topics recur; flag conflicts with newer information (human adjudication).</td>
+                </tr>
+                <tr>
+                    <td class="req-id">BR-OB-07</td>
+                    <td><span class="priority-high">High</span></td>
+                    <td><strong>Governance (multi-user):</strong> Role-based contribute/validate/approve for the whole team (Himani, Luis, Javier team, Avinasha — not single-user); audit trail for reads/writes; configurable retention and export for legal review.</td>
+                </tr>
+                <tr>
+                    <td class="req-id">BR-OB-08</td>
+                    <td><span class="priority-med">Med</span></td>
+                    <td><strong>SME expansion:</strong> Allow department leaders to submit structured knowledge streams into the same taxonomy with delegated approval workflows.</td>
+                </tr>
+                <tr>
+                    <td class="req-id">BR-OB-09</td>
+                    <td><span class="priority-high">High</span></td>
+                    <td><strong>Orchestration / node model:</strong> Each pipeline action (ingest, ASR, extract, score, publish) is an independent module/node with an explicit contract; a thin orchestrator (LangGraph or equivalent) encodes only order + routing rules. Existing tools — <strong>AutoDoc</strong>, <strong>CC call analyzer</strong>, and the <strong>meeting workflow</strong> — are nodes in the same graph. Prevents "survival mode" step-dropping caused by monolithic single-call execution.</td>
+                </tr>
+                <tr>
+                    <td class="req-id">BR-OB-10</td>
+                    <td><span class="priority-high">High</span></td>
+                    <td><strong>Prompt/config freshness:</strong> Cue files, context files, and schema definitions must be re-read from disk per invocation — never recalled from conversation thread history. Each run starts as a fresh agent window with the <code>plan.md</code> passed explicitly; no babysitting pattern.</td>
+                </tr>
+                <tr>
+                    <td class="req-id">BR-OB-11</td>
+                    <td><span class="priority-high">High</span></td>
+                    <td><strong>Recording auto-ingest:</strong> Meeting recordings must be automatically picked up from wherever they land (Google Drive, OneDrive, email attachment) via a lightweight watcher/script — no manual download or conversion step required before pipeline processing is triggered.</td>
+                </tr>
+                <tr>
+                    <td class="req-id">BR-OB-12</td>
+                    <td><span class="priority-high">High</span></td>
+                    <td><strong>Agentic control flow:</strong> System must support specialized agents with explicit handoff conditions, tool selection per node, and traceable control transfer (who invoked which tool, why, and what output was handed to the next agent).</td>
+                </tr>
+                <tr>
+                    <td class="req-id">BR-OB-13</td>
+                    <td><span class="priority-med">Med</span></td>
+                    <td><strong>Nine-assistant platform:</strong> All nine specialized assistants (Executive Decision, Finance, Operations, People, Document Pipeline, Knowledge Base, Process Repository, Knowledge Chat, Backlog &amp; Planning) are live with copilot at approval gates, learning cards at task review, and full agentic control flow traceability.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="footer">
+        <span><strong>BRD-ORG-BRAIN-001</strong> &nbsp;|&nbsp; AI-Powered Organizational Brain</span>
+        <span>Page 1 of 4 &nbsp;|&nbsp; PRM Billing — Shareable</span>
+    </div>
+</div>
+
+<!-- PAGE 2 -->
+<div class="page">
+    <div class="header">
+        <h1><i class="fas fa-brain"></i> BRD: AI-Powered Organizational Brain</h1>
+        <div class="header-info">
+            <div><strong>BRD-ORG-BRAIN-001</strong> &nbsp;|&nbsp; Version 1.3</div>
+            <div><strong>Scope, inputs, outputs, phases, technology</strong></div>
+        </div>
+    </div>
+    <div class="ai-strip">
+        <i class="fas fa-clipboard-list"></i>
+        <span><strong>Page 2</strong> — Non-functional requirements, scope, Claude model stack, hybrid architecture</span>
+    </div>
+
+    <div class="content">
+        <div class="section-title"><i class="fas fa-shield-alt"></i> Non-Functional Requirements (Business)</div>
+        <table class="req-table">
+            <thead>
+                <tr>
+                    <th style="width:12%">ID</th>
+                    <th>Requirement</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="req-id">BNF-01</td>
+                    <td><strong>Privacy &amp; permissions:</strong> Enforce least-privilege access; segment sensitive discussions (HR, legal, M&amp;A); support org policies and regional data residency where required.</td>
+                </tr>
+                <tr>
+                    <td class="req-id">BNF-02</td>
+                    <td><strong>Accuracy &amp; traceability:</strong> Every surfaced claim should tie to sources; confidence or “needs review” flags; no fabrication of approvals or decisions.</td>
+                </tr>
+                <tr>
+                    <td class="req-id">BNF-03</td>
+                    <td><strong>Auditability:</strong> Immutable logs for ingest jobs, model version, prompt/schema version, approver identity, and publication events.</td>
+                </tr>
+                <tr>
+                    <td class="req-id">BNF-04</td>
+                    <td><strong>Scalability:</strong> Handle growing volume of meetings and documents; batch and async processing; cost controls via model routing (Haiku vs Sonnet vs Opus).</td>
+                </tr>
+                <tr>
+                    <td class="req-id">BNF-05</td>
+                    <td><strong>Availability:</strong> Graceful degradation — manual upload and review if AI services are down; queued reprocessing when restored. Monitor Anthropic status page; do not block user workflows on single model unavailability (Opus confirmed down ~10 min Apr 9 2026).</td>
+                </tr>
+                <tr>
+                    <td class="req-id">BNF-06</td>
+                    <td><strong>Bounded invocations:</strong> No single LLM call spans more than one defined pipeline stage; orchestrator enforces step sequence and can checkpoint / retry individual nodes without re-running the full chain.</td>
+                </tr>
+                <tr>
+                    <td class="req-id">BNF-07</td>
+                    <td><strong>Prompt integrity:</strong> Prompt and configuration files are loaded from disk at the start of each pipeline run; conversation / thread context is never the sole source of step instructions. Use <code>plan.md</code> as the deterministic instruction set passed to each fresh agent window.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="section-title"><i class="fas fa-bullseye"></i> Scope — Phase 1 vs Later</div>
+        <div class="scope-grid">
+            <div class="scope-card in">
+                <h4><i class="fas fa-check"></i> In scope (Phase 1)</h4>
+                <ul>
+                    <li>Meeting-centric ingest, <strong>OpenAI Whisper</strong> ASR integration (or pre-supplied transcripts), prompt-driven structured extraction</li>
+                    <li>Human-in-the-loop review before “trusted” publication</li>
+                    <li>Baseline taxonomy, tagging, and searchable repository of structured objects</li>
+                    <li>Observability for quality (eval samples, regression checks on schemas)</li>
+                </ul>
+            </div>
+            <div class="scope-card out">
+                <h4><i class="fas fa-times"></i> Deferred / later phases</h4>
+                <ul>
+                    <li>Fully autonomous executive “digital twin” without oversight</li>
+                    <li>Replacing formal legal/compliance sign-off</li>
+                    <li>Real-time org-wide graph of all systems without integration budget</li>
+                    <li>Unbounded cross-tenant SaaS productization (unless explicitly scoped)</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section-title"><i class="fas fa-arrow-right-to-bracket"></i> Input Sources</div>
+        <div class="two-col">
+            <div class="mini-box">
+                <h5><i class="fas fa-microphone" style="color:var(--indigo);"></i> Primary — 3 input types</h5>
+                <ul>
+                    <li><strong>Standard meeting</strong> — recording auto-picked from Google Drive / OneDrive / email → <strong>OpenAI Whisper</strong> (<code>whisper-1</code>) → structured minutes + action items</li>
+                    <li><strong>Brain dump</strong> — freeform CEO/exec spoken or typed input → categorized knowledge items</li>
+                    <li><strong>Backlog review</strong> — commentary on Google Sheet items → scoring corrections + DB updates</li>
+                    <li style="color:#64748b;font-style:italic;">Recordings sourced automatically by watcher script (BR-OB-11) — no manual download before pipeline triggers</li>
+                </ul>
+            </div>
+            <div class="mini-box">
+                <h5><i class="fas fa-folder-open" style="color:var(--green);"></i> Secondary</h5>
+                <ul>
+                    <li>SOPs, playbooks, wikis, requirements documents, workflow diagrams</li>
+                    <li>SME-authored clarifications and corrections (reinforcement)</li>
+                    <li>Operational tickets / KPI context when integrated</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section-title"><i class="fas fa-arrow-right-from-bracket"></i> Output Types</div>
+        <div class="two-col">
+            <div class="mini-box">
+                <h5><i class="fas fa-file-lines" style="color:var(--blue);"></i> Artifacts</h5>
+                <ul>
+                    <li>Executive &amp; working summaries with cited sources</li>
+                    <li>Decision log entries (what / why / who / when / alternatives)</li>
+                    <li>Action items with owners, due dates, dependencies</li>
+                </ul>
+            </div>
+            <div class="mini-box">
+                <h5><i class="fas fa-book" style="color:var(--orange);"></i> Operational</h5>
+                <ul>
+                    <li>Process deltas &amp; exception patterns (“how we actually run it”)</li>
+                    <li>Playbook snippets &amp; onboarding study paths</li>
+                    <li>Searchable knowledge objects for RAG and dashboards</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section-title"><i class="fas fa-road"></i> Phased Roadmap</div>
+        <table class="est-table">
+            <thead>
+                <tr>
+                    <th style="width:10%">Phase</th>
+                    <th style="width:22%">Focus</th>
+                    <th>Outcomes</th>
+                    <th style="width:22%">Hours (est.)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="est-hours">1</span></td>
+                    <td><strong>Capture &amp; structure</strong></td>
+                    <td>Reliable ingest, schemas, HITL review, trusted publication workflow.</td>
+                    <td><strong>~5–6 h</strong> focused MVP &nbsp;|&nbsp; <strong>134 h</strong> full build</td>
+                </tr>
+                <tr>
+                    <td><span class="est-hours">2</span></td>
+                    <td><strong>Memory &amp; retrieval</strong></td>
+                    <td>Persistent memory layer, hybrid search, citations, usage analytics.</td>
+                    <td>TBD</td>
+                </tr>
+                <tr>
+                    <td><span class="est-hours">3</span></td>
+                    <td><strong>Graph &amp; reasoning</strong></td>
+                    <td>Entity/process graph, multi-hop queries, pattern detection, richer decision support.</td>
+                    <td>TBD</td>
+                </tr>
+                <tr>
+                    <td><span class="est-hours">4</span></td>
+                    <td><strong>Org-wide brain</strong></td>
+                    <td>SME streams at scale, automation readiness, cross-functional intelligence products.</td>
+                    <td>TBD</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="section-title"><i class="fas fa-microchip"></i> Technology Stack (Recommended)</div>
+        <table class="req-table">
+            <thead>
+                <tr>
+                    <th style="width:22%">Layer</th>
+                    <th>Components</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="req-id">Speech / ASR</td>
+                    <td><strong>OpenAI Whisper</strong> via OpenAI API (<code>whisper-1</code> or current production equivalent) for meeting audio transcription; optional speaker diarization or segment timestamps aligned to meeting metadata (separate step if required).</td>
+                </tr>
+                <tr>
+                    <td class="req-id">Reasoning (Claude)</td>
+                    <td><strong>Haiku 4.5</strong> <code>claude-haiku-4-5</code> — routing &amp; volume gate · <strong>Sonnet 4.6</strong> <code>claude-sonnet-4-6</code> — extraction &amp; structuring (1M ctx) · <strong>Opus 4.6</strong> <code>claude-opus-4-6</code> — complex synthesis &amp; exec-style decision framing (Extended + Adaptive Thinking).</td>
+                </tr>
+                <tr>
+                    <td class="req-id">Agents / orchestration</td>
+                    <td><strong>LangGraph</strong> for stateful node/skill pipelines; evaluation hooks (e.g. LangSmith). <strong>Phase 1 MVP:</strong> Flask web app + Claude API (Railway / Vercel hosting); DB must be hosted — not local SQLite on serverless. Cursor manages code + redeploys.</td>
+                </tr>
+                <tr>
+                    <td class="req-id">Memory &amp; retrieval</td>
+                    <td><strong>Zep / Graphiti</strong> temporal memory; <strong>PostgreSQL + pgvector</strong>; optional enterprise search layer (e.g. <strong>Glean</strong>) for cross-tool discovery.</td>
+                </tr>
+                <tr>
+                    <td class="req-id">App &amp; governance</td>
+                    <td><strong>Next.js</strong> portal; <strong>Supabase</strong> (or enterprise IdP) for auth, RLS, audit-friendly storage.</td>
+                </tr>
+            </tbody>
+        </table>
+        <p style="font-size:7px; color:#64748b; line-height:1.4; margin-top:-4px;"><strong>ASR:</strong> OpenAI Whisper via OpenAI API — align with data processing and retention policy. <strong>Reasoning:</strong> Claude via Anthropic API, AWS Bedrock, or Google Vertex AI — choose per data residency, BAA, and latency SLOs.</p>
+    </div>
+    <div class="footer">
+        <span><strong>BRD-ORG-BRAIN-001</strong> &nbsp;|&nbsp; AI-Powered Organizational Brain</span>
+        <span>Page 2 of 4 &nbsp;|&nbsp; PRM Billing — Shareable</span>
+    </div>
+</div>
+
+<!-- PAGE 3 -->
+<div class="page">
+    <div class="header">
+        <h1><i class="fas fa-brain"></i> BRD: AI-Powered Organizational Brain</h1>
+        <div class="header-info">
+            <div><strong>BRD-ORG-BRAIN-001</strong> &nbsp;|&nbsp; Version 1.3</div>
+            <div><strong>Knowledge architecture, learning, governance, risks</strong></div>
+        </div>
+    </div>
+    <div class="ai-strip">
+        <i class="fas fa-network-wired"></i>
+        <span><strong>Page 3</strong> — Taxonomy, trust model, use cases, acceptance criteria</span>
+    </div>
+
+    <div class="content">
+        <div class="section-title"><i class="fas fa-sitemap"></i> Knowledge Architecture</div>
+        <div class="hipaa-box">
+            <h4><i class="fas fa-tags"></i> Categorization &amp; linkage</h4>
+            <div class="hipaa-grid">
+                <div class="hipaa-item">
+                    <h5><i class="fas fa-list"></i> Taxonomy</h5>
+                    <p>Domains: Executive, Operations, Clinical, Technology, Finance/Legal. Sub-tags: process, decision, exception, SOP, risk, customer, product.</p>
+                </div>
+                <div class="hipaa-item">
+                    <h5><i class="fas fa-link"></i> Knowledge objects</h5>
+                    <p>Stable IDs; links to meetings, people, documents; optional graph edges (depends on, supersedes, related_to).</p>
+                </div>
+                <div class="hipaa-item">
+                    <h5><i class="fas fa-clock-rotate-left"></i> History</h5>
+                    <p>Time-aware records; validity windows for “current truth”; archive superseded decisions with rationale.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-title"><i class="fas fa-graduation-cap"></i> Learning Model (Operational Definition)</div>
+        <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:8px 10px; margin-bottom:8px; font-size:8px; color:#1e3a8a; line-height:1.5;">
+            <strong>“Learning”</strong> is not opaque self-training on raw audio. It is <strong>supervised compounding</strong>: ingest → extract → validate → publish → retrieve → feedback. Trust tiers evolve with governance.
+        </div>
+
+        <div class="section-title"><i class="fas fa-lightbulb"></i> Learning Opportunities — Live at Task Review</div>
+        <div style="font-size:8px;color:#475569;margin-bottom:4px;">Learning opportunity cards are <span class="live-tag">Live</span> during backlog task review — user-confirmed rules write back to prompt preferences. Nothing auto-applied.</div>
+        <div class="mermaid-wrap">
+            <div class="mermaid">
+flowchart LR
+  Edit[Step_chat_correction]
+  Detect[Pattern_detect]
+  Card[Learning_card]
+  Confirm[User_confirms]
+  Block[LEARNED_PREFERENCES]
+  Audit[prompt_learnings_DB]
+  Next[Next_pipeline_run]
+  Edit --> Detect
+  Detect -->|pattern| Card
+  Detect -->|one_off| Edit
+  Card --> Confirm
+  Confirm --> Block
+  Confirm --> Audit
+  Block --> Next
+            </div>
+        </div>
+        <ul class="ac-list" style="margin-bottom:8px;">
+            <li><i class="fas fa-check-circle"></i> Pattern detected only when correction is generalizable — not one-off edits.</li>
+            <li><i class="fas fa-check-circle"></i> User must click Accept (or Edit &amp; accept) — no auto-apply.</li>
+            <li><i class="fas fa-check-circle"></i> Audit row in <code>prompt_learnings</code>; disable from Settings.</li>
+        </ul>
+
+        <div class="section-title"><i class="fas fa-user-shield"></i> Governance</div>
+        <table class="est-table">
+            <thead>
+                <tr>
+                    <th style="width:18%">Role</th>
+                    <th>Responsibilities</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Contributor</strong></td>
+                    <td>Submit meetings, notes, drafts; tag suggested domain; cannot mark “trusted.”</td>
+                </tr>
+                <tr>
+                    <td><strong>Reviewer</strong></td>
+                    <td>Validate facts, fix extraction errors, request re-run with clarified prompts.</td>
+                </tr>
+                <tr>
+                    <td><strong>Approver</strong></td>
+                    <td>Publish to org-wide retrieval surfaces; owns domain policy (e.g. Clinical lead).</td>
+                </tr>
+                <tr>
+                    <td><strong>Auditor / Admin</strong></td>
+                    <td>Export trails, manage retention, investigate access anomalies, model change control.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="section-title"><i class="fas fa-lightbulb"></i> Use Cases by Phase</div>
+        <table class="req-table">
+            <thead>
+                <tr>
+                    <th style="width:26%">Use case</th>
+                    <th style="width:12%">Phase</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>CEO augmentation &amp; exec reasoning capture</td>
+                    <td>1–2</td>
+                    <td>Preserves priorities, tradeoffs, and narrative context for leadership continuity.</td>
+                </tr>
+                <tr>
+                    <td>Process documentation &amp; “actual vs documented” gaps</td>
+                    <td>1–3</td>
+                    <td>Surfaces exceptions and recurring friction for standardization.</td>
+                </tr>
+                <tr>
+                    <td>Knowledge retrieval &amp; onboarding</td>
+                    <td>2–4</td>
+                    <td>Faster ramp; consistent answers with citations to approved sources.</td>
+                </tr>
+                <tr>
+                    <td>SME knowledge capture</td>
+                    <td>2–4</td>
+                    <td>Scales beyond exec lens with delegated validation.</td>
+                </tr>
+                <tr>
+                    <td>Decision support &amp; precedent</td>
+                    <td>3–4</td>
+                    <td>Surfaces prior decisions, constraints, and options when issues recur.</td>
+                </tr>
+                <tr>
+                    <td>Cross-functional intelligence</td>
+                    <td>4</td>
+                    <td>Unified visibility across departments when graph + integrations mature.</td>
+                </tr>
+                <tr>
+                    <td>Software/vendor capability audit</td>
+                    <td>2-4</td>
+                    <td>Agent-assisted technical review using Q&amp;A evidence, architecture checklist scoring, and competence/risk summary output.</td>
+                </tr>
+                <tr>
+                    <td>Backlog scoring &amp; prioritization</td>
+                    <td>1</td>
+                    <td>Extract action items → dedupe against DB → categorize + score → sync Google Sheets and Bitrix; replaces manual Cursor-inline workflow.</td>
+                </tr>
+                <tr>
+                    <td>Recording auto-capture &amp; ingest</td>
+                    <td>1</td>
+                    <td>Watcher script picks recordings from Google Drive / OneDrive / email; triggers Whisper + pipeline automatically; zero manual handoff step.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="section-title"><i class="fas fa-diagram-project"></i> Agentic AI Operating Model</div>
+        <div class="mermaid-wrap">
+            <div class="mermaid">
+flowchart LR
+  Intake[Intake_Agent] --> Context[Context_Agent]
+  Context --> Router[Router_Agent]
+  Router --> Specialist[Specialist_Agent]
+  Specialist --> Artifact[Artifact_Agent]
+  Artifact --> Approval[Approval_Gate]
+  Approval --> Memory[Memory_Agent]
+            </div>
+        </div>
+        <div style="font-size:7.5px; color:#64748b; text-align:center; margin-bottom:6px;">
+            <strong>Node logic:</strong> context incomplete → retrieve first · executive → Executive Decision Assistant · formal output → business case / requirements chain · all tool calls logged (BR-OB-12).
+        </div>
+
+        <div class="section-title"><i class="fas fa-timeline"></i> From Meeting to Institutional Memory</div>
+        <div class="mermaid-wrap">
+            <div class="mermaid">
+timeline
+    title Meeting to Memory Pipeline
+    Capture : Recording uploaded to PRM Pipeline
+    Transcribe : Whisper ASR — full transcript
+    Extract : Business case sections generated
+    Review : Human approves via copilot chat
+    Publish : Approved business case enters Knowledge Base
+    Retrieve : Future runs and Knowledge Chat cite it
+            </div>
+        </div>
+
+        <div class="section-title"><i class="fas fa-clipboard-check"></i> Acceptance Criteria (Phase 1)</div>
+        <ul class="ac-list">
+            <li><i class="fas fa-check-circle"></i> A meeting can be ingested end-to-end with metadata, transcript, and structured JSON matching schema v1.</li>
+            <li><i class="fas fa-check-circle"></i> Reviewers can edit extracted fields; audit log captures before/after and user identity.</li>
+            <li><i class="fas fa-check-circle"></i> Published objects are retrievable by domain/topic with citations to source segments or documents.</li>
+            <li><i class="fas fa-check-circle"></i> Trust state machine enforced: draft &rarr; reviewed &rarr; trusted (no bypass without admin).</li>
+            <li><i class="fas fa-check-circle"></i> Role-based access prevents unauthorized access to restricted domains.</li>
+            <li><i class="fas fa-check-circle"></i> Model routing documented: <strong>OpenAI Whisper</strong> (when audio ingested) and Haiku/Sonnet/Opus per step, with model/version or job id logged per ingest pipeline.</li>
+            <li><i class="fas fa-check-circle"></i> Each pipeline step (auto-ingest, ASR, extract, dedupe, score, publish) executes as a <strong>discrete API / node call</strong>; no single monolithic call handles the end-to-end chain.</li>
+            <li><i class="fas fa-check-circle"></i> Prompt and config files are <strong>re-read from disk</strong> at the start of each run via <code>plan.md</code>; deviation from last-run file state triggers a resync warning before the pipeline proceeds.</li>
+            <li><i class="fas fa-check-circle"></i> Agent handoff trace is visible per run: source input, active agent, tools used, handoff condition, and final artifact decision path.</li>
+        </ul>
+
+        <div class="section-title"><i class="fas fa-exclamation-triangle"></i> Risks and Mitigations</div>
+        <table class="risk-table">
+            <thead>
+                <tr>
+                    <th style="width:22%">Risk</th>
+                    <th style="width:12%">Level</th>
+                    <th>Mitigation</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Low-quality or biased knowledge compounds</td>
+                    <td><span class="risk-high">High</span></td>
+                    <td>HITL gates, trust tiers, sampling QA, SME ownership per domain, periodic audits.</td>
+                </tr>
+                <tr>
+                    <td>Hallucinated facts or misquoted decisions</td>
+                    <td><span class="risk-high">High</span></td>
+                    <td>Citations required; confidence flags; forbid publication without review for high-risk domains.</td>
+                </tr>
+                <tr>
+                    <td>Adoption failure (“another AI summary tool”) perception</td>
+                    <td><span class="risk-med">Med</span></td>
+                    <td>Anchor on workflows (publish, search, training); executive sponsorship; measurable KPIs.</td>
+                </tr>
+                <tr>
+                    <td>Privacy / regulatory exposure</td>
+                    <td><span class="risk-high">High</span></td>
+                    <td>Data maps, BAAs, residency choices, minimization, retention policies, access reviews.</td>
+                </tr>
+                <tr>
+                    <td>Over-centralization on one leader’s voice early on</td>
+                    <td><span class="risk-med">Med</span></td>
+                    <td>Explicit roadmap to SME streams; plural approvers; diversity of sources in graph.</td>
+                </tr>
+                <tr>
+                    <td>Prompt / config drift (stale instructions)</td>
+                    <td><span class="risk-high">High</span></td>
+                    <td>Cue or context file updated without pipeline resync → stale instructions, silent output degradation. Mitigation: hash check on prompt files per run; mandatory resync flag in orchestrator (BR-OB-10 / BNF-07).</td>
+                </tr>
+                <tr>
+                    <td>Vendor API downtime (Claude / Opus)</td>
+                    <td><span class="risk-med">Med</span></td>
+                    <td>~10 min Opus outage confirmed Apr 9 2026. Mitigation: monitor Anthropic status page; queue for retry; manual fallback — never block all workflows on one model (reinforce BNF-05).</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="footer">
+        <span><strong>BRD-ORG-BRAIN-001</strong> &nbsp;|&nbsp; AI-Powered Organizational Brain</span>
+        <span>Page 3 of 4 &nbsp;|&nbsp; PRM Billing — Shareable</span>
+    </div>
+</div>
+
+<!-- PAGE 4 -->
+<div class="page">
+    <div class="header">
+        <h1><i class="fas fa-brain"></i> BRD: AI-Powered Organizational Brain</h1>
+        <div class="header-info">
+            <div><strong>BRD-ORG-BRAIN-001</strong> &nbsp;|&nbsp; Version 1.3</div>
+            <div><strong>Success metrics, milestones, strategic outcome</strong></div>
+        </div>
+    </div>
+    <div class="ai-strip">
+        <i class="fas fa-chart-line"></i>
+        <span><strong>Page 4</strong> — Metrics, <strong>Phase 1 hours timeline</strong>, calendar milestones, strategic outcome</span>
+    </div>
+
+    <div class="content">
+        <div class="section-title"><i class="fas fa-gauge-high"></i> Success Metrics</div>
+        <div class="kpi-grid six">
+            <div class="kpi-card">
+                <i class="fas fa-people-arrows"></i>
+                <div class="kpi-value">↓</div>
+                <div class="kpi-label">Key-person dependency</div>
+                <div class="kpi-sub">Repeat questions routed to KB first</div>
+            </div>
+            <div class="kpi-card">
+                <i class="fas fa-stopwatch"></i>
+                <div class="kpi-value">TTR</div>
+                <div class="kpi-label">Time-to-answer</div>
+                <div class="kpi-sub">Institutional Q&amp;A median latency</div>
+            </div>
+            <div class="kpi-card">
+                <i class="fas fa-equals"></i>
+                <div class="kpi-value">Δ</div>
+                <div class="kpi-label">Process variance</div>
+                <div class="kpi-sub">Documented vs observed alignment</div>
+            </div>
+            <div class="kpi-card">
+                <i class="fas fa-user-plus"></i>
+                <div class="kpi-value">Ramp</div>
+                <div class="kpi-label">Onboarding time</div>
+                <div class="kpi-sub">Time to productivity for new roles</div>
+            </div>
+            <div class="kpi-card">
+                <i class="fas fa-robot"></i>
+                <div class="kpi-value">AR</div>
+                <div class="kpi-label">Automation readiness</div>
+                <div class="kpi-sub">% workflows with structured steps</div>
+            </div>
+            <div class="kpi-card">
+                <i class="fas fa-scale-balanced"></i>
+                <div class="kpi-value">DS</div>
+                <div class="kpi-label">Decision support quality</div>
+                <div class="kpi-sub">Human ratings + precedent recall@k</div>
+            </div>
+        </div>
+
+        <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:8px 12px; margin-bottom:8px;">
+            <div style="font-size:9px; font-weight:800; color:#1e3a8a; margin-bottom:4px; display:flex; align-items:center; gap:6px;">
+                <i class="fas fa-code-branch" style="color:#3b82f6;"></i> Two valid delivery tracks — not the same scope
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:8px; color:#1e3a8a; line-height:1.5;">
+                <div><strong>Focused MVP build (~5–6 h):</strong> AI Expert team builds a scoped web app (Flask + Claude API + existing prompts + DB) once artifacts are handed over. Validates LangGraph node architecture on 3 input types before full Phase 1 commitment.</div>
+                <div><strong>Full Phase 1 engineering (~134 h):</strong> Complete enterprise pipeline — Whisper auto-ingest, LangGraph orchestration, pgvector, HITL review UI, RBAC, audit trail, eval hooks, QA. <strong>Status: largely delivered — platform live Q2 2026.</strong></div>
+            </div>
+        </div>
+
+        <div class="section-title"><i class="fas fa-clock"></i> Phase 1 pilot — task-wise timeline (hours, full build)</div>
+        <p style="font-size:7px; color:#64748b; margin-bottom:6px; line-height:1.45;">Indicative <strong>sequential engineering effort</strong> for the <em>full</em> Phase 1 (134 h). Hours are planning estimates; adjust for team size, parallel work, and vendor integrations. <strong>Cumul.</strong> = running total.</p>
+        <table class="effort-table">
+            <thead>
+                <tr>
+                    <th style="width:8%">#</th>
+                    <th style="width:52%">Task / deliverable</th>
+                    <th style="width:12%">Hours</th>
+                    <th style="width:14%">Cumul. (h)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="task-id">T1</td>
+                    <td>Schema v1, JSON contracts, taxonomy &amp; prompt pack (Claude) — workshop + spec</td>
+                    <td class="hrs">10</td>
+                    <td class="cum">10</td>
+                </tr>
+                <tr>
+                    <td class="task-id">T2</td>
+                    <td>Ingest service: upload/metadata API, job queue, artifact storage</td>
+                    <td class="hrs">14</td>
+                    <td class="cum">24</td>
+                </tr>
+                <tr>
+                    <td class="task-id">T3</td>
+                    <td><strong>OpenAI Whisper</strong> pipeline (audio → transcript), logging, error handling</td>
+                    <td class="hrs">12</td>
+                    <td class="cum">36</td>
+                </tr>
+                <tr>
+                    <td class="task-id">T4</td>
+                    <td>LangGraph orchestration — per-node Claude routing (Haiku/Sonnet/Opus), bounded invocations, prompt freshness check per invocation; AutoDoc / CC analyzer / meeting workflow wired as independent nodes</td>
+                    <td class="hrs">20</td>
+                    <td class="cum">56</td>
+                </tr>
+                <tr>
+                    <td class="task-id">T4b</td>
+                    <td>Prompt/config hash check mechanism; resync trigger when cue or context file changes (BR-OB-10 / BNF-07)</td>
+                    <td class="hrs">2</td>
+                    <td class="cum">58</td>
+                </tr>
+                <tr>
+                    <td class="task-id">T5</td>
+                    <td>PostgreSQL + pgvector (or equiv.); knowledge object persistence, versioning</td>
+                    <td class="hrs">14</td>
+                    <td class="cum">72</td>
+                </tr>
+                <tr>
+                    <td class="task-id">T6</td>
+                    <td>HITL review UI: transcript/source view, editable structured grid, trust state transitions</td>
+                    <td class="hrs">24</td>
+                    <td class="cum">96</td>
+                </tr>
+                <tr>
+                    <td class="task-id">T7</td>
+                    <td>Auth, RBAC, audit trail (who/when/what published)</td>
+                    <td class="hrs">12</td>
+                    <td class="cum">108</td>
+                </tr>
+                <tr>
+                    <td class="task-id">T8</td>
+                    <td>Observability, eval hooks, regression samples on schema v1</td>
+                    <td class="hrs">10</td>
+                    <td class="cum">118</td>
+                </tr>
+                <tr>
+                    <td class="task-id">T9</td>
+                    <td>QA, hardening, pilot onboarding docs, buffer for integration tweaks</td>
+                    <td class="hrs">16</td>
+                    <td class="cum">134</td>
+                </tr>
+                <tr class="total-row">
+                    <td colspan="2"><strong>Phase 1 engineering subtotal (est.)</strong></td>
+                    <td class="hrs"><strong>134</strong></td>
+                    <td class="cum"><strong>134</strong></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="section-title"><i class="fas fa-calendar-check"></i> Strategic Milestones (Indicative)</div>
+        <table class="est-table">
+            <thead>
+                <tr>
+                    <th style="width:18%">Window</th>
+                    <th>Milestone</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Q2 2026 — Live</strong></td>
+                    <td><strong>Platform operational:</strong> Nine specialized assistants live in PRM Pipeline — meeting ingest, business case and requirements generation, copilot at approval gates, Knowledge Base, Process Repository, Knowledge Chat, backlog planning, and learning cards. External interactive deck deployed to Railway (<strong>PRM-Billing/aibrain</strong>).</td>
+                </tr>
+                <tr>
+                    <td><strong>Q2 2026 — MVP</strong></td>
+                    <td><strong>Focused MVP (~5–6 h AI Expert build):</strong> LangGraph + Flask + existing prompts on 3 input types (standard meeting, brain dump, backlog review) + recording auto-ingest script. Validates node architecture — <strong>complete</strong>.</td>
+                </tr>
+                <tr>
+                    <td><strong>Q2–Q3 2026 — Full</strong></td>
+                    <td>Phase 1 full build: meeting ingest, Whisper, schema v1, HITL review UI, RBAC, audit, eval, first trusted publications across Executive + Operations domains — <strong>in production use</strong>.</td>
+                </tr>
+                <tr>
+                    <td><strong>Q3 2026</strong></td>
+                    <td>Phase 2: memory + hybrid retrieval live; analytics on usage; expand to additional departments with approvers.</td>
+                </tr>
+                <tr>
+                    <td><strong>Q4 2026</strong></td>
+                    <td>Phase 3 kickoff: knowledge graph for critical processes; decision-support pilots; pattern reporting for ops.</td>
+                </tr>
+                <tr>
+                    <td><strong>Q1 2027</strong></td>
+                    <td>Phase 4 planning: SME scale program, integration backlog prioritized by ROI, automation playbooks fed by structured objects.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="vision-grad" style="margin-top:10px;">
+            <strong>Strategic outcome:</strong> The organization stops <em>re-losing</em> intelligence every quarter. Early phases faithfully capture how leadership thinks and how work really gets done; later phases turn that into <strong>shared infrastructure</strong> — retrieval, training, process improvement, and resilient execution — without requiring a fully autonomous “corporate brain” on day one. The north star is <strong>compounding business intelligence</strong>: every meeting makes the next decision cheaper, faster, and better grounded.
+        </div>
+
+        <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:8px 12px; margin-top:8px;">
+            <div style="font-size:9px; font-weight:800; color:#065f46; margin-bottom:4px; display:flex; align-items:center; gap:6px;">
+                <i class="fas fa-compass" style="color:#10b981;"></i> Guiding principle
+            </div>
+            <div style="font-size:8px; color:#064e3b; line-height:1.6;">
+                <strong>Ambitious vision, pragmatic delivery:</strong> ship structured knowledge with governance first; add memory, graph, and advanced reasoning as volume and trust grow. The system should always answer <em>“according to approved sources, on these dates, by these owners”</em> — never pretend to be infallible.
+            </div>
+        </div>
+    </div>
+    <div class="footer">
+        <span><strong>BRD-ORG-BRAIN-001</strong> &nbsp;|&nbsp; AI-Powered Organizational Brain</span>
+        <span>Page 4 of 4 &nbsp;|&nbsp; PRM Billing — Shareable</span>
+    </div>
+</div>
+
+</body>
+</html>
