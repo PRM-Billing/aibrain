@@ -10,11 +10,13 @@ npm start
 
 Then open `http://localhost:3000`.
 
-Optional browser login (HTTP Basic Auth popup):
+Optional UI login (when `APP_PASSWORD` is set):
 
 ```bash
 APP_USERNAME=prm APP_PASSWORD=PrmAIBrain2026! npm start
 ```
+
+Open `http://localhost:3000` — you'll be redirected to the sign-in page.
 
 ## Railway deployment
 
@@ -31,7 +33,9 @@ This app is Railway-ready:
 | `APP_USERNAME` | `prm` |
 | `APP_PASSWORD` | `PrmAIBrain2026!` |
 
-When `APP_PASSWORD` is set, visitors see a browser login popup before the deck loads.
+When `APP_PASSWORD` is set, visitors are redirected to a **sign-in page** (`/login.html`) before the deck loads. Sessions last 24 hours via secure cookie.
+
+Optional: set `SESSION_SECRET` for cookie signing (defaults to `APP_PASSWORD`).
 
 ### Search engine blocking
 
