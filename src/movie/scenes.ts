@@ -3,10 +3,11 @@ import { HeroScene } from './scenes/HeroScene';
 import { OperatingLoopScene } from './scenes/OperatingLoopScene';
 import { MeetingAgentScene } from './scenes/MeetingAgentScene';
 import { LivingMemoryScene } from './scenes/LivingMemoryScene';
+import { KnowledgeRepositoryScene } from './scenes/KnowledgeRepositoryScene';
+import { LearningOpportunitiesScene } from './scenes/LearningOpportunitiesScene';
 import { ManyMoreScene } from './scenes/ManyMoreScene';
 import { ArchitectureScene } from './scenes/ArchitectureScene';
 import { DashboardsScene } from './scenes/DashboardsScene';
-import { KnowledgeScene } from './scenes/KnowledgeScene';
 import { CitationsScene } from './scenes/CitationsScene';
 import { LearningScene } from './scenes/LearningScene';
 import { SecurityScene } from './scenes/SecurityScene';
@@ -29,11 +30,12 @@ export const SCENES: SceneDef[] = [
   { id: 'meeting-agent', label: 'In Meetings', durationMs: 12000, component: MeetingAgentScene },
   { id: 'org-brain', label: 'Org Brain', durationMs: 12000, component: OrgBrainScene },
   { id: 'artifact-pipeline', label: 'AI Pipelines', durationMs: 13000, component: ArtifactPipelineScene },
-  { id: 'living-memory', label: 'Memory', durationMs: 11000, component: LivingMemoryScene },
+  { id: 'knowledge-repository', label: 'Knowledge', durationMs: 13000, component: KnowledgeRepositoryScene },
+  { id: 'learning-opportunities', label: 'Learning', durationMs: 13000, component: LearningOpportunitiesScene },
   { id: 'many-more', label: 'Possibilities', durationMs: 12000, component: ManyMoreScene },
   { id: 'architecture', label: 'Architecture', durationMs: 10000, component: ArchitectureScene },
   { id: 'dashboards', label: 'Dashboards', durationMs: 10000, component: DashboardsScene },
-  { id: 'knowledge', label: 'Knowledge', durationMs: 10000, component: KnowledgeScene },
+  { id: 'living-memory', label: 'Memory', durationMs: 11000, component: LivingMemoryScene },
   { id: 'citations', label: 'Citations', durationMs: 11000, component: CitationsScene },
   { id: 'learning', label: 'Learning', durationMs: 11000, component: LearningScene },
   { id: 'security', label: 'Security', durationMs: 11000, component: SecurityScene },

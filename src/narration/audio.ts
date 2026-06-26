@@ -4,4 +4,6 @@ export const NARRATION_AUDIO: Partial<Record<string, string>> = {
   'meeting-agent': '/audio/slide-03-meeting-agent.mp3',
   'org-brain': '/audio/slide-04-org-brain.mp3',
   'artifact-pipeline': '/audio/slide-05-artifact-pipeline.mp3',
+  'knowledge-repository': '/audio/slide-06-knowledge-repository.mp3',
+  'learning-opportunities': '/audio/slide-07-learning-opportunities.mp3',
 };

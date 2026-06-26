@@ -15,27 +15,37 @@ const slides = [
   {
     id: 'hero',
     file: 'slide-01-hero.mp3',
-    text: "Meet Aura, the intelligent agent for your meetings. Aura records the conversation, but it doesn't stop at recording. It understands what matters, guides people privately in the moment, captures approved knowledge into memory, and helps the organisation act on what was decided. From that memory, Aura can generate any artifact your team designs: a business case, checklist, brief, report, workflow, onboarding pack, analysis, or something custom to your organisation.",
+    text: "Meet Aura — the intelligent agent for your organisation. It joins your meetings, guides the right people privately, remembers what gets approved, and turns decisions into the artifacts your teams need. Over the next few scenes, you'll see exactly how that works.",
   },
   {
     id: 'operating-loop',
     file: 'slide-02-operating-loop.mp3',
-    text: 'Think of Aura as a loop, not a static tool. First, it records and understands the meeting. Then it gives private guidance when something important comes up, such as a risk, missing number, owner, or next step. After the meeting, approved decisions become memory. From there, Aura can call the right pipeline to create the artifact your team needs. That artifact is not limited to a document. It can be any repeatable output your organisation designs.',
+    text: 'Everything Aura does runs through one continuous loop. It joins your meeting and listens to the full conversation. It guides you privately when something important comes up. It saves approved decisions to memory. It generates the documents and outputs your team actually produces. And it learns your standards with every edit — so the next cycle is smarter. Secure, human-approved, and access-controlled, every time around.',
   },
   {
     id: 'meeting-agent',
     file: 'slide-03-meeting-agent.mp3',
-    text: 'Aura records the meeting, but recording is only the first layer. While the conversation is happening, Aura understands context, risks, numbers, owners, open questions, and decisions as they emerge. It can quietly guide the right person at the right time, without interrupting the room. Instead of everyone seeing the same generic note, each person can get private, role-aware guidance that helps the meeting move forward.',
+    text: "Let's step inside the meeting. Aura is not a passive recorder — it's an intelligent teammate thinking alongside you. While the conversation unfolds, it understands context, risks, numbers, and open questions. Then it quietly nudges the right person with guidance only they can see — a risk to flag, data to check, or a better question to ask. Like your sharpest advisor whispering in your ear.",
   },
   {
     id: 'org-brain',
     file: 'slide-04-org-brain.mp3',
-    text: 'The department brains shown here are illustrative. The number is not fixed. Every organisation can have different teams, functions, regions, projects, or operating units. The important idea is the structure: each team keeps private memory by default, approved knowledge can flow into the organisation brain, and sharing across teams requires explicit human approval. Aura gives you one organisational brain without flattening every department into the same shared bucket.',
+    text: "Step back from one meeting and picture your whole organisation. In the centre, one shared brain — around it, department brains for Finance, Operations, IT, Legal, HR, Claims. What you see here is illustrative; your teams and structure will look different. Each department keeps private memory by default. What a team approves to share flows up to the organisation brain. Knowledge routes back down where it's needed. And anything crossing team lines waits on explicit human approval — one intelligence, without flattening every department into the same bucket.",
   },
   {
     id: 'artifact-pipeline',
     file: 'slide-05-artifact-pipeline.mp3',
-    text: 'Artifact pipelines are flexible. In chat, you describe the trigger, the inputs, the steps, the reviewers, and the output. After a meeting, Aura uses the recording, transcript, shared files, and memory, then calls the right pipeline. The result is not limited to a business case or requirements document. Aura can generate any kind of artifact your organisation has designed: a report, task plan, approval packet, operating checklist, client follow-up, research summary, or a custom workflow output.',
+    text: "When memory is ready, artifact pipelines turn conversation into work. In chat, you describe the trigger, inputs, steps, reviewers, and output. After a meeting, Aura draws on the transcript, shared files, and memory, then routes to the right pipeline. The result isn't limited to one document type — business cases, checklists, approval packets, client follow-ups, or any repeatable output your organisation has designed.",
+  },
+  {
+    id: 'knowledge-repository',
+    file: 'slide-06-knowledge-repository.mp3',
+    text: "Once pipelines produce your artifacts, they land in Aura's knowledge repository. Every document is structured in folders — by team, project, or type — so nothing gets lost in a flat list. Open any file in the interactive editor to refine it yourself, or use the chat interface to describe what you want changed. Aura finds the right document, drafts the update, and leaves it ready for your review.",
+  },
+  {
+    id: 'learning-opportunities',
+    file: 'slide-07-learning-opportunities.mp3',
+    text: 'As you refine documents in the repository or adjust pipelines in chat, Aura is always listening for learning opportunities. When you repeat a preference, make the same correction twice, or describe a standard you want enforced, Aura flags it and proposes a rule for the future. Approve it once — and the next document, the next pipeline run, already reflects what you expect.',
   },
 ];
 

@@ -2083,7 +2083,7 @@ button { font-family: inherit; cursor: pointer; }
 }
 
 .pipeline-chat-preview-label {
-  font-size: 0.48rem;
+  font-size: clamp(0.54rem, 0.7vw, 0.62rem);
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -2113,7 +2113,7 @@ button { font-family: inherit; cursor: pointer; }
   display: inline-block;
   padding: 0.15rem 0.35rem;
   border-radius: 999px;
-  font-size: 0.48rem;
+  font-size: clamp(0.54rem, 0.7vw, 0.62rem);
   font-weight: 700;
   color: #e0e7ff;
   background: rgba(99, 102, 241, 0.15);
@@ -2255,6 +2255,720 @@ button { font-family: inherit; cursor: pointer; }
   transform-origin: top center;
 }
 
+/* ─── Knowledge repository scene (slide 6) ───────────────── */
+.knowledge-repo-shell .scene-h1 {
+  font-size: clamp(1.05rem, 1.85vw, 1.45rem);
+  margin-bottom: 0.25rem;
+}
+
+.knowledge-repo-shell .scene-sub {
+  font-size: clamp(0.68rem, 0.95vw, 0.82rem);
+  margin-bottom: 0.45rem;
+  max-width: 48rem;
+}
+
+.knowledge-repo-scene {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.knowledge-repo-body {
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 0.68fr) minmax(0, 1.22fr) minmax(0, 0.82fr);
+  gap: 0.55rem;
+  align-items: stretch;
+}
+
+.knowledge-repo-body > .card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  align-self: stretch;
+}
+
+.knowledge-repo-aside > .card {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  align-self: stretch;
+}
+
+.knowledge-repo-editor-panel,
+.knowledge-repo-chat-panel {
+  height: 100%;
+}
+
+.knowledge-repo-aside {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  min-height: 0;
+  height: 100%;
+}
+
+.knowledge-repo-folders-panel,
+.knowledge-repo-flow-panel,
+.knowledge-repo-editor-panel,
+.knowledge-repo-chat-panel {
+  min-height: 0;
+}
+
+.knowledge-repo-folders-panel {
+  flex: 0 1 auto;
+  max-height: 36%;
+  padding: 0.55rem 0.6rem !important;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  overflow: hidden;
+}
+
+.knowledge-repo-panel-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: clamp(0.64rem, 0.85vw, 0.72rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--teal2);
+  flex-shrink: 0;
+}
+
+.knowledge-repo-panel-title--flow {
+  color: var(--accent2);
+}
+
+.knowledge-repo-flow-panel {
+  flex: 1 1 0;
+  min-height: 0;
+  padding: 0.5rem 0.55rem !important;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  overflow: hidden;
+}
+
+.knowledge-repo-flow-steps {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding-right: 0.1rem;
+}
+
+.knowledge-repo-flow-step-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  flex-shrink: 0;
+}
+
+.knowledge-repo-flow-card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+  padding: 0.42rem 0.48rem;
+  border-radius: 0.5rem;
+  background: rgba(14, 25, 41, 0.42);
+  border: 1px solid rgba(100, 140, 200, 0.12);
+}
+
+.knowledge-repo-flow-card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.knowledge-repo-flow-num {
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(0.62rem, 0.8vw, 0.72rem);
+  font-weight: 900;
+  background: rgba(99, 102, 241, 0.22);
+  color: var(--accent2);
+  border: 1px solid rgba(129, 140, 248, 0.28);
+  flex-shrink: 0;
+}
+
+.knowledge-repo-flow-label {
+  font-size: clamp(0.64rem, 0.85vw, 0.74rem);
+  font-weight: 800;
+  color: #f1f5f9;
+  line-height: 1.25;
+  flex: 1;
+  min-width: 0;
+}
+
+.knowledge-repo-flow-desc {
+  font-size: clamp(0.58rem, 0.76vw, 0.68rem);
+  color: rgba(226, 232, 240, 0.9);
+  line-height: 1.45;
+}
+
+.knowledge-repo-flow-example {
+  font-size: clamp(0.52rem, 0.68vw, 0.6rem);
+  color: var(--teal2);
+  line-height: 1.35;
+  padding: 0.22rem 0.32rem;
+  border-radius: 0.4rem;
+  background: rgba(45, 212, 191, 0.08);
+  border: 1px solid rgba(45, 212, 191, 0.14);
+  font-style: italic;
+}
+
+.knowledge-repo-flow-arrow {
+  color: rgba(129, 140, 248, 0.5);
+  flex-shrink: 0;
+}
+
+.knowledge-repo-tree {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.04rem;
+  padding-right: 0.15rem;
+}
+
+.knowledge-repo-folder-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.34rem 0.45rem;
+  border-radius: 0.45rem;
+  font-size: clamp(0.6rem, 0.78vw, 0.7rem);
+  color: rgba(226, 232, 240, 0.88);
+  cursor: default;
+  min-width: 0;
+  border: 1px solid transparent;
+  line-height: 1.2;
+}
+
+.knowledge-repo-folder-item--selected {
+  background: rgba(251, 191, 36, 0.1);
+  border-color: rgba(251, 191, 36, 0.22);
+  color: #fef3c7;
+  font-weight: 700;
+}
+
+.knowledge-repo-folder-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 0.95rem;
+  height: 0.95rem;
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+
+.knowledge-repo-folder-icon--file { color: var(--gold2); }
+.knowledge-repo-folder-icon--folder { color: var(--accent2); }
+.knowledge-repo-folder-icon--folderOpen { color: var(--teal2); }
+
+.knowledge-repo-folder-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.knowledge-repo-folder-chevron {
+  color: rgba(186, 200, 220, 0.4);
+  flex-shrink: 0;
+}
+
+.knowledge-repo-editor-panel {
+  padding: 0 !important;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.knowledge-repo-editor-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.45rem;
+  padding: 0.45rem 0.6rem;
+  border-bottom: 1px solid rgba(100, 140, 200, 0.12);
+  background: rgba(14, 25, 41, 0.45);
+  flex-shrink: 0;
+}
+
+.knowledge-repo-editor-file {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: clamp(0.62rem, 0.8vw, 0.72rem);
+  font-weight: 800;
+  color: #f1f5f9;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.knowledge-repo-editor-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.28rem;
+}
+
+.knowledge-repo-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.22rem;
+  font-size: clamp(0.54rem, 0.7vw, 0.62rem);
+  font-weight: 700;
+  padding: 0.2rem 0.42rem;
+  border-radius: 999px;
+  border: 1px solid rgba(100, 140, 200, 0.16);
+  background: rgba(14, 25, 41, 0.55);
+  color: rgba(186, 200, 220, 0.88);
+  white-space: nowrap;
+}
+
+.knowledge-repo-chip--active {
+  border-color: rgba(251, 191, 36, 0.32);
+  background: rgba(251, 191, 36, 0.1);
+  color: #fde68a;
+}
+
+.knowledge-repo-editor-doc {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0.5rem 0.6rem 0.55rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.knowledge-repo-doc-title {
+  font-size: clamp(0.66rem, 0.88vw, 0.76rem);
+  font-weight: 900;
+  color: #f8fafc;
+  line-height: 1.25;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid rgba(100, 140, 200, 0.1);
+  flex-shrink: 0;
+}
+
+.knowledge-repo-doc-sections {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.32rem;
+  padding-right: 0.1rem;
+}
+
+.knowledge-repo-doc-section {
+  position: relative;
+  padding: 0.38rem 0.48rem;
+  border-radius: 0.5rem;
+  background: rgba(14, 25, 41, 0.32);
+  border: 1px solid rgba(100, 140, 200, 0.08);
+  flex-shrink: 0;
+}
+
+.knowledge-repo-doc-section--highlight {
+  background: rgba(251, 191, 36, 0.07);
+  border-color: rgba(251, 191, 36, 0.2);
+  box-shadow: inset 0 0 0 1px rgba(251, 191, 36, 0.06);
+}
+
+.knowledge-repo-doc-heading {
+  font-size: clamp(0.58rem, 0.76vw, 0.68rem);
+  font-weight: 800;
+  color: var(--gold2);
+  margin-bottom: 0.18rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.knowledge-repo-doc-body {
+  font-size: clamp(0.58rem, 0.76vw, 0.68rem);
+  line-height: 1.4;
+  color: rgba(226, 232, 240, 0.88);
+  margin: 0;
+}
+
+.knowledge-repo-doc-source {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.22rem;
+  margin-top: 0.28rem;
+  font-size: clamp(0.54rem, 0.7vw, 0.62rem);
+  font-weight: 700;
+  color: var(--teal2);
+}
+
+.knowledge-repo-chat-panel {
+  min-height: 0;
+}
+
+.knowledge-repo-chat-panel .pipeline-chat-thread {
+  gap: 0.5rem;
+  padding: 0.5rem 0.55rem;
+}
+
+.knowledge-repo-chat-panel .pipeline-chat-msg-bubble {
+  padding: 0.48rem 0.58rem;
+}
+
+.knowledge-repo-chat-panel .pipeline-chat-msg-avatar {
+  margin-top: 0.85rem;
+}
+
+/* ─── Learning opportunities scene (slide 7) ─────────────── */
+.learning-opp-shell .scene-h1 {
+  font-size: clamp(1.05rem, 1.85vw, 1.45rem);
+  margin-bottom: 0.25rem;
+}
+
+.learning-opp-shell .scene-sub {
+  font-size: clamp(0.68rem, 0.95vw, 0.82rem);
+  margin-bottom: 0.45rem;
+  max-width: 48rem;
+}
+
+.learning-opp-scene {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.learning-opp-body {
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.15fr) minmax(0, 0.78fr);
+  gap: 0.55rem;
+  align-items: stretch;
+}
+
+.learning-opp-body > .card,
+.learning-opp-aside,
+.learning-opp-rules-aside {
+  height: 100%;
+  min-height: 0;
+}
+
+.learning-opp-aside,
+.learning-opp-rules-aside {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.learning-opp-context-panel,
+.learning-opp-flow-panel,
+.learning-opp-rule-panel,
+.learning-opp-preview-panel {
+  padding: 0.55rem 0.6rem !important;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  overflow: hidden;
+}
+
+.learning-opp-flow-panel {
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+.learning-opp-context-panel {
+  flex: 0 1 auto;
+  max-height: 32%;
+}
+
+.learning-opp-panel-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: clamp(0.64rem, 0.85vw, 0.72rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--accent2);
+  flex-shrink: 0;
+}
+
+.learning-opp-context-card {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.42rem 0.5rem;
+  border-radius: 0.55rem;
+  background: rgba(14, 25, 41, 0.4);
+  border: 1px solid rgba(100, 140, 200, 0.1);
+}
+
+.learning-opp-context-card--active {
+  border-color: rgba(251, 191, 36, 0.22);
+  background: rgba(251, 191, 36, 0.08);
+}
+
+.learning-opp-context-text {
+  min-width: 0;
+}
+
+.learning-opp-context-label {
+  font-size: clamp(0.54rem, 0.7vw, 0.62rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--muted);
+}
+
+.learning-opp-context-name {
+  font-size: clamp(0.56rem, 0.72vw, 0.64rem);
+  font-weight: 800;
+  color: #f1f5f9;
+  line-height: 1.25;
+}
+
+.learning-opp-flow-steps {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding-right: 0.1rem;
+}
+
+.learning-opp-flow-step-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  flex-shrink: 0;
+}
+
+.learning-opp-flow-card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+  padding: 0.42rem 0.48rem;
+  border-radius: 0.5rem;
+  background: rgba(14, 25, 41, 0.42);
+  border: 1px solid rgba(100, 140, 200, 0.12);
+}
+
+.learning-opp-flow-card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.learning-opp-flow-num {
+  width: 1.55rem;
+  height: 1.55rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(0.62rem, 0.8vw, 0.72rem);
+  font-weight: 900;
+  background: rgba(99, 102, 241, 0.22);
+  color: var(--accent2);
+  border: 1px solid rgba(129, 140, 248, 0.28);
+  flex-shrink: 0;
+}
+
+.learning-opp-flow-label {
+  font-size: clamp(0.64rem, 0.85vw, 0.74rem);
+  font-weight: 800;
+  color: #f1f5f9;
+  line-height: 1.25;
+  flex: 1;
+  min-width: 0;
+}
+
+.learning-opp-flow-desc {
+  font-size: clamp(0.58rem, 0.76vw, 0.68rem);
+  color: rgba(226, 232, 240, 0.9);
+  line-height: 1.45;
+}
+
+.learning-opp-flow-example {
+  font-size: clamp(0.54rem, 0.72vw, 0.64rem);
+  color: var(--accent2);
+  line-height: 1.4;
+  padding: 0.28rem 0.38rem;
+  border-radius: 0.4rem;
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(129, 140, 248, 0.14);
+  font-style: italic;
+}
+
+.learning-opp-flow-arrow {
+  color: rgba(129, 140, 248, 0.5);
+  flex-shrink: 0;
+}
+
+.learning-opp-chat-panel {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.learning-opp-chat-groups {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 0.45rem 0.5rem;
+}
+
+.learning-opp-chat-group-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: clamp(0.54rem, 0.7vw, 0.62rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--teal2);
+  margin-bottom: 0.25rem;
+}
+
+.learning-opp-thread {
+  flex: unset;
+  min-height: unset;
+  overflow: visible;
+  padding: 0 !important;
+  gap: 0.4rem !important;
+}
+
+.learning-opp-detect-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.35rem;
+  padding: 0.18rem 0.38rem;
+  border-radius: 999px;
+  font-size: 0.46rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--green2);
+  background: rgba(52, 211, 153, 0.12);
+  border: 1px solid rgba(52, 211, 153, 0.28);
+}
+
+.learning-opp-rule-panel {
+  flex: 1.1;
+  min-height: 0;
+}
+
+.learning-opp-preview-panel {
+  flex: 0.9;
+  min-height: 0;
+}
+
+.learning-opp-rule-card {
+  padding: 0.42rem 0.48rem;
+  border-radius: 0.5rem;
+  background: rgba(14, 25, 41, 0.42);
+  border: 1px solid rgba(100, 140, 200, 0.1);
+}
+
+.learning-opp-rule-type {
+  font-size: clamp(0.54rem, 0.7vw, 0.62rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--green2);
+  margin-bottom: 0.2rem;
+}
+
+.learning-opp-rule-text {
+  font-size: clamp(0.52rem, 0.68vw, 0.6rem);
+  font-weight: 700;
+  color: rgba(241, 245, 249, 0.94);
+  line-height: 1.4;
+}
+
+.learning-opp-rule-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 0.35rem;
+}
+
+.learning-opp-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.38rem;
+  border-radius: 999px;
+  font-size: 0.44rem;
+  font-weight: 700;
+  border: 1px solid rgba(100, 140, 200, 0.14);
+  background: rgba(14, 25, 41, 0.5);
+  color: rgba(186, 200, 220, 0.85);
+}
+
+.learning-opp-chip--wait {
+  border-color: rgba(251, 191, 36, 0.28);
+  color: #fde68a;
+  background: rgba(251, 191, 36, 0.08);
+}
+
+.learning-opp-preview-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  padding: 0.35rem 0.4rem;
+  border-radius: 0.45rem;
+  background: rgba(14, 25, 41, 0.35);
+  border: 1px solid rgba(100, 140, 200, 0.08);
+}
+
+.learning-opp-preview-check {
+  color: var(--green2);
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.learning-opp-preview-label {
+  font-size: clamp(0.52rem, 0.68vw, 0.6rem);
+  font-weight: 800;
+  color: #f1f5f9;
+  line-height: 1.25;
+}
+
+.learning-opp-preview-detail {
+  font-size: clamp(0.58rem, 0.76vw, 0.68rem);
+  color: rgba(186, 200, 220, 0.82);
+  line-height: 1.35;
+  margin-top: 0.12rem;
+}
+
 /* ─── Responsive ──────────────────────────────────────────── */
 @media (max-width: 900px) {
   .grid-3, .grid-4 { grid-template-columns: 1fr 1fr; }
@@ -2273,6 +2987,11 @@ button { font-family: inherit; cursor: pointer; }
   .pipeline-steps-row { grid-template-columns: 1fr; }
   .pipeline-chat-thread { max-height: 220px; }
   .pipeline-flowchart { max-height: 280px; }
+  .knowledge-repo-body { grid-template-columns: 1fr; }
+  .knowledge-repo-editor-doc { max-height: 220px; }
+  .knowledge-repo-tree { max-height: 160px; }
+  .learning-opp-body { grid-template-columns: 1fr; }
+  .learning-opp-chat-groups { max-height: 220px; }
 }
 
 @media (max-width: 600px) {
