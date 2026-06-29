@@ -1,5 +1,5 @@
-import { useCallback } from 'react';
-import { ShieldCheck, Crown, Building2, User, Eye, Share2 } from 'lucide-react';
+import { useCallback, Fragment } from 'react';
+import { Building2, CheckCircle2, Crown, Eye, Share2, ShieldCheck, User, XCircle } from 'lucide-react';
 import { SceneShell } from '../../components/SceneShell';
 import { GlassCard, IconBadge } from '../../components/GlassCard';
 import { useSceneTimeline, staggerIn } from '../useSceneTimeline';
@@ -33,6 +33,15 @@ const roles = [
   },
 ];
 
+const capabilities = ['Org memory', 'Dept docs', 'Create drafts', 'Approve', 'User admin'];
+
+const matrix = [
+  ['full', 'full', 'full', 'full', 'full'],
+  ['blocked', 'full', 'full', 'full', 'partial'],
+  ['blocked', 'full', 'full', 'partial', 'blocked'],
+  ['blocked', 'read', 'blocked', 'blocked', 'blocked'],
+];
+
 export function AccessControlScene({ active }: Props) {
   const build = useCallback((tl: gsap.core.Timeline, root: HTMLElement) => {
     staggerIn(tl, root, '[data-animate="header"]', 0.1);
@@ -45,25 +54,27 @@ export function AccessControlScene({ active }: Props) {
   return (
     <div ref={ref}>
       <SceneShell
+        className="access-modern-shell"
+        hideMeta
         eyebrow={<><ShieldCheck size={11} /> Access Control</>}
         headline="Clear Roles. Enforced Everywhere."
         subline="Org-wide access control — department isolation by default, explicit approval to share across teams."
       >
-        <div className="fill" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          <div className="grid-4">
+        <div className="access-modern-scene">
+          <div className="access-role-grid">
             {roles.map((r) => (
-              <GlassCard key={r.role} accent={r.color} animate="role" style={{ padding: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <GlassCard key={r.role} accent={r.color} animate="role" className="access-role-card">
+                <div className="access-role-head">
                   <IconBadge color={r.color} size="lg">{r.icon}</IconBadge>
                 </div>
                 <div>
-                  <div style={{ fontSize: '0.75rem', fontWeight: 900, marginBottom: 2 }}>{r.role}</div>
-                  <div style={{ fontSize: '0.6rem', color: 'var(--muted)', lineHeight: 1.3 }}>{r.access}</div>
+                  <div className="access-role-title">{r.role}</div>
+                  <div className="access-role-sub">{r.access}</div>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginTop: 2 }}>
+                <div className="access-role-perms">
                   {r.perms.map((p) => (
-                    <div key={p} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.6rem', color: 'var(--muted)' }}>
-                      <div style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--line2)', flexShrink: 0 }} />
+                    <div key={p} className="access-role-perm">
+                      <div />
                       {p}
                     </div>
                   ))}
@@ -72,9 +83,32 @@ export function AccessControlScene({ active }: Props) {
             ))}
           </div>
 
-          <GlassCard accent="gold" animate="note" style={{ padding: '0.6rem 0.85rem', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <GlassCard accent="blue" animate="note" className="access-matrix-panel">
+            <div className="modern-panel-title">
+              <ShieldCheck size={13} /> Role enforcement matrix
+            </div>
+            <div className="access-matrix">
+              <div className="access-matrix-cell access-matrix-head" />
+              {capabilities.map((cap) => (
+                <div key={cap} className="access-matrix-cell access-matrix-head">{cap}</div>
+              ))}
+              {roles.map((role, rowIndex) => (
+                <Fragment key={role.role}>
+                  <div className="access-matrix-cell access-matrix-role">{role.role}</div>
+                  {matrix[rowIndex].map((state, colIndex) => (
+                    <div key={`${role.role}-${capabilities[colIndex]}`} className={`access-matrix-cell access-matrix-state access-matrix-state--${state}`}>
+                      {state === 'blocked' ? <XCircle size={12} /> : <CheckCircle2 size={12} />}
+                      <span>{state === 'full' ? 'Full' : state === 'read' ? 'Read' : state === 'partial' ? 'Limited' : 'No'}</span>
+                    </div>
+                  ))}
+                </Fragment>
+              ))}
+            </div>
+          </GlassCard>
+
+          <GlassCard accent="gold" animate="note" className="access-share-note">
             <IconBadge color="gold" size="md"><Share2 size={14} /></IconBadge>
-            <span style={{ fontSize: '0.68rem', color: 'var(--gold2)', fontWeight: 700 }}>Sharing across departments always requires explicit approval from an admin</span>
+            <span>Sharing across departments always requires explicit approval from an admin.</span>
           </GlassCard>
         </div>
       </SceneShell>

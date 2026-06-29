@@ -2,14 +2,14 @@ import type { ComponentType } from 'react';
 import { HeroScene } from './scenes/HeroScene';
 import { OperatingLoopScene } from './scenes/OperatingLoopScene';
 import { MeetingAgentScene } from './scenes/MeetingAgentScene';
-import { LivingMemoryScene } from './scenes/LivingMemoryScene';
 import { KnowledgeRepositoryScene } from './scenes/KnowledgeRepositoryScene';
 import { LearningOpportunitiesScene } from './scenes/LearningOpportunitiesScene';
+import { CustomChecksScene } from './scenes/CustomChecksScene';
+import { IntelligentChatScene } from './scenes/IntelligentChatScene';
 import { ManyMoreScene } from './scenes/ManyMoreScene';
-import { ArchitectureScene } from './scenes/ArchitectureScene';
-import { DashboardsScene } from './scenes/DashboardsScene';
-import { CitationsScene } from './scenes/CitationsScene';
-import { LearningScene } from './scenes/LearningScene';
+import { AgenticSystemScene } from './scenes/AgenticSystemScene';
+import { ModernFeaturesScene } from './scenes/ModernFeaturesScene';
+import { ConclusionScene } from './scenes/ConclusionScene';
 import { SecurityScene } from './scenes/SecurityScene';
 import { HumanLoopScene } from './scenes/HumanLoopScene';
 import { AccessControlScene } from './scenes/AccessControlScene';
@@ -32,12 +32,12 @@ export const SCENES: SceneDef[] = [
   { id: 'artifact-pipeline', label: 'AI Pipelines', durationMs: 13000, component: ArtifactPipelineScene },
   { id: 'knowledge-repository', label: 'Knowledge', durationMs: 13000, component: KnowledgeRepositoryScene },
   { id: 'learning-opportunities', label: 'Learning', durationMs: 13000, component: LearningOpportunitiesScene },
+  { id: 'custom-checks', label: 'Checks', durationMs: 13000, component: CustomChecksScene },
+  { id: 'intelligent-chat', label: 'Ask Aura', durationMs: 13000, component: IntelligentChatScene },
   { id: 'many-more', label: 'Possibilities', durationMs: 12000, component: ManyMoreScene },
-  { id: 'architecture', label: 'Architecture', durationMs: 10000, component: ArchitectureScene },
-  { id: 'dashboards', label: 'Dashboards', durationMs: 10000, component: DashboardsScene },
-  { id: 'living-memory', label: 'Memory', durationMs: 11000, component: LivingMemoryScene },
-  { id: 'citations', label: 'Citations', durationMs: 11000, component: CitationsScene },
-  { id: 'learning', label: 'Learning', durationMs: 11000, component: LearningScene },
+  { id: 'agentic-system', label: 'Agentic', durationMs: 13000, component: AgenticSystemScene },
+  { id: 'modern-features', label: 'Modern', durationMs: 12000, component: ModernFeaturesScene },
+  { id: 'conclusion', label: 'Recap', durationMs: 12000, component: ConclusionScene },
   { id: 'security', label: 'Security', durationMs: 11000, component: SecurityScene },
   { id: 'human-loop', label: 'Human Approved', durationMs: 10000, component: HumanLoopScene },
   { id: 'access-control', label: 'Access', durationMs: 10000, component: AccessControlScene },
