@@ -1,0 +1,106 @@
+{
+  "slides": [
+    {
+      "id": "hero",
+      "file": "slide-01-hero.mp3",
+      "durationMs": 18260,
+      "text": "Meet Aura — the intelligent agent for your organisation. It joins your meetings, guides the right people privately, remembers what gets approved, and turns decisions into the artifacts your teams need. Over the next few scenes, you'll see exactly how that works."
+    },
+    {
+      "id": "operating-loop",
+      "file": "slide-02-operating-loop.mp3",
+      "durationMs": 29468,
+      "text": "Everything Aura does runs through one continuous loop. It joins your meeting and listens to the full conversation. It guides you privately when something important comes up. It saves approved decisions to memory. It generates the documents and outputs your team actually produces. And it learns your standards with every edit — so the next cycle is smarter. Secure, human-approved, and access-controlled, every time around."
+    },
+    {
+      "id": "meeting-agent",
+      "file": "slide-03-meeting-agent.mp3",
+      "durationMs": 25820,
+      "text": "Let's step inside the meeting. Aura is not a passive recorder — it's an intelligent teammate thinking alongside you. While the conversation unfolds, it understands context, risks, numbers, and open questions. Then it quietly nudges the right person with guidance only they can see — a risk to flag, data to check, or a better question to ask. Like your sharpest advisor whispering in your ear."
+    },
+    {
+      "id": "org-brain",
+      "file": "slide-04-org-brain.mp3",
+      "durationMs": 36620,
+      "text": "Step back from one meeting and picture your whole organisation. In the centre, one shared brain — around it, department brains for Finance, Operations, IT, Legal, HR, and Claims. What you see here is illustrative; your teams and structure will look different. Each department keeps private memory by default. What a team approves to share flows up to the organisation brain. Knowledge routes back down where it's needed. And anything crossing team lines waits on explicit human approval — one intelligence, without flattening every department into the same bucket."
+    },
+    {
+      "id": "artifact-pipeline",
+      "file": "slide-05-artifact-pipeline.mp3",
+      "durationMs": 27764,
+      "text": "When memory is ready, artifact pipelines turn conversation into work. In chat, you describe the trigger, inputs, steps, reviewers, and output. After a meeting, Aura draws on the transcript, shared files, and memory, then routes to the right pipeline. The result isn't limited to one document type — business cases, checklists, approval packets, client follow-ups, or any repeatable output your organisation has designed."
+    },
+    {
+      "id": "knowledge-repository",
+      "file": "slide-06-knowledge-repository.mp3",
+      "durationMs": 21020,
+      "text": "Every document your organisation produces lands in Aura's knowledge repository — organised by team, project, and type, never lost in a flat list. Open any file in the interactive editor, or describe a change in chat. Aura finds the right document, drafts the update with sources attached, and leaves it ready for human review."
+    },
+    {
+      "id": "learning-opportunities",
+      "file": "slide-07-learning-opportunities.mp3",
+      "durationMs": 19460,
+      "text": "Every edit you make is a teaching moment. When you repeat a preference, correct the same issue twice, or describe a standard you want enforced, Aura flags a learning opportunity and proposes a rule. Approve it once — and the next document, the next pipeline run, already reflects what you expect."
+    },
+    {
+      "id": "custom-checks",
+      "file": "slide-08-custom-checks.mp3",
+      "durationMs": 23708,
+      "text": "Your organisation defines the checkpoints — not Aura. When a business case is created, Aura can pre-check evidence, route it to the CEO for scoring, send it through BRD approval, and publish only after the right people sign off. Contracts go to Legal. Budget plans get Finance sign-off. You design the gates once; Aura enforces them every time."
+    },
+    {
+      "id": "intelligent-chat",
+      "file": "slide-09-intelligent-chat.mp3",
+      "durationMs": 18956,
+      "text": "Ask Aura anything in plain English — which budget risks are still open, what Legal approved, which BRDs are waiting on scoring. It does not keyword-search a folder. It reasons across approved documents, meeting history, and approval logs, then shows the exact sources behind every answer."
+    },
+    {
+      "id": "many-more",
+      "file": "slide-10-many-more.mp3",
+      "durationMs": 19460,
+      "text": "SOPs, onboarding packs, project briefs, proposals, audit reports — anything your team writes repeatedly. Define the template once: purpose, sections, quality gates, and output format. Aura produces the document on demand, runs your checks, and routes it for approval."
+    },
+    {
+      "id": "agentic-system",
+      "file": "slide-11-agentic-system.mp3",
+      "durationMs": 25148,
+      "text": "Behind the interface, Aura is an agentic system. An orchestrator breaks each request into steps and routes work to specialist nodes — meeting analysis, drafting, and review. Pluggable tools search memory, calculate scores, retrieve citations, and route approvals. Every node reads from one shared memory layer, and human sign-offs feed back into the next run."
+    },
+    {
+      "id": "modern-features",
+      "file": "slide-12-modern-features.mp3",
+      "durationMs": 21308,
+      "text": "Aura is built for modern teams: multilingual support across English, Spanish, Arabic, and more — including right-to-left layouts. Voice and transcription, integrations, real-time collaboration, mobile review, APIs and exports, and accessible workflows. The intelligence layer fits the way your organisation already works."
+    },
+    {
+      "id": "conclusion",
+      "file": "slide-13-conclusion.mp3",
+      "durationMs": 21860,
+      "text": "Put it together: meetings with private guidance, compounding memory, artifacts from conversation, custom checks and scoring, intelligent cited chat, agentic workflows behind the scenes, and modern collaboration built in. Aura becomes the operating layer for organisational intelligence — secure, human-approved, and access-controlled."
+    },
+    {
+      "id": "security",
+      "file": "slide-14-security.mp3",
+      "durationMs": 25316,
+      "text": "Your knowledge is your competitive edge. Aura keeps it segmented by team in an encrypted org vault — AES-256 at rest, TLS in transit, audit logs always on. By default, departments cannot see each other's data. Cross-team sharing requires explicit human approval. And your IP is never used to train anyone else's AI."
+    },
+    {
+      "id": "human-loop",
+      "file": "slide-15-human-loop.mp3",
+      "durationMs": 21020,
+      "text": "Aura proposes. Humans decide. Every output passes through an approval gate — a named reviewer sees the full draft, attached sources, and a live audit trail. They can approve, edit, or reject. Nothing becomes final. Nothing enters memory. Nothing gets shared across teams without a named human signing off."
+    },
+    {
+      "id": "access-control",
+      "file": "slide-16-access-control.mp3",
+      "durationMs": 17516,
+      "text": "Clear roles, enforced everywhere. Org Admin sees the full organisation. Department Admin manages their team. Members create and submit within scope. Viewers read only. And any cross-team sharing waits on explicit approval — with a full log of who accessed what."
+    },
+    {
+      "id": "closing",
+      "file": "slide-17-closing.mp3",
+      "durationMs": 12212,
+      "text": "Aura by PRM. In your meetings. In your memory. In your documents. Secure, human-approved, and under your control. The AI platform your organisation thinks with — ready when you are."
+    }
+  ]
+}

@@ -11,10 +11,22 @@ export function MovieController() {
   const [paused, setPaused] = useState(false);
   const [muted, setMuted] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const timerRef = useRef<number | null>(null);
 
   const scene = SCENES[index];
   const caption = NARRATION[scene.id] ?? '';
   const audioSrc = NARRATION_AUDIO[scene.id];
+
+  const clearAdvanceTimer = () => {
+    if (timerRef.current !== null) {
+      window.clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+  };
+
+  const goNext = () => {
+    setIndex((i) => Math.min(i + 1, SCENES.length - 1));
+  };
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -67,6 +79,26 @@ export function MovieController() {
   useEffect(() => {
     if (audioRef.current) audioRef.current.muted = muted;
   }, [muted]);
+
+  useEffect(() => {
+    clearAdvanceTimer();
+
+    if (paused || index >= SCENES.length - 1) return;
+
+    const audio = audioRef.current;
+    const onAudioEnded = () => goNext();
+
+    if (audio && audioSrc) {
+      audio.addEventListener('ended', onAudioEnded);
+      return () => {
+        audio.removeEventListener('ended', onAudioEnded);
+        clearAdvanceTimer();
+      };
+    }
+
+    timerRef.current = window.setTimeout(goNext, scene.durationMs);
+    return () => clearAdvanceTimer();
+  }, [audioSrc, index, paused, scene.durationMs]);
 
   return (
     <>

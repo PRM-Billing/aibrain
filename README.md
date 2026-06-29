@@ -59,7 +59,15 @@ Auth is **on by default**. Override with env vars or disable locally with `AUTH_
 
 ## Voiceover (future)
 
-Each scene has a duration and narration script in `src/narration/narration.ts`. Drop MP3 files at `public/audio/{scene-id}.mp3` to drive scene advance from audio instead of the timer.
+Each scene has narration, timing, and audio filename in `src/narration/slides.json`. Regenerate voiceover MP3s with:
+
+```bash
+export OPENAI_API_KEY=...
+npm run generate:audio          # skip existing files
+npm run generate:audio -- --force   # regenerate all 17 slides
+```
+
+When audio is present, the deck auto-advances when each clip ends. Otherwise it falls back to the per-scene timer in `slides.json`.
 
 ## Access credentials (share with invited viewers only)
 
